@@ -1,0 +1,8 @@
+zdnevnik {
+  root * /var/www/zdnevnik
+  file_server
+	respond /health "OK"
+	encode gzip
+}
+
+import sites-enabled/*

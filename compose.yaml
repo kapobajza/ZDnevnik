@@ -1,0 +1,27 @@
+name: zdnevnik
+
+services:
+  web:
+    build:
+      dockerfile: ./apps/web/Dockerfile
+    volumes:
+      - web_dist:/app/apps/web/dist
+
+  caddy:
+    build:
+      dockerfile: ./caddy/Dockerfile
+      args:
+        - ENVIRONMENT=local
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - web_dist:/var/www/zdnevnik
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: on-failure:5
+
+volumes:
+  web_dist:
+  caddy_data:
+  caddy_config:

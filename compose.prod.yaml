@@ -1,0 +1,9 @@
+services:
+  caddy:
+    build:
+      args:
+        - ENVIRONMENT=prod
+    environment:
+      - APP_ADDRESS=${APP_ADDRESS}
+  web:
+    image: kap0bajza/zdnevnik:v1.0.0
