@@ -7,7 +7,7 @@
     "generate_project_name_types": "pnpm --filter toolkit generate_project_name_types",
     "toolkit:build": "pnpm --filter toolkit build",
     "toolkit:build:watch": "pnpm toolkit:build --watch",
-    "postinstall": "pnpm toolkit:build",
+    "postinstall": "lefthook install && pnpm toolkit:build",
     "web:tsc": "pnpm --filter web tsc"
   },
   "keywords": [],
