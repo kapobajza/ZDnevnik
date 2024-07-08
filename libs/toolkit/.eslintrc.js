@@ -9,4 +9,7 @@ module.exports = {
   rules: {
     "no-console": "off",
   },
+  env: {
+    es6: true,
+  },
 };

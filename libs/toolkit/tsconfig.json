@@ -3,7 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/api/*": ["./*"]
+      "~/toolkit/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["**/*.ts", "rollup.config.js"]
 }

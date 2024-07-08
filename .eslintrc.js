@@ -2,7 +2,7 @@
 module.exports = {
   root: true,
   ignorePatterns: ["**/*"],
-  plugins: ["@typescript-eslint", "import", "prettier"],
+  plugins: ["@typescript-eslint", "import", "prettier", "unused-imports"],
   parser: "@typescript-eslint/parser",
   overrides: [
     {
@@ -11,9 +11,9 @@ module.exports = {
       rules: {
         "@typescript-eslint/no-shadow": ["off"],
         "no-shadow": "off",
-        "@typescript-eslint/consistent-type-definitions": ["error", "type"]
-      }
-    }
+        "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      },
+    },
   ],
   rules: {
     "no-console": "error",
@@ -21,9 +21,20 @@ module.exports = {
     "no-else-return": [
       "error",
       {
-        allowElseIf: false
-      }
+        allowElseIf: false,
+      },
     ],
-    "prettier/prettier": "error"
-  }
+    "prettier/prettier": "error",
+    "no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "warn",
+      {
+        vars: "all",
+        varsIgnorePattern: "^_",
+        args: "after-used",
+        argsIgnorePattern: "^_",
+      },
+    ],
+  },
 };

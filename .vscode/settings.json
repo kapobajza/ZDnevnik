@@ -1,6 +1,9 @@
 {
   "eslint.workingDirectories": [
     { "directory": "./apps/web" },
-    { "directory": "./apps/design-system" }
-  ]
+    { "directory": "./apps/api" },
+    { "directory": "./libs/toolkit" },
+    { "directory": "./libs/design-system" }
+  ],
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }

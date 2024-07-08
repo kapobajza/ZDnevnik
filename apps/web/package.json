@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@zdnevnik/web",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "tsc": "tsc"
   },
   "dependencies": {
     "@astrojs/check": "0.7.0",
@@ -15,7 +16,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "astro": "4.11.0",
-    "design-system": "workspace:^",
+    "@zdnevnik/design-system": "workspace:^",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
