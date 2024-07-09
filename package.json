@@ -8,7 +8,10 @@
     "toolkit:build": "pnpm --filter toolkit build",
     "toolkit:build:watch": "pnpm toolkit:build --watch",
     "postinstall": "lefthook install && pnpm toolkit:build",
-    "web:tsc": "pnpm --filter web tsc"
+    "web:tsc": "pnpm --filter web tsc",
+    "api:tsc": "pnpm --filter api tsc",
+    "api:migrate": "pnpm --filter api migrate",
+    "api:start": "pnpm --filter api dev"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +30,6 @@
     "eslint-plugin-prettier": "5.1.3",
     "eslint-plugin-unused-imports": "4.0.0",
     "lefthook": "1.6.17",
-    "nx": "19.3.0",
     "prettier": "3.3.2",
     "prettier-plugin-astro": "^0.14.0",
     "typescript": "5.5.2"

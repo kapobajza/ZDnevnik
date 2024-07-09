@@ -2,9 +2,10 @@ import Env from "@fastify/env";
 import Postgres from "@fastify/postgres";
 import type { FastifyInstance } from "fastify";
 import { ApiEnvEnum } from "~/api/env/types";
-import Fastify from "fastify";
+import AutoLoad from "@fastify/autoload";
+import path from "path";
 
-export async function start(fastify: FastifyInstance) {
+export async function App(fastify: FastifyInstance) {
   await fastify.register(Env, {
     dotenv: true,
     schema: {
@@ -24,7 +25,12 @@ export async function start(fastify: FastifyInstance) {
     connectionString: env.DATABASE_URL,
   });
 
-  await fastify.pg.connect();
+  await fastify.register(AutoLoad, {
+    dir: path.join(__dirname, "routes"),
+    matchFilter: (path) => {
+      return path.endsWith(".routes.ts");
+    },
+  });
 
   fastify.listen({ port: 3000 }, function (err, address) {
     if (err) {
@@ -35,9 +41,3 @@ export async function start(fastify: FastifyInstance) {
     console.log(`server listening on ${address}`);
   });
 }
-
-void start(
-  Fastify({
-    logger: true,
-  }),
-);

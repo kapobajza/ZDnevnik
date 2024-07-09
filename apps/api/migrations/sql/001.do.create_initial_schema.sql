@@ -12,7 +12,7 @@ CREATE TABLE "users" (
   "ordinal_number" integer,
   "average_grade" decimal
 );
-
+  
 CREATE TABLE "classrooms" (
   "id" varchar PRIMARY KEY,
   "created_at" timestamp,
@@ -38,10 +38,23 @@ CREATE TABLE "user_grades" (
   "grade" smallint
 );
 
-ALTER TABLE "classrooms" ADD FOREIGN KEY ("student_id") REFERENCES "users" ("id");
 
-ALTER TABLE "subjects" ADD FOREIGN KEY ("classroom_id") REFERENCES "classrooms" ("id");
+ALTER TABLE classrooms
+  ADD FOREIGN KEY (student_id)
+    REFERENCES users (id);
+  
 
-ALTER TABLE "user_grades" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+ALTER TABLE subjects
+  ADD FOREIGN KEY (classroom_id)
+    REFERENCES classrooms (id);
+  
 
-ALTER TABLE "user_grades" ADD FOREIGN KEY ("subject_id") REFERENCES "subjects" ("id");
+ALTER TABLE user_grades
+  ADD FOREIGN KEY (user_id)
+    REFERENCES users (id);
+  
+
+
+ALTER TABLE user_grades
+  ADD FOREIGN KEY (subject_id)
+    REFERENCES subjects (id);
