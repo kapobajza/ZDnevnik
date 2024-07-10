@@ -7,11 +7,18 @@ const path = require("path");
 module.exports = defineConfig([
   {
     input: "index.ts",
-    output: {
-      file: "dist/toolkit.es.js",
-      format: "es",
-      sourcemap: true,
-    },
+    output: [
+      {
+        file: "dist/toolkit.cjs.js",
+        format: "cjs",
+        sourcemap: true,
+      },
+      {
+        file: "dist/toolkit.es.js",
+        format: "es",
+        sourcemap: true,
+      },
+    ],
     external: ["yaml", "tsx"],
     plugins: [
       alias({

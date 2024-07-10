@@ -12,6 +12,7 @@ module.exports = {
         "@typescript-eslint/no-shadow": ["off"],
         "no-shadow": "off",
         "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+        "@typescript-eslint/consistent-type-imports": "error",
       },
     },
   ],

@@ -8,18 +8,19 @@ module.exports = {
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:@typescript-eslint/strict",
-        "./.eslintrc.js"
+        "./.eslintrc.js",
       ],
-      files: ["*.ts", "*.tsx"]
-    }
+      files: ["*.ts", "*.tsx"],
+    },
   ],
   rules: {
     "no-void": ["error", { allowAsStatement: true }],
     "no-else-return": [
       "error",
       {
-        allowElseIf: false
-      }
-    ]
-  }
+        allowElseIf: false,
+      },
+    ],
+    "@typescript-eslint/prefer-nullish-coalescing": "error",
+  },
 };

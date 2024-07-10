@@ -11,7 +11,8 @@
     "web:tsc": "pnpm --filter web tsc",
     "api:tsc": "pnpm --filter api tsc",
     "api:migrate": "pnpm --filter api migrate",
-    "api:start": "pnpm --filter api dev"
+    "api:start": "pnpm --filter api dev",
+    "api:test": "pnpm --filter api test"
   },
   "keywords": [],
   "author": "",
