@@ -11,4 +11,7 @@ module.exports = {
     "^.+\\.js?$": "babel-jest",
   },
   transformIgnorePatterns: ["<rootDir>/node_modules/(?!@postgrator|prettier)/"],
+  moduleNameMapper: {
+    "^~/api/(.*)": "<rootDir>/$1",
+  },
 };

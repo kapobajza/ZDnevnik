@@ -7,6 +7,7 @@ import type {
   SortingOptions,
 } from "./types";
 import type { Client as PgClient, QueryResultRow } from "pg";
+import { HttpError, HttpErrorStatus } from "~/api/error/httpError";
 
 type QueryBuilderState<TModel extends ModelSchema> = {
   selectColumns: string | undefined;
@@ -16,6 +17,8 @@ type QueryBuilderState<TModel extends ModelSchema> = {
   insertValues: (string | number)[] | undefined;
   insertOptions: Partial<InsertOptions<TModel>> | undefined;
   sortOptions: SortingOptions<TModel> | undefined;
+  limit: number | undefined;
+  offset: number | undefined;
 };
 
 export type ModelORM<TModel extends ModelSchema> = {
@@ -29,6 +32,8 @@ export type ModelORM<TModel extends ModelSchema> = {
     options?: Partial<InsertOptions<TModel>>,
   ): ModelORM<TModel>;
   sort(options: SortingOptions<TModel>): ModelORM<TModel>;
+  limit(by: number): ModelORM<TModel>;
+  offset(by: number): ModelORM<TModel>;
   build(): string;
   setState(newState: Partial<QueryBuilderState<TModel>>): ModelORM<TModel>;
   execute<TResult extends QueryResultRow>(): Promise<TResult[]>;
@@ -130,6 +135,12 @@ export function createModelORM<TModel extends ModelSchema>(
     sort(options) {
       return cloneAndUpdate({ sortOptions: options });
     },
+    limit(by) {
+      return cloneAndUpdate({ limit: by });
+    },
+    offset(by) {
+      return cloneAndUpdate({ offset: by });
+    },
     build() {
       let query: string | undefined;
       const {
@@ -159,6 +170,14 @@ export function createModelORM<TModel extends ModelSchema>(
         query += ` ORDER BY ${state.sortOptions.by.join(", ")} ${state.sortOptions.order ?? "ASC"}`;
       }
 
+      if (state.limit) {
+        query += ` LIMIT ${state.limit}`;
+      }
+
+      if (state.offset) {
+        query += ` OFFSET ${state.offset}`;
+      }
+
       return query;
     },
     insert(columns, values, options) {
@@ -175,7 +194,7 @@ export function createModelORM<TModel extends ModelSchema>(
       const res = await client.query<TResult>(query, queryValues);
 
       if (res.rows.length === 0) {
-        throw new Error("Not found");
+        throw new HttpError(HttpErrorStatus.NotFound);
       }
 
       return res.rows;

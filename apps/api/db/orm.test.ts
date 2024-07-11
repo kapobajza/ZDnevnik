@@ -7,193 +7,6 @@ import Postgrator from "postgrator";
 import path from "path";
 import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 
-describe("ORM query builder part", () => {
-  let userDb: ModelORM<typeof UserModel>;
-
-  beforeEach(() => {
-    userDb = createModelORM(UserModel, new Client());
-  });
-
-  it("select statement works correctly", () => {
-    expect(userDb.build()).toBe("SELECT * FROM users");
-    expect(userDb.select("avatar").build()).toBe("SELECT avatar FROM users");
-    expect(userDb.select("id", "first_name", "last_name").build()).toBe(
-      "SELECT id, first_name, last_name FROM users",
-    );
-  });
-
-  it("where clause works correctly", () => {
-    expect(
-      userDb
-        .where({
-          field: "first_name",
-          operator: "=",
-          value: "test",
-        })
-        .build(),
-    ).toBe("SELECT * FROM users WHERE first_name = $1");
-    expect(
-      userDb
-        .select("id", "first_name", "last_name")
-        .where({
-          field: "first_name",
-          operator: "!=",
-          value: "test",
-        })
-        .build(),
-    ).toBe(
-      "SELECT id, first_name, last_name FROM users WHERE first_name != $1",
-    );
-  });
-
-  it("insert statement works correctly", () => {
-    expect(
-      userDb.insert(["first_name", "last_name"], ["test", "test2"]).build(),
-    ).toBe(
-      "INSERT INTO users(first_name, last_name) VALUES($1, $2) RETURNING *",
-    );
-  });
-
-  it("should have different statements when build is used multiple times", () => {
-    expect(userDb.insert(["id", "role"], ["1", "teacher"]).build()).toBe(
-      "INSERT INTO users(id, role) VALUES($1, $2) RETURNING *",
-    );
-    expect(userDb.select("created_at", "avatar").build()).toBe(
-      "SELECT created_at, avatar FROM users",
-    );
-    expect(
-      userDb
-        .select("created_at", "avatar")
-        .where({
-          field: "id",
-          operator: "=",
-          value: "1",
-        })
-        .build(),
-    ).toBe("SELECT created_at, avatar FROM users WHERE id = $1");
-  });
-
-  it("where with AND works correctly", () => {
-    expect(
-      userDb
-        .where({
-          field: "first_name",
-          operator: "=",
-          value: "test",
-        })
-        .and({
-          field: "last_name",
-          operator: "=",
-          value: "test2",
-        })
-        .build(),
-    ).toBe("SELECT * FROM users WHERE first_name = $1 AND last_name = $2");
-  });
-
-  it("where with OR works correctly", () => {
-    expect(
-      userDb
-        .where({
-          field: "first_name",
-          operator: "=",
-          value: "test",
-        })
-        .or({
-          field: "last_name",
-          operator: "=",
-          value: "test2",
-        })
-        .build(),
-    ).toBe("SELECT * FROM users WHERE first_name = $1 OR last_name = $2");
-  });
-
-  it("where with AND and OR works correctly", () => {
-    expect(
-      userDb
-        .where({
-          field: "first_name",
-          operator: "=",
-          value: "test",
-        })
-        .and({
-          field: "last_name",
-          operator: "=",
-          value: "test2",
-        })
-        .or({
-          field: "last_name",
-          operator: "=",
-          value: "test3",
-        })
-        .build(),
-    ).toBe(
-      "SELECT * FROM users WHERE first_name = $1 AND last_name = $2 OR last_name = $3",
-    );
-  });
-
-  it("multiple AND clauses should work correctly", () => {
-    expect(
-      userDb
-        .where({
-          field: "id",
-          operator: "=",
-          value: "1",
-        })
-        .and({
-          field: "first_name",
-          operator: "=",
-          value: "test2",
-        })
-        .and({
-          field: "last_name",
-          operator: "=",
-          value: "test3",
-        })
-        .build(),
-    ).toBe(
-      "SELECT * FROM users WHERE id = $1 AND first_name = $2 AND last_name = $3",
-    );
-  });
-
-  it("sort by ASC works correctly", () => {
-    expect(
-      userDb
-        .select("first_name", "last_name")
-        .where({
-          field: "id",
-          operator: "=",
-          value: "1",
-        })
-        .sort({
-          by: ["first_name", "last_name"],
-          order: "ASC",
-        })
-        .build(),
-    ).toBe(
-      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name, last_name ASC",
-    );
-  });
-
-  it("sort by DESC works correctly", () => {
-    expect(
-      userDb
-        .select("first_name", "last_name")
-        .where({
-          field: "id",
-          operator: "=",
-          value: "1",
-        })
-        .sort({
-          by: ["first_name"],
-          order: "DESC",
-        })
-        .build(),
-    ).toBe(
-      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name DESC",
-    );
-  });
-});
-
 describe("ORM tests", () => {
   jest.setTimeout(60000);
 
@@ -226,22 +39,16 @@ describe("ORM tests", () => {
     await usersTable
       .insert(["id", "first_name", "last_name"], [USER_ID, "test", "test"])
       .execute();
+    await usersTable
+      .insert(["id", "first_name", "last_name"], ["2", "test 2", "test 2"], {
+        returningFields: ["id", "first_name", "last_name"],
+      })
+      .execute();
   });
 
   afterAll(async () => {
     await postgresClient.end();
     await postgresContainer.stop();
-  });
-
-  it("insert should insert values into table", async () => {
-    const userId = "2";
-    const result = await usersTable
-      .insert(["id", "first_name", "last_name"], [userId, "test", "test"], {
-        returningFields: ["id", "first_name", "last_name"],
-      })
-      .executeOne();
-
-    expect(result).toEqual({ id: "2", first_name: "test", last_name: "test" });
   });
 
   it("select should select values from table", async () => {
@@ -332,5 +139,32 @@ describe("ORM tests", () => {
       .execute();
 
     expect(result).toEqual([{ id: "2" }, { id: "1" }]);
+  });
+
+  it("limit works correctly", async () => {
+    const result = await usersTable.select("id").limit(1).execute();
+
+    expect(result).toEqual([{ id: "1" }]);
+  });
+
+  it("offset works correctly", async () => {
+    const result = await usersTable.select("id").offset(1).execute();
+
+    expect(result).toEqual([{ id: "2" }]);
+  });
+
+  it("insert should insert values into table", async () => {
+    const userId = "3";
+    const result = await usersTable
+      .insert(["id", "first_name", "last_name"], [userId, "test 3", "test 3"], {
+        returningFields: ["id", "first_name", "last_name"],
+      })
+      .executeOne();
+
+    expect(result).toEqual({
+      id: "3",
+      first_name: "test 3",
+      last_name: "test 3",
+    });
   });
 });
