@@ -130,9 +130,33 @@ describe("ORM query builder part", () => {
       "SELECT * FROM users WHERE first_name = $1 AND last_name = $2 OR last_name = $3",
     );
   });
+
+  it("multiple AND clauses should work correctly", () => {
+    expect(
+      userDb
+        .where({
+          field: "id",
+          operator: "=",
+          value: "1",
+        })
+        .and({
+          field: "first_name",
+          operator: "=",
+          value: "test2",
+        })
+        .and({
+          field: "last_name",
+          operator: "=",
+          value: "test3",
+        })
+        .build(),
+    ).toBe(
+      "SELECT * FROM users WHERE id = $1 AND first_name = $2 AND last_name = $3",
+    );
+  });
 });
 
-describe("ORM execute part", () => {
+describe("ORM tests", () => {
   jest.setTimeout(60000);
 
   let postgresContainer: StartedPostgreSqlContainer;
@@ -217,6 +241,29 @@ describe("ORM execute part", () => {
       })
       .and({
         field: "first_name",
+        operator: "=",
+        value: "test",
+      })
+      .executeOne();
+
+    expect(result).toEqual({ first_name: "test", last_name: "test" });
+  });
+
+  it("select with multiple AND statements should select values from table", async () => {
+    const result = await usersTable
+      .select("first_name", "last_name")
+      .where({
+        field: "id",
+        operator: "=",
+        value: USER_ID,
+      })
+      .and({
+        field: "first_name",
+        operator: "=",
+        value: "test",
+      })
+      .and({
+        field: "last_name",
         operator: "=",
         value: "test",
       })

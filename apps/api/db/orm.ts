@@ -1,6 +1,6 @@
 import type { ObjectValues } from "@zdnevnik/toolkit";
 import type { ModelSchema } from "./models";
-import type { ConditionalClause, WhereClause } from "./types";
+import type { AdditionalClause, ConditionalClause } from "./types";
 import type { Client as PgClient, QueryResultRow } from "pg";
 
 type InsertOptions<TModel extends ModelSchema> = {
@@ -9,9 +9,8 @@ type InsertOptions<TModel extends ModelSchema> = {
 
 type QueryBuilderState<TModel extends ModelSchema> = {
   selectColumns: string | undefined;
-  whereClause: WhereClause<TModel> | undefined;
-  andClause: ConditionalClause<TModel> | undefined;
-  orClause: ConditionalClause<TModel> | undefined;
+  whereClause: ConditionalClause<TModel> | undefined;
+  additionalClauses: AdditionalClause<TModel>[] | undefined;
   insertColumns: string | undefined;
   insertValues: (string | number)[] | undefined;
   insertOptions: Partial<InsertOptions<TModel>> | undefined;
@@ -19,9 +18,9 @@ type QueryBuilderState<TModel extends ModelSchema> = {
 
 export type ModelORM<TModel extends ModelSchema> = {
   select(...columns: ObjectValues<TModel["fields"]>[]): ModelORM<TModel>;
-  where(clause: WhereClause<TModel>): ModelORM<TModel>;
-  and(clause: WhereClause<TModel>): ModelORM<TModel>;
-  or(clause: WhereClause<TModel>): ModelORM<TModel>;
+  where(clause: ConditionalClause<TModel>): ModelORM<TModel>;
+  and(clause: ConditionalClause<TModel>): ModelORM<TModel>;
+  or(clause: ConditionalClause<TModel>): ModelORM<TModel>;
   insert(
     columns: ObjectValues<TModel["fields"]>[],
     values: (string | number)[],
@@ -52,18 +51,11 @@ export function createModelORM<TModel extends ModelSchema>(
       };
     }
 
-    if (update.andClause) {
-      newState.andClause = {
-        ...state.andClause,
-        ...update.andClause,
-      };
-    }
-
-    if (update.orClause) {
-      newState.orClause = {
-        ...state.orClause,
-        ...update.orClause,
-      };
+    if (update.additionalClauses) {
+      newState.additionalClauses = [
+        ...(state.additionalClauses ?? []),
+        ...update.additionalClauses,
+      ];
     }
 
     if (update.insertValues) {
@@ -91,41 +83,14 @@ export function createModelORM<TModel extends ModelSchema>(
     if (state.whereClause?.value) {
       const values = [state.whereClause.value];
 
-      if (state.andClause?.value) {
-        values.push(state.andClause.value);
-      }
-
-      if (state.orClause?.value) {
-        values.push(state.orClause.value);
+      if (state.additionalClauses) {
+        values.push(...state.additionalClauses.map((c) => c.value));
       }
 
       return values;
     }
 
     return undefined;
-  };
-
-  const conditionalClauseWithIndex = (
-    clause: WhereClause<TModel>,
-  ): ConditionalClause<TModel> => {
-    let index = 1;
-
-    if (state.whereClause) {
-      index++;
-    }
-
-    if (state.andClause?.index) {
-      index = state.andClause.index + 1;
-    }
-
-    if (state.orClause?.index) {
-      index = state.orClause.index + 1;
-    }
-
-    return {
-      ...clause,
-      index,
-    };
   };
 
   return {
@@ -136,14 +101,28 @@ export function createModelORM<TModel extends ModelSchema>(
     select(...columns: ObjectValues<TModel["fields"]>[]) {
       return cloneAndUpdate({ selectColumns: columns.join(", ") });
     },
-    where(clause: WhereClause<TModel>) {
+    where(clause: ConditionalClause<TModel>) {
       return cloneAndUpdate({ whereClause: clause });
     },
     and(clause) {
-      return cloneAndUpdate({ andClause: conditionalClauseWithIndex(clause) });
+      return cloneAndUpdate({
+        additionalClauses: [
+          {
+            ...clause,
+            type: "AND",
+          },
+        ],
+      });
     },
     or(clause) {
-      return cloneAndUpdate({ orClause: conditionalClauseWithIndex(clause) });
+      return cloneAndUpdate({
+        additionalClauses: [
+          {
+            ...clause,
+            type: "OR",
+          },
+        ],
+      });
     },
     build() {
       let query: string | undefined;
@@ -153,8 +132,7 @@ export function createModelORM<TModel extends ModelSchema>(
         whereClause,
         selectColumns,
         insertOptions,
-        andClause,
-        orClause,
+        additionalClauses,
       } = state || {};
 
       if (insertColumns && insertValues) {
@@ -166,12 +144,8 @@ export function createModelORM<TModel extends ModelSchema>(
       if (whereClause) {
         query += ` WHERE ${whereClause.field as string} ${whereClause.operator} $1`;
 
-        if (andClause) {
-          query += ` AND ${andClause.field as string} ${andClause.operator} $${andClause.index}`;
-        }
-
-        if (orClause) {
-          query += ` OR ${orClause.field as string} ${orClause.operator} $${orClause.index}`;
+        if (additionalClauses) {
+          query += ` ${additionalClauses.map((clause, index) => `${clause.type} ${clause.field as string} ${clause.operator} $${index + 2}`).join(" ")}`;
         }
       }
 
