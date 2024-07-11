@@ -1,11 +1,12 @@
 import type { ObjectValues } from "@zdnevnik/toolkit";
 import type { ModelSchema } from "./models";
-import type { AdditionalClause, ConditionalClause } from "./types";
+import type {
+  AdditionalClause,
+  ConditionalClause,
+  InsertOptions,
+  SortingOptions,
+} from "./types";
 import type { Client as PgClient, QueryResultRow } from "pg";
-
-type InsertOptions<TModel extends ModelSchema> = {
-  returningFields?: ObjectValues<TModel["fields"]>[];
-};
 
 type QueryBuilderState<TModel extends ModelSchema> = {
   selectColumns: string | undefined;
@@ -14,6 +15,7 @@ type QueryBuilderState<TModel extends ModelSchema> = {
   insertColumns: string | undefined;
   insertValues: (string | number)[] | undefined;
   insertOptions: Partial<InsertOptions<TModel>> | undefined;
+  sortOptions: SortingOptions<TModel> | undefined;
 };
 
 export type ModelORM<TModel extends ModelSchema> = {
@@ -26,6 +28,7 @@ export type ModelORM<TModel extends ModelSchema> = {
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>>,
   ): ModelORM<TModel>;
+  sort(options: SortingOptions<TModel>): ModelORM<TModel>;
   build(): string;
   setState(newState: Partial<QueryBuilderState<TModel>>): ModelORM<TModel>;
   execute<TResult extends QueryResultRow>(): Promise<TResult[]>;
@@ -124,6 +127,9 @@ export function createModelORM<TModel extends ModelSchema>(
         ],
       });
     },
+    sort(options) {
+      return cloneAndUpdate({ sortOptions: options });
+    },
     build() {
       let query: string | undefined;
       const {
@@ -147,6 +153,10 @@ export function createModelORM<TModel extends ModelSchema>(
         if (additionalClauses) {
           query += ` ${additionalClauses.map((clause, index) => `${clause.type} ${clause.field as string} ${clause.operator} $${index + 2}`).join(" ")}`;
         }
+      }
+
+      if (state.sortOptions) {
+        query += ` ORDER BY ${state.sortOptions.by.join(", ")} ${state.sortOptions.order ?? "ASC"}`;
       }
 
       return query;

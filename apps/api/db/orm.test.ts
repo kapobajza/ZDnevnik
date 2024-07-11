@@ -154,6 +154,44 @@ describe("ORM query builder part", () => {
       "SELECT * FROM users WHERE id = $1 AND first_name = $2 AND last_name = $3",
     );
   });
+
+  it("sort by ASC works correctly", () => {
+    expect(
+      userDb
+        .select("first_name", "last_name")
+        .where({
+          field: "id",
+          operator: "=",
+          value: "1",
+        })
+        .sort({
+          by: ["first_name", "last_name"],
+          order: "ASC",
+        })
+        .build(),
+    ).toBe(
+      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name, last_name ASC",
+    );
+  });
+
+  it("sort by DESC works correctly", () => {
+    expect(
+      userDb
+        .select("first_name", "last_name")
+        .where({
+          field: "id",
+          operator: "=",
+          value: "1",
+        })
+        .sort({
+          by: ["first_name"],
+          order: "DESC",
+        })
+        .build(),
+    ).toBe(
+      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name DESC",
+    );
+  });
 });
 
 describe("ORM tests", () => {
@@ -270,5 +308,29 @@ describe("ORM tests", () => {
       .executeOne();
 
     expect(result).toEqual({ first_name: "test", last_name: "test" });
+  });
+
+  it("sort by ASC works correctly", async () => {
+    const result = await usersTable
+      .select("id")
+      .sort({
+        by: ["id"],
+        order: "ASC",
+      })
+      .execute();
+
+    expect(result).toEqual([{ id: "1" }, { id: "2" }]);
+  });
+
+  it("sort by DESC works correctly", async () => {
+    const result = await usersTable
+      .select("id")
+      .sort({
+        by: ["id"],
+        order: "DESC",
+      })
+      .execute();
+
+    expect(result).toEqual([{ id: "2" }, { id: "1" }]);
   });
 });
