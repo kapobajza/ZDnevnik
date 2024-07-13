@@ -1,25 +1,26 @@
-import { Client } from "pg";
 import { UserModel } from "./models";
-import { createModelORM, type ModelORM } from "./orm";
+import { QueryBuilder } from "./queryBuilder";
 
 describe("ORM query builder part", () => {
-  let userDb: ModelORM<typeof UserModel>;
+  let userQueryBuilder: QueryBuilder<typeof UserModel>;
 
   beforeEach(() => {
-    userDb = createModelORM(UserModel, new Client());
+    userQueryBuilder = new QueryBuilder(UserModel);
   });
 
   it("select statement works correctly", () => {
-    expect(userDb.build()).toBe("SELECT * FROM users");
-    expect(userDb.select("avatar").build()).toBe("SELECT avatar FROM users");
-    expect(userDb.select("id", "first_name", "last_name").build()).toBe(
-      "SELECT id, first_name, last_name FROM users",
+    expect(userQueryBuilder.build()).toBe("SELECT * FROM users");
+    expect(userQueryBuilder.select("avatar").build()).toBe(
+      "SELECT avatar FROM users",
     );
+    expect(
+      userQueryBuilder.select("id", "first_name", "last_name").build(),
+    ).toBe("SELECT id, first_name, last_name FROM users");
   });
 
   it("where clause works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .where({
           field: "first_name",
           operator: "=",
@@ -28,7 +29,7 @@ describe("ORM query builder part", () => {
         .build(),
     ).toBe("SELECT * FROM users WHERE first_name = $1");
     expect(
-      userDb
+      userQueryBuilder
         .select("id", "first_name", "last_name")
         .where({
           field: "first_name",
@@ -43,21 +44,23 @@ describe("ORM query builder part", () => {
 
   it("insert statement works correctly", () => {
     expect(
-      userDb.insert(["first_name", "last_name"], ["test", "test2"]).build(),
+      userQueryBuilder
+        .insert(["first_name", "last_name"], ["test", "test2"])
+        .build(),
     ).toBe(
       "INSERT INTO users(first_name, last_name) VALUES($1, $2) RETURNING *",
     );
   });
 
   it("should have different statements when build is used multiple times", () => {
-    expect(userDb.insert(["id", "role"], ["1", "teacher"]).build()).toBe(
-      "INSERT INTO users(id, role) VALUES($1, $2) RETURNING *",
-    );
-    expect(userDb.select("created_at", "avatar").build()).toBe(
+    expect(
+      userQueryBuilder.insert(["id", "role"], ["1", "teacher"]).build(),
+    ).toBe("INSERT INTO users(id, role) VALUES($1, $2) RETURNING *");
+    expect(userQueryBuilder.select("created_at", "avatar").build()).toBe(
       "SELECT created_at, avatar FROM users",
     );
     expect(
-      userDb
+      userQueryBuilder
         .select("created_at", "avatar")
         .where({
           field: "id",
@@ -70,7 +73,7 @@ describe("ORM query builder part", () => {
 
   it("where with AND works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .where({
           field: "first_name",
           operator: "=",
@@ -87,7 +90,7 @@ describe("ORM query builder part", () => {
 
   it("where with OR works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .where({
           field: "first_name",
           operator: "=",
@@ -104,7 +107,7 @@ describe("ORM query builder part", () => {
 
   it("where with AND and OR works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .where({
           field: "first_name",
           operator: "=",
@@ -128,7 +131,7 @@ describe("ORM query builder part", () => {
 
   it("multiple AND clauses should work correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .where({
           field: "id",
           operator: "=",
@@ -152,7 +155,7 @@ describe("ORM query builder part", () => {
 
   it("sort by ASC works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .select("first_name", "last_name")
         .where({
           field: "id",
@@ -171,7 +174,7 @@ describe("ORM query builder part", () => {
 
   it("sort by DESC works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .select("first_name", "last_name")
         .where({
           field: "id",
@@ -190,7 +193,7 @@ describe("ORM query builder part", () => {
 
   it("limit works correctly", () => {
     expect(
-      userDb
+      userQueryBuilder
         .select("first_name", "last_name")
         .where({
           field: "id",
@@ -204,7 +207,11 @@ describe("ORM query builder part", () => {
 
   it("limit and offset works correctly", () => {
     expect(
-      userDb.select("first_name", "last_name").limit(10).offset(10).build(),
+      userQueryBuilder
+        .select("first_name", "last_name")
+        .limit(10)
+        .offset(10)
+        .build(),
     ).toBe("SELECT first_name, last_name FROM users LIMIT 10 OFFSET 10");
   });
 });

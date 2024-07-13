@@ -1,7 +1,11 @@
-import type { ObjectValues } from "@zdnevnik/toolkit";
+import { z } from "zod";
 
-export const ApiEnvEnum = {
+export const apiEnvSchema = z.object({
+  DATABASE_URL: z.string(),
+});
+
+export type ApiEnv = z.infer<typeof apiEnvSchema>;
+
+export const ApiEnv = {
   DATABASE_URL: "DATABASE_URL",
-} as const;
-
-export type ApiEnv = ObjectValues<typeof ApiEnvEnum>;
+} as const satisfies ApiEnv;

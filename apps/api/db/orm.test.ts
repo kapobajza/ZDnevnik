@@ -1,6 +1,6 @@
-import { Client } from "pg";
+import { Pool } from "pg";
 import { UserModel } from "./models";
-import { createModelORM, type ModelORM } from "./orm";
+import { ModelORM } from "./orm";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import Postgrator from "postgrator";
@@ -8,20 +8,21 @@ import path from "path";
 import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 
 describe("ORM tests", () => {
-  jest.setTimeout(60000);
+  // jest.setTimeout(60000);
+  jest.setTimeout(10000);
 
   let postgresContainer: StartedPostgreSqlContainer;
-  let postgresClient: Client;
+  let postgresClient: Pool;
   let usersTable: ModelORM<typeof UserModel>;
   const USER_ID = "1";
 
   beforeAll(async () => {
     postgresContainer = await new PostgreSqlContainer().start();
     const connectionString = postgresContainer.getConnectionUri();
-    postgresClient = new Client({
+    postgresClient = new Pool({
       connectionString,
     });
-    await postgresClient.connect();
+    const client = await postgresClient.connect();
 
     const database = "zdnevnik_test";
     await postgresClient.query(`CREATE DATABASE ${database}`);
@@ -35,15 +36,21 @@ describe("ORM tests", () => {
 
     await postgrator.migrate();
 
-    usersTable = createModelORM(UserModel, postgresClient);
-    await usersTable
-      .insert(["id", "first_name", "last_name"], [USER_ID, "test", "test"])
-      .execute();
-    await usersTable
-      .insert(["id", "first_name", "last_name"], ["2", "test 2", "test 2"], {
-        returningFields: ["id", "first_name", "last_name"],
-      })
-      .execute();
+    usersTable = new ModelORM(UserModel, postgresClient);
+
+    await usersTable.transaction(async (tx) => {
+      await tx
+        .insert(["id", "first_name", "last_name"], [USER_ID, "test", "test"])
+        .execute();
+
+      await tx
+        .insert(["id", "first_name", "last_name"], ["2", "test 2", "test 2"], {
+          returningFields: ["id", "first_name", "last_name"],
+        })
+        .execute();
+    });
+
+    client.release();
   });
 
   afterAll(async () => {

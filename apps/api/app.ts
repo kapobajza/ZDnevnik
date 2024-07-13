@@ -1,35 +1,46 @@
 import Env from "@fastify/env";
 import Postgres from "@fastify/postgres";
-import type { FastifyInstance } from "fastify";
-import { ApiEnvEnum } from "~/api/env/types";
+import { ApiEnv } from "~/api/env/types";
 import AutoLoad from "@fastify/autoload";
 import path from "path";
+import PrintRoutes from "fastify-print-routes";
+import type { FastifyInstance } from "./types";
 
 export async function App(fastify: FastifyInstance) {
   await fastify.register(Env, {
     dotenv: true,
     schema: {
       type: "object",
-      required: [ApiEnvEnum.DATABASE_URL],
+      required: [ApiEnv.DATABASE_URL],
       properties: {
-        [ApiEnvEnum.DATABASE_URL]: {
+        [ApiEnv.DATABASE_URL]: {
           type: "string",
         },
       },
     },
   });
 
-  const env = fastify.getEnvs<typeof ApiEnvEnum>();
+  const env = fastify.getEnvs();
 
   await fastify.register(Postgres, {
     connectionString: env.DATABASE_URL,
   });
 
   await fastify.register(AutoLoad, {
-    dir: path.join(__dirname, "routes"),
+    dir: path.join(__dirname, "plugins"),
+  });
+
+  await fastify.register(PrintRoutes);
+
+  await fastify.register(AutoLoad, {
+    dir: path.join(__dirname, "features"),
     matchFilter: (path) => {
       return path.endsWith(".routes.ts");
     },
+    ignoreFilter(path) {
+      return path.endsWith("test.routes.ts");
+    },
+    maxDepth: 1,
   });
 
   fastify.listen({ port: 3000 }, function (err, address) {
