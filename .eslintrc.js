@@ -3,7 +3,6 @@ module.exports = {
   root: true,
   ignorePatterns: ["**/*"],
   plugins: ["@typescript-eslint", "import", "prettier", "unused-imports"],
-  parser: "@typescript-eslint/parser",
   overrides: [
     {
       extends: ["plugin:@typescript-eslint/recommended"],
@@ -35,6 +34,12 @@ module.exports = {
         varsIgnorePattern: "^_",
         args: "after-used",
         argsIgnorePattern: "^_",
+      },
+    ],
+    "import/order": [
+      "error",
+      {
+        "newlines-between": "always",
       },
     ],
   },
