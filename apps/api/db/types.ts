@@ -1,4 +1,5 @@
 import type { ObjectValues } from "@zdnevnik/toolkit";
+
 import type { ModelSchema } from "./models";
 
 export type InsertOptions<TModel extends ModelSchema> = {

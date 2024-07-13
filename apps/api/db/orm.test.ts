@@ -1,11 +1,13 @@
+import path from "path";
+
 import { Pool } from "pg";
-import { UserModel } from "./models";
-import { ModelORM } from "./orm";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import Postgrator from "postgrator";
-import path from "path";
 import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
+
+import { ModelORM } from "./orm";
+import { UserModel } from "./models";
 
 describe("ORM tests", () => {
   // jest.setTimeout(60000);

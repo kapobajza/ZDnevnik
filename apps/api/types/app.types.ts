@@ -1,5 +1,6 @@
 import type { FastifyInstance as FastifyDefaultInstance } from "fastify";
 import type { Pool as PgPool } from "pg";
+
 import type { ApiEnv } from "~/api/env/types";
 
 export const FastifyCustomProp = {

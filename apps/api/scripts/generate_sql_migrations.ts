@@ -1,7 +1,8 @@
-import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 import fs from "fs";
 import path from "path";
 import { spawnSync } from "child_process";
+
+import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 
 const generateSqlMigrations = () => {
   const apiPath = getRelativeMonoRepoPath("api");

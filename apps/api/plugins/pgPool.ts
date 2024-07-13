@@ -1,5 +1,6 @@
 import fp from "fastify-plugin";
 import { Pool } from "pg";
+
 import { FastifyCustomProp, type FastifyInstance } from "~/api/types";
 
 export default fp((fastify, _opts, done) => {

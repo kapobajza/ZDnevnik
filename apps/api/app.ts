@@ -1,10 +1,13 @@
+import path from "path";
+
 import Env from "@fastify/env";
 import Postgres from "@fastify/postgres";
-import { ApiEnv } from "~/api/env/types";
 import AutoLoad from "@fastify/autoload";
-import path from "path";
 import PrintRoutes from "fastify-print-routes";
+
 import type { FastifyInstance } from "./types";
+
+import { ApiEnv } from "~/api/env/types";
 
 export async function App(fastify: FastifyInstance) {
   await fastify.register(Env, {

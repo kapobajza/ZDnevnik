@@ -1,4 +1,6 @@
 import type { ObjectValues } from "@zdnevnik/toolkit";
+import type { Pool as PgPool, QueryResultRow } from "pg";
+
 import type { ModelSchema } from "./models";
 import type {
   ConditionalClause,
@@ -7,7 +9,6 @@ import type {
   QueryBuilderState,
   SortingOptions,
 } from "./types";
-import type { Pool as PgPool, QueryResultRow } from "pg";
 import { QueryBuilder } from "./queryBuilder";
 
 export class ModelORM<TModel extends ModelSchema>
