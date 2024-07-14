@@ -1,17 +1,13 @@
-import path from "path";
-
-import { Pool } from "pg";
+import type { Pool } from "pg";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import { PostgreSqlContainer } from "@testcontainers/postgresql";
-import Postgrator from "postgrator";
-import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 
 import { ModelORM } from "./orm";
 import { UserModel } from "./models";
 
+import { setupPgTestDatabase } from "~/api/test/util";
+
 describe("ORM tests", () => {
-  // jest.setTimeout(60000);
-  jest.setTimeout(10000);
+  jest.setTimeout(60000);
 
   let postgresContainer: StartedPostgreSqlContainer;
   let postgresClient: Pool;
@@ -19,24 +15,10 @@ describe("ORM tests", () => {
   const USER_ID = "1";
 
   beforeAll(async () => {
-    postgresContainer = await new PostgreSqlContainer().start();
-    const connectionString = postgresContainer.getConnectionUri();
-    postgresClient = new Pool({
-      connectionString,
-    });
-    const client = await postgresClient.connect();
+    const pgContent = await setupPgTestDatabase();
 
-    const database = "zdnevnik_test";
-    await postgresClient.query(`CREATE DATABASE ${database}`);
-
-    const postgrator = new Postgrator({
-      migrationPattern: `${path.join(getRelativeMonoRepoPath("api"), "migrations", "sql")}/*`,
-      driver: "pg",
-      database,
-      execQuery: (query) => postgresClient.query(query),
-    });
-
-    await postgrator.migrate();
+    postgresContainer = pgContent.postgresContainer;
+    postgresClient = pgContent.postgresClient;
 
     usersTable = new ModelORM(UserModel, postgresClient);
 
@@ -51,8 +33,6 @@ describe("ORM tests", () => {
         })
         .execute();
     });
-
-    client.release();
   });
 
   afterAll(async () => {

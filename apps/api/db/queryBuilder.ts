@@ -1,9 +1,8 @@
-import type { ObjectValues } from "@zdnevnik/toolkit";
-
 import type { ModelSchema } from "./models";
 import type {
   ConditionalClause,
   IQueryBuilder,
+  InferModelField,
   InsertOptions,
   QueryBuilderState,
   SortingOptions,
@@ -53,7 +52,7 @@ export class QueryBuilder<TModel extends ModelSchema>
     return this;
   }
 
-  select(...columns: ObjectValues<TModel["fields"]>[]) {
+  select(...columns: (keyof InferModelField<TModel["fields"]>)[]) {
     return this.cloneAndUpdate({ selectColumns: columns.join(", ") });
   }
 
@@ -104,13 +103,17 @@ export class QueryBuilder<TModel extends ModelSchema>
       selectColumns,
       insertOptions,
       additionalClauses,
+      deleteStatement,
     } = this.state || {};
 
     if (insertColumns && insertValues) {
       return `INSERT INTO ${this.model.name}(${insertColumns}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")}) RETURNING ${insertOptions?.returningFields?.join(", ") ?? "*"}`;
     }
-
     query = `SELECT ${selectColumns ?? "*"} FROM ${this.model.name}`;
+
+    if (deleteStatement) {
+      query = `DELETE FROM ${this.model.name}`;
+    }
 
     if (whereClause) {
       query += ` WHERE ${whereClause.field as string} ${whereClause.operator} $1`;
@@ -118,6 +121,10 @@ export class QueryBuilder<TModel extends ModelSchema>
       if (additionalClauses) {
         query += ` ${additionalClauses.map((clause, index) => `${clause.type} ${clause.field as string} ${clause.operator} $${index + 2}`).join(" ")}`;
       }
+    }
+
+    if (deleteStatement) {
+      return query;
     }
 
     if (this.state.sortOptions) {
@@ -136,7 +143,7 @@ export class QueryBuilder<TModel extends ModelSchema>
   }
 
   insert(
-    columns: ObjectValues<TModel["fields"]>[],
+    columns: (keyof InferModelField<TModel["fields"]>)[],
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>>,
   ) {
@@ -144,6 +151,12 @@ export class QueryBuilder<TModel extends ModelSchema>
       insertColumns: columns.join(", "),
       insertValues: values,
       insertOptions: options,
+    });
+  }
+
+  delete() {
+    return this.cloneAndUpdate({
+      deleteStatement: true,
     });
   }
 

@@ -1,0 +1,113 @@
+import { type FastifyInstance } from "fastify";
+
+import { generatePasswordSalt, hashPassword } from "./util";
+
+import { buildTestApp } from "~/api/test/util";
+import { UserModel } from "~/api/db/models";
+import { ModelORM } from "~/api/db/orm";
+
+describe("auth routes", () => {
+  jest.setTimeout(60000);
+
+  let fastify: FastifyInstance;
+  const username = "test";
+  const password = "testtesttest";
+  let usersModel: ModelORM<typeof UserModel>;
+
+  beforeAll(async () => {
+    fastify = await buildTestApp();
+    usersModel = new ModelORM(UserModel, fastify.dbPool);
+  });
+
+  afterAll(async () => {
+    await fastify.close();
+  });
+
+  const inserNewUser = async () => {
+    const salt = generatePasswordSalt();
+    const hashedPassword = hashPassword(password, salt);
+
+    await usersModel
+      .insert(
+        ["id", "username", "password_hash", "password_salt"],
+        ["1", username, hashedPassword, salt],
+      )
+      .executeOne();
+  };
+
+  afterEach(async () => {
+    const user = await usersModel
+      .select("id")
+      .where({
+        field: "username",
+        operator: "=",
+        value: username,
+      })
+      .executeOne();
+
+    if (user) {
+      await usersModel
+        .where({
+          field: "username",
+          operator: "=",
+          value: username,
+        })
+        .delete()
+        .execute();
+    }
+  });
+
+  it("should get invalid_credentials if username doesn't exist", async () => {
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username,
+        password,
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual(
+      JSON.stringify({
+        error: "invalid_credentials",
+      }),
+    );
+  });
+
+  it("should get invalid_credentials if password is incorrect", async () => {
+    await inserNewUser();
+
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username: username,
+        password: "testtesttest2",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual(
+      JSON.stringify({
+        error: "invalid_credentials",
+      }),
+    );
+  });
+
+  it("should login with correct credentials", async () => {
+    await inserNewUser();
+
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username: username,
+        password: password,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["set-cookie"]).toBeTruthy();
+  });
+});

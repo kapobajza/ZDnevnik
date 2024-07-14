@@ -20,6 +20,7 @@
     "rollup-plugin-tsconfig-paths": "1.5.2",
     "rollup-plugin-typescript-paths": "1.5.0",
     "tsx": "4.16.2",
-    "yaml": "2.4.5"
+    "yaml": "2.4.5",
+    "zod": "3.23.8"
   }
 }

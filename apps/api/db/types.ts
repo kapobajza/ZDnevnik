@@ -1,18 +1,18 @@
-import type { ObjectValues } from "@zdnevnik/toolkit";
+import type { PascalToSnakeCaseRecord } from "@zdnevnik/toolkit";
 
 import type { ModelSchema } from "./models";
 
 export type InsertOptions<TModel extends ModelSchema> = {
-  returningFields?: ObjectValues<TModel["fields"]>[];
+  returningFields?: (keyof InferModelField<TModel["fields"]>)[];
 };
 
 export type SortingOptions<TModel extends ModelSchema> = {
-  by: ObjectValues<TModel["fields"]>[];
+  by: (keyof InferModelField<TModel["fields"]>)[];
   order?: "ASC" | "DESC";
 };
 
 export type ConditionalClause<TModel extends ModelSchema> = {
-  field: ObjectValues<TModel["fields"]>;
+  field: keyof InferModelField<TModel["fields"]>;
   operator: "=" | "!=" | ">" | ">=" | "<" | "<=";
   value: string | number;
 };
@@ -31,20 +31,48 @@ export type QueryBuilderState<TModel extends ModelSchema> = {
   sortOptions: SortingOptions<TModel> | undefined;
   limit: number | undefined;
   offset: number | undefined;
+  deleteStatement: boolean | undefined;
 };
 
 export type IQueryBuilder<TModel extends ModelSchema> = {
-  select(...columns: ObjectValues<TModel["fields"]>[]): IQueryBuilder<TModel>;
+  select(
+    ...columns: (keyof InferModelField<TModel["fields"]>)[]
+  ): IQueryBuilder<TModel>;
   where(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   and(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   or(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   insert(
-    columns: ObjectValues<TModel["fields"]>[],
+    columns: (keyof InferModelField<TModel["fields"]>)[],
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>>,
   ): IQueryBuilder<TModel>;
+  delete(): IQueryBuilder<TModel>;
   sort(options: SortingOptions<TModel>): IQueryBuilder<TModel>;
   limit(by: number): IQueryBuilder<TModel>;
   offset(by: number): IQueryBuilder<TModel>;
   build(): string;
 };
+
+export type ModelFieldOptions = {
+  name: string;
+} & (
+  | {
+      type: "string";
+      length?: number;
+    }
+  | {
+      type: "number";
+      category: "timestamp" | "integer" | "decimal" | "smallint";
+    }
+);
+
+export type FieldModel = Record<string, ModelFieldOptions>;
+
+export type InferModelField<TField extends FieldModel> =
+  PascalToSnakeCaseRecord<{
+    [K in keyof TField]: TField[K]["type"] extends "string"
+      ? string
+      : TField[K]["type"] extends "number"
+        ? number
+        : never;
+  }>;

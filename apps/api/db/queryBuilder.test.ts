@@ -214,4 +214,8 @@ describe("ORM query builder part", () => {
         .build(),
     ).toBe("SELECT first_name, last_name FROM users LIMIT 10 OFFSET 10");
   });
+
+  it("delete works correctly", () => {
+    expect(userQueryBuilder.delete().build()).toBe("DELETE FROM users");
+  });
 });

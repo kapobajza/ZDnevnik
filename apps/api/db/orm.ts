@@ -1,10 +1,10 @@
-import type { ObjectValues } from "@zdnevnik/toolkit";
 import type { Pool as PgPool, QueryResultRow } from "pg";
 
 import type { ModelSchema } from "./models";
 import type {
   ConditionalClause,
   IQueryBuilder,
+  InferModelField,
   InsertOptions,
   QueryBuilderState,
   SortingOptions,
@@ -28,7 +28,7 @@ export class ModelORM<TModel extends ModelSchema>
     return this;
   }
 
-  select(...columns: ObjectValues<TModel["fields"]>[]) {
+  select(...columns: (keyof InferModelField<TModel["fields"]>)[]) {
     this.queryBuilder = this.queryBuilder.select(...columns);
     return this;
   }
@@ -68,11 +68,16 @@ export class ModelORM<TModel extends ModelSchema>
   }
 
   insert(
-    columns: ObjectValues<TModel["fields"]>[],
+    columns: (keyof InferModelField<TModel["fields"]>)[],
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(columns, values, options);
+    return this;
+  }
+
+  delete() {
+    this.queryBuilder = this.queryBuilder.delete();
     return this;
   }
 
