@@ -5,44 +5,51 @@ import {
   serializerCompiler as zodSerializerCompiler,
   validatorCompiler as zodValidatorCompiler,
 } from "fastify-type-provider-zod";
-import Env from "@fastify/env";
 import Postgres from "@fastify/postgres";
 import AutoLoad from "@fastify/autoload";
 import PrintRoutes from "fastify-print-routes";
 import SecureSession from "@fastify/secure-session";
-import type { FastifyInstance } from "fastify";
+import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
+import { ZodError } from "zod";
 
-import { ApiEnv } from "~/api/env/types";
+import {
+  HttpErrorCode,
+  HttpErrorStatus,
+  type HttpValidationError,
+  type ValidationError,
+} from "./error/types";
+
+import { type EnvRecord } from "~/api/env/types";
 
 export async function buildApp(
   fastify: FastifyInstance,
   opts: {
     testing?: boolean;
-    connectionString: string;
+    env: EnvRecord;
     pgPool: Pool;
   },
 ) {
-  await fastify.register(Env, {
-    dotenv: true,
-    schema: {
-      type: "object",
-      required: [ApiEnv.DATABASE_URL, ApiEnv.COOKIE_NAME],
-      properties: {
-        [ApiEnv.DATABASE_URL]: {
-          type: "string",
-        },
-        [ApiEnv.COOKIE_NAME]: {
-          type: "string",
-        },
-      },
-    },
+  fastify.setErrorHandler((error, _request, reply) => {
+    if (error instanceof ZodError) {
+      const responseError: HttpValidationError = {
+        code: HttpErrorCode.ValidationError,
+        message: "An error occured during validation",
+        validationErrors: error.issues.map<ValidationError>((issue) => ({
+          code: issue.code,
+          message: issue.message,
+          path: issue.path,
+        })),
+        statusCode: HttpErrorStatus.UnprocessableEntity,
+      };
+      return reply.status(responseError.statusCode).send(responseError);
+    }
+
+    return reply.status(500).send(error);
   });
 
-  const env = fastify.getEnvs();
-
   await fastify.register(Postgres, {
-    connectionString: opts.connectionString,
+    connectionString: opts.env.DATABASE_URL,
   });
 
   fastify.setValidatorCompiler(zodValidatorCompiler);
@@ -61,7 +68,7 @@ export async function buildApp(
 
   await fastify.register(SecureSession, {
     key: fs.readFileSync(path.join(__dirname, "session_key")),
-    cookieName: env.COOKIE_NAME,
+    cookieName: opts.env.COOKIE_NAME,
   });
 
   await fastify.register(AutoLoad, {

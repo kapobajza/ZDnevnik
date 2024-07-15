@@ -11,3 +11,5 @@ export const ApiEnv = {
   DATABASE_URL: "DATABASE_URL",
   COOKIE_NAME: "COOKIE_NAME",
 } as const satisfies ApiEnv;
+
+export type EnvRecord = Record<keyof ApiEnv, string>;

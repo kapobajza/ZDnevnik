@@ -16,7 +16,10 @@ export async function buildTestApp() {
   await app.register(fp(buildApp), {
     testing: true,
     pgPool: postgresClient,
-    connectionString: postgresContainer.getConnectionUri(),
+    env: {
+      DATABASE_URL: postgresContainer.getConnectionUri(),
+      COOKIE_NAME: "test",
+    },
   });
 
   app.addHook("onClose", async () => {

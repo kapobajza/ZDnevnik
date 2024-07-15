@@ -1,12 +1,30 @@
 import Fastify from "fastify";
 import fp from "fastify-plugin";
 import { Pool } from "pg";
+import Env from "@fastify/env";
 
 import { buildApp } from "~/api/app";
+import { ApiEnv } from "~/api/env/types";
 
 async function main() {
   const app = Fastify({
     logger: true,
+  });
+
+  await app.register(Env, {
+    dotenv: true,
+    schema: {
+      type: "object",
+      required: [ApiEnv.DATABASE_URL, ApiEnv.COOKIE_NAME],
+      properties: {
+        [ApiEnv.DATABASE_URL]: {
+          type: "string",
+        },
+        [ApiEnv.COOKIE_NAME]: {
+          type: "string",
+        },
+      },
+    },
   });
 
   const envs = app.getEnvs();
@@ -16,7 +34,7 @@ async function main() {
   });
 
   await app.register(fp(buildApp), {
-    connectionString: envs.DATABASE_URL,
+    env: envs,
     pgPool: pool,
   });
 

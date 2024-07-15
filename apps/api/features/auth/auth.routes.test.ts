@@ -5,6 +5,11 @@ import { generatePasswordSalt, hashPassword } from "./util";
 import { buildTestApp } from "~/api/test/util";
 import { UserModel } from "~/api/db/models";
 import { ModelORM } from "~/api/db/orm";
+import {
+  HttpErrorCode,
+  HttpErrorStatus,
+  type HttpValidationError,
+} from "~/api/error/types";
 
 describe("auth routes", () => {
   jest.setTimeout(60000);
@@ -109,5 +114,37 @@ describe("auth routes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.headers["set-cookie"]).toBeTruthy();
+  });
+
+  it("should get 422 if username or password don't pass validation", async () => {
+    const response = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username: "",
+        password: "",
+      },
+    });
+
+    expect(response.statusCode).toBe(422);
+    const errorResponse: HttpValidationError = {
+      code: HttpErrorCode.ValidationError,
+      message: "An error occured during validation",
+      validationErrors: [
+        {
+          code: "too_small",
+          message: "String must contain at least 1 character(s)",
+          path: ["username"],
+        },
+        {
+          code: "too_small",
+          message: "String must contain at least 8 character(s)",
+          path: ["password"],
+        },
+      ],
+      statusCode: HttpErrorStatus.UnprocessableEntity,
+    };
+
+    expect(response.body).toEqual(JSON.stringify(errorResponse));
   });
 });
