@@ -6,7 +6,7 @@ import { z } from "zod";
 import type { LoginSelectedUserDTO } from "./types";
 import { hashPassword } from "./util";
 
-import { UserModel } from "~/api/db/models";
+import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
 
 export default function auth(
@@ -29,7 +29,7 @@ export default function auth(
     },
     async (request, reply) => {
       const user = await usersModel
-        .select("username", "password_hash", "password_salt", "id")
+        .select("username", "password_hash", "password_salt", "id", "role")
         .where({
           field: "username",
           operator: "=",

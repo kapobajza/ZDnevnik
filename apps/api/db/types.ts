@@ -1,7 +1,5 @@
 import type { PascalToSnakeCaseRecord } from "@zdnevnik/toolkit";
 
-import type { ModelSchema } from "./models";
-
 export type InsertOptions<TModel extends ModelSchema> = {
   returningFields?: (keyof InferModelField<TModel["fields"]>)[];
 };
@@ -76,3 +74,13 @@ export type InferModelField<TField extends FieldModel> =
         ? number
         : never;
   }>;
+
+export type ModelSchema = {
+  name: string;
+  fields: FieldModel;
+  foreignKeys?: {
+    key: string;
+    references: string;
+    referenceKey: string;
+  }[];
+};

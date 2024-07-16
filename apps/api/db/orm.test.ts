@@ -2,13 +2,11 @@ import type { Pool } from "pg";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 
 import { ModelORM } from "./orm";
-import { UserModel } from "./models";
 
 import { setupPgTestDatabase } from "~/api/test/util";
+import { UserModel } from "~/api/features/users/users.model";
 
 describe("ORM tests", () => {
-  jest.setTimeout(60000);
-
   let postgresContainer: StartedPostgreSqlContainer;
   let postgresClient: Pool;
   let usersTable: ModelORM<typeof UserModel>;

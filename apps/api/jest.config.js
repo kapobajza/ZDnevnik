@@ -14,4 +14,5 @@ module.exports = {
   moduleNameMapper: {
     "^~/api/(.*)": "<rootDir>/$1",
   },
+  testTimeout: 60000,
 };

@@ -1,4 +1,4 @@
-import type { ModelSchema } from "./models";
+import type { FieldModel, ModelSchema } from "./types";
 
 export const createForeignKeyConstraints = (model: ModelSchema) => {
   if (!model.foreignKeys) {
@@ -15,3 +15,16 @@ ALTER TABLE ${model.name}
     )
     .join("\n\n");
 };
+
+export const CommonModelField = {
+  CreatedAt: {
+    name: "created_at",
+    type: "number",
+    category: "timestamp",
+  },
+  UpdatedAt: {
+    name: "updated_at",
+    type: "number",
+    category: "timestamp",
+  },
+} as const satisfies FieldModel;

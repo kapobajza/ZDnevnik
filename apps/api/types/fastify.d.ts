@@ -1,3 +1,4 @@
+import type { FastifyAuthFunction } from "@fastify/auth";
 import type { Pool } from "pg";
 
 import type { ApiEnv } from "~/api/env/types";
@@ -7,5 +8,7 @@ declare module "fastify" {
   export interface FastifyInstance {
     getEnvs(): ApiEnv;
     dbPool: Pool;
+    verifyUserFromSession: FastifyAuthFunction;
+    verifyTeacherFromSession: FastifyAuthFunction;
   }
 }

@@ -19,6 +19,8 @@ export const HttpErrorStatus = {
 
 export const HttpErrorCode = {
   ValidationError: "validation_error",
+  Unathorized: "unauthorized",
+  Forbidden: "forbidden",
 };
 
 export type HttpError = {

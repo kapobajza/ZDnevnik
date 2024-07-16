@@ -17,8 +17,7 @@ CREATE TABLE "classrooms" (
   "id" varchar PRIMARY KEY,
   "created_at" timestamp,
   "updated_at" timestamp,
-  "name" varchar(255),
-  "student_id" varchar
+  "name" varchar(255)
 );
 
 CREATE TABLE "subjects" (
@@ -29,7 +28,7 @@ CREATE TABLE "subjects" (
   "classroom_id" varchar
 );
 
-CREATE TABLE "user_grades" (
+CREATE TABLE "users_grades" (
   "id" varchar PRIMARY KEY,
   "created_at" timestamp,
   "updated_at" timestamp,
@@ -38,10 +37,24 @@ CREATE TABLE "user_grades" (
   "grade" smallint
 );
 
+CREATE TABLE "users_classrooms" (
+  "id" varchar PRIMARY KEY,
+  "created_at" timestamp,
+  "updated_at" timestamp,
+  "user_id" varchar,
+  "classroom_id" varchar
+);
 
-ALTER TABLE classrooms
-  ADD FOREIGN KEY (student_id)
+
+ALTER TABLE users_classrooms
+  ADD FOREIGN KEY (user_id)
     REFERENCES users (id);
+  
+
+
+ALTER TABLE users_classrooms
+  ADD FOREIGN KEY (classroom_id)
+    REFERENCES classrooms (id);
   
 
 ALTER TABLE subjects
@@ -49,12 +62,12 @@ ALTER TABLE subjects
     REFERENCES classrooms (id);
   
 
-ALTER TABLE user_grades
+ALTER TABLE users_grades
   ADD FOREIGN KEY (user_id)
     REFERENCES users (id);
   
 
 
-ALTER TABLE user_grades
+ALTER TABLE users_grades
   ADD FOREIGN KEY (subject_id)
     REFERENCES subjects (id);

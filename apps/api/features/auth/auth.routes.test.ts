@@ -3,7 +3,7 @@ import { type FastifyInstance } from "fastify";
 import { generatePasswordSalt, hashPassword } from "./util";
 
 import { buildTestApp } from "~/api/test/util";
-import { UserModel } from "~/api/db/models";
+import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
 import {
   HttpErrorCode,
@@ -12,8 +12,6 @@ import {
 } from "~/api/error/types";
 
 describe("auth routes", () => {
-  jest.setTimeout(60000);
-
   let fastify: FastifyInstance;
   const username = "test";
   const password = "testtesttest";
@@ -41,25 +39,7 @@ describe("auth routes", () => {
   };
 
   afterEach(async () => {
-    const user = await usersModel
-      .select("id")
-      .where({
-        field: "username",
-        operator: "=",
-        value: username,
-      })
-      .executeOne();
-
-    if (user) {
-      await usersModel
-        .where({
-          field: "username",
-          operator: "=",
-          value: username,
-        })
-        .delete()
-        .execute();
-    }
+    await usersModel.delete().execute();
   });
 
   it("should get invalid_credentials if username doesn't exist", async () => {

@@ -1,8 +1,5 @@
 export const FastifyCustomProp = {
   DbPool: "dbPool",
+  VerifyUserFromSession: "verifyUserFromSession",
+  VerifyTeacherFromSession: "verifyTeacherFromSession",
 } as const;
-
-// export type FastifyInstance = Omit<FastifyDefaultInstance, "getEnvs"> & {
-//   getEnvs: () => ApiEnv;
-//   [FastifyCustomProp.DbPool]: PgPool;
-// };

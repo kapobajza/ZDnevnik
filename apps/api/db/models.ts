@@ -1,124 +1,25 @@
-import type { FieldModel, InferModelField } from "./types";
+import type { FieldModel, InferModelField, ModelSchema } from "./types";
+import { CommonModelField } from "./util";
 
-export type ModelSchema = {
-  name: string;
-  fields: FieldModel;
-  foreignKeys?: {
-    key: string;
-    references: string;
-    referenceKey: string;
-  }[];
-};
+import {
+  ClassroomModel,
+  ClassroomModelField,
+} from "~/api/features/clasrooms/classrooms.model";
+import { UserModel, UserModelField } from "~/api/features/users/users.model";
+import {
+  SubjectModel,
+  SubjectModelField,
+} from "~/api/features/subjects/subjects.models";
 
-const CommonModelField = {
-  CreatedAt: {
-    name: "created_at",
-    type: "number",
-    category: "timestamp",
-  },
-  UpdatedAt: {
-    name: "updated_at",
-    type: "number",
-    category: "timestamp",
-  },
-} as const satisfies FieldModel;
-
-const UserModelField = {
+export const UserClasroomModelField = {
   ...CommonModelField,
   Id: {
     name: "id",
     type: "string",
   },
-  FirstName: {
-    name: "first_name",
+  UserId: {
+    name: "user_id",
     type: "string",
-    length: 255,
-  },
-  LastName: {
-    name: "last_name",
-    type: "string",
-    length: 255,
-  },
-  Username: {
-    name: "username",
-    type: "string",
-    length: 255,
-  },
-  PasswordHash: {
-    name: "password_hash",
-    type: "string",
-  },
-  PasswordSalt: {
-    name: "password_salt",
-    type: "string",
-  },
-  Avatar: {
-    name: "avatar",
-    type: "string",
-  },
-  Role: {
-    name: "role",
-    type: "string",
-    length: 255,
-  },
-  OrdinalNumber: {
-    name: "ordinal_number",
-    type: "number",
-    category: "integer",
-  },
-  AverageGrade: {
-    name: "average_grade",
-    type: "number",
-    category: "decimal",
-  },
-} as const satisfies FieldModel;
-
-export type UserModel = InferModelField<typeof UserModelField>;
-
-export const UserModel = {
-  name: "users",
-  fields: UserModelField,
-} as const satisfies ModelSchema;
-
-const ClassroomModelField = {
-  ...CommonModelField,
-  Id: {
-    name: "id",
-    type: "string",
-  },
-  Name: {
-    name: "name",
-    type: "string",
-    length: 255,
-  },
-  StudentId: {
-    name: "student_id",
-    type: "string",
-  },
-} as const satisfies FieldModel;
-
-export const ClassroomModel = {
-  name: "classrooms",
-  fields: ClassroomModelField,
-  foreignKeys: [
-    {
-      references: UserModel.name,
-      key: ClassroomModelField.StudentId.name,
-      referenceKey: UserModelField.Id.name,
-    },
-  ],
-} as const satisfies ModelSchema;
-
-const SubjectModelField = {
-  ...CommonModelField,
-  Id: {
-    name: "id",
-    type: "string",
-  },
-  Name: {
-    name: "name",
-    type: "string",
-    length: 255,
   },
   ClassroomId: {
     name: "classroom_id",
@@ -126,19 +27,26 @@ const SubjectModelField = {
   },
 } as const satisfies FieldModel;
 
-export const SubjectModel = {
-  name: "subjects",
-  fields: SubjectModelField,
+export type UserClasroomModel = InferModelField<typeof UserClasroomModelField>;
+
+export const UserClasroomModel = {
+  name: "users_classrooms",
+  fields: UserClasroomModelField,
   foreignKeys: [
     {
-      key: SubjectModelField.ClassroomId.name,
-      references: ClassroomModel.name,
+      key: UserClasroomModelField.UserId.name,
+      referenceKey: UserModelField.Id.name,
+      references: UserModel.name,
+    },
+    {
+      key: UserClasroomModelField.ClassroomId.name,
       referenceKey: ClassroomModelField.Id.name,
+      references: ClassroomModel.name,
     },
   ],
 } as const satisfies ModelSchema;
 
-const UserGradeModelField = {
+export const UserGradeModelField = {
   ...CommonModelField,
   Id: {
     name: "id",
@@ -160,7 +68,7 @@ const UserGradeModelField = {
 } as const satisfies FieldModel;
 
 export const UserGradeModel = {
-  name: "user_grades",
+  name: "users_grades",
   fields: UserGradeModelField,
   foreignKeys: [
     {

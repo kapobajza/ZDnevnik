@@ -1,4 +1,3 @@
-import type { ModelSchema } from "./models";
 import type {
   ConditionalClause,
   IQueryBuilder,
@@ -6,6 +5,7 @@ import type {
   InsertOptions,
   QueryBuilderState,
   SortingOptions,
+  ModelSchema,
 } from "./types";
 
 export class QueryBuilder<TModel extends ModelSchema>

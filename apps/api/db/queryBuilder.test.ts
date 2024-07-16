@@ -1,5 +1,6 @@
-import { UserModel } from "./models";
 import { QueryBuilder } from "./queryBuilder";
+
+import { UserModel } from "~/api/features/users/users.model";
 
 describe("ORM query builder part", () => {
   let userQueryBuilder: QueryBuilder<typeof UserModel>;

@@ -1,11 +1,11 @@
 import type { Pool as PgPool, QueryResultRow } from "pg";
 
-import type { ModelSchema } from "./models";
 import type {
   ConditionalClause,
   IQueryBuilder,
   InferModelField,
   InsertOptions,
+  ModelSchema,
   QueryBuilderState,
   SortingOptions,
 } from "./types";

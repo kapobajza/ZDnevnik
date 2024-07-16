@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 
-import { UserModel } from "~/api/db/models";
+import { UserModel } from "./users.model";
+
 import { ModelORM } from "~/api/db/orm";
 
 export default function users(

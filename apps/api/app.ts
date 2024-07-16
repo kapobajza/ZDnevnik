@@ -12,14 +12,14 @@ import SecureSession from "@fastify/secure-session";
 import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
+import FastifyAuth from "@fastify/auth";
 
 import {
   HttpErrorCode,
   HttpErrorStatus,
   type HttpValidationError,
   type ValidationError,
-} from "./error/types";
-
+} from "~/api/error/types";
 import { type EnvRecord } from "~/api/env/types";
 
 export async function buildApp(
@@ -71,6 +71,8 @@ export async function buildApp(
     cookieName: opts.env.COOKIE_NAME,
   });
 
+  await fastify.register(FastifyAuth);
+
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "features"),
     matchFilter: (path) => {
@@ -79,6 +81,6 @@ export async function buildApp(
     ignoreFilter(path) {
       return path.endsWith("test.routes.ts");
     },
-    maxDepth: 1,
+    maxDepth: 2,
   });
 }

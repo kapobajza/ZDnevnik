@@ -1,10 +1,8 @@
-import {
-  ClassroomModel,
-  SubjectModel,
-  UserGradeModel,
-  UserModel,
-} from "~/api/db/models";
 import { createForeignKeyConstraints } from "~/api/db/util";
+import { UserModel } from "~/api/features/users/users.model";
+import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
+import { SubjectModel } from "~/api/features/subjects/subjects.models";
+import { UserGradeModel, UserClasroomModel } from "~/api/db/models";
 
 export default function generateSql() {
   return `
@@ -27,8 +25,7 @@ CREATE TABLE "${ClassroomModel.name}" (
   "${ClassroomModel.fields.Id.name}" varchar PRIMARY KEY,
   "${ClassroomModel.fields.CreatedAt.name}" timestamp,
   "${ClassroomModel.fields.UpdatedAt.name}" timestamp,
-  "${ClassroomModel.fields.Name.name}" varchar(255),
-  "${ClassroomModel.fields.StudentId.name}" varchar
+  "${ClassroomModel.fields.Name.name}" varchar(255)
 );
 
 CREATE TABLE "${SubjectModel.name}" (
@@ -48,7 +45,15 @@ CREATE TABLE "${UserGradeModel.name}" (
   "${UserGradeModel.fields.Grade.name}" smallint
 );
 
-${createForeignKeyConstraints(ClassroomModel)}
+CREATE TABLE "${UserClasroomModel.name}" (
+  "${UserClasroomModel.fields.Id.name}" varchar PRIMARY KEY,
+  "${UserClasroomModel.fields.CreatedAt.name}" timestamp,
+  "${UserClasroomModel.fields.UpdatedAt.name}" timestamp,
+  "${UserClasroomModel.fields.UserId.name}" varchar,
+  "${UserClasroomModel.fields.ClassroomId.name}" varchar
+);
+
+${createForeignKeyConstraints(UserClasroomModel)}
 ${createForeignKeyConstraints(SubjectModel)}
 ${createForeignKeyConstraints(UserGradeModel)}
   `;

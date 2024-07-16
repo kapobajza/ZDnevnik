@@ -19,6 +19,12 @@ const generateSqlMigrations = () => {
         `import generateSql from '${migrationTsFilePath}'; console.log(generateSql());`,
       ]);
 
+      if (sqlContent.status !== 0) {
+        throw new Error(
+          `Failed to generate SQL for migration ${migrationTsFile}: ${sqlContent.stderr.toString()}`,
+        );
+      }
+
       fs.writeFileSync(
         path.join(
           migrationsPath,
