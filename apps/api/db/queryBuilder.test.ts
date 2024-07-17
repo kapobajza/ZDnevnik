@@ -1,3 +1,4 @@
+import { UserClasroomModel } from "./models";
 import { QueryBuilder } from "./queryBuilder";
 
 import { UserModel } from "~/api/features/users/users.model";
@@ -12,11 +13,11 @@ describe("ORM query builder part", () => {
   it("select statement works correctly", () => {
     expect(userQueryBuilder.build()).toBe("SELECT * FROM users");
     expect(userQueryBuilder.select("avatar").build()).toBe(
-      "SELECT avatar FROM users",
+      "SELECT users.avatar FROM users",
     );
     expect(
       userQueryBuilder.select("id", "first_name", "last_name").build(),
-    ).toBe("SELECT id, first_name, last_name FROM users");
+    ).toBe("SELECT users.id, users.first_name, users.last_name FROM users");
   });
 
   it("where clause works correctly", () => {
@@ -39,7 +40,7 @@ describe("ORM query builder part", () => {
         })
         .build(),
     ).toBe(
-      "SELECT id, first_name, last_name FROM users WHERE first_name != $1",
+      "SELECT users.id, users.first_name, users.last_name FROM users WHERE first_name != $1",
     );
   });
 
@@ -58,7 +59,7 @@ describe("ORM query builder part", () => {
       userQueryBuilder.insert(["id", "role"], ["1", "teacher"]).build(),
     ).toBe("INSERT INTO users(id, role) VALUES($1, $2) RETURNING *");
     expect(userQueryBuilder.select("created_at", "avatar").build()).toBe(
-      "SELECT created_at, avatar FROM users",
+      "SELECT users.created_at, users.avatar FROM users",
     );
     expect(
       userQueryBuilder
@@ -69,7 +70,7 @@ describe("ORM query builder part", () => {
           value: "1",
         })
         .build(),
-    ).toBe("SELECT created_at, avatar FROM users WHERE id = $1");
+    ).toBe("SELECT users.created_at, users.avatar FROM users WHERE id = $1");
   });
 
   it("where with AND works correctly", () => {
@@ -169,7 +170,7 @@ describe("ORM query builder part", () => {
         })
         .build(),
     ).toBe(
-      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name, last_name ASC",
+      "SELECT users.first_name, users.last_name FROM users WHERE id = $1 ORDER BY first_name, last_name ASC",
     );
   });
 
@@ -188,7 +189,7 @@ describe("ORM query builder part", () => {
         })
         .build(),
     ).toBe(
-      "SELECT first_name, last_name FROM users WHERE id = $1 ORDER BY first_name DESC",
+      "SELECT users.first_name, users.last_name FROM users WHERE id = $1 ORDER BY first_name DESC",
     );
   });
 
@@ -203,7 +204,9 @@ describe("ORM query builder part", () => {
         })
         .limit(10)
         .build(),
-    ).toBe("SELECT first_name, last_name FROM users WHERE id = $1 LIMIT 10");
+    ).toBe(
+      "SELECT users.first_name, users.last_name FROM users WHERE id = $1 LIMIT 10",
+    );
   });
 
   it("limit and offset works correctly", () => {
@@ -213,10 +216,77 @@ describe("ORM query builder part", () => {
         .limit(10)
         .offset(10)
         .build(),
-    ).toBe("SELECT first_name, last_name FROM users LIMIT 10 OFFSET 10");
+    ).toBe(
+      "SELECT users.first_name, users.last_name FROM users LIMIT 10 OFFSET 10",
+    );
   });
 
   it("delete works correctly", () => {
     expect(userQueryBuilder.delete().build()).toBe("DELETE FROM users");
+  });
+
+  it("join works correctly", () => {
+    expect(
+      userQueryBuilder
+        .select("first_name", "last_name")
+        .join({
+          type: "LEFT",
+          table: UserClasroomModel,
+          on: {
+            field: "id",
+            value: "user_id",
+          },
+        })
+        .build(),
+    ).toBe(
+      "SELECT users.first_name, users.last_name FROM users LEFT JOIN users_classrooms ON users.id = users_classrooms.user_id",
+    );
+  });
+
+  it("join with where works correctly", () => {
+    expect(
+      userQueryBuilder
+        .select("first_name", "last_name")
+        .join({
+          type: "FULL",
+          table: UserClasroomModel,
+          on: {
+            field: "id",
+            value: "user_id",
+          },
+        })
+        .where({
+          field: "id",
+          operator: "=",
+          value: "1",
+        })
+        .build(),
+    ).toBe(
+      "SELECT users.first_name, users.last_name FROM users FULL JOIN users_classrooms ON users.id = users_classrooms.user_id WHERE id = $1",
+    );
+  });
+
+  it("multiple joins work correctly", () => {
+    expect(
+      userQueryBuilder
+        .select("first_name", "last_name")
+        .join({
+          table: UserClasroomModel,
+          on: {
+            field: "id",
+            value: "user_id",
+          },
+        })
+        .join({
+          table: UserClasroomModel,
+          on: {
+            field: "id",
+            value: "user_id",
+          },
+        })
+        .build(),
+    ).toBe(
+      "SELECT users.first_name, users.last_name FROM users INNER JOIN users_classrooms ON users.id = users_classrooms.user_id INNER JOIN users_classrooms ON users.id = users_classrooms.user_id",
+    );
   });
 });

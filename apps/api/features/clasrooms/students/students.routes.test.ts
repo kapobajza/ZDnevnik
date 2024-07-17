@@ -18,9 +18,17 @@ describe("students routes", () => {
 
   beforeAll(async () => {
     fastify = await buildTestApp();
-    clasroomsModel = new ModelORM(ClassroomModel, fastify.dbPool);
-    usersModel = new ModelORM(UserModel, fastify.dbPool);
-    userClassroomModel = new ModelORM(UserClasroomModel, fastify.dbPool);
+    clasroomsModel = new ModelORM(
+      ClassroomModel,
+      fastify.dbPool,
+      fastify.mappedTable,
+    );
+    usersModel = new ModelORM(UserModel, fastify.dbPool, fastify.mappedTable);
+    userClassroomModel = new ModelORM(
+      UserClasroomModel,
+      fastify.dbPool,
+      fastify.mappedTable,
+    );
   });
 
   afterAll(async () => {
@@ -116,10 +124,16 @@ describe("students routes", () => {
 
     await userClassroomModel.transaction(async (tx) => {
       await tx
-        .insert(["user_id", "classroom_id"], [teacher.id, classroom.id])
+        .insert(
+          ["id", "user_id", "classroom_id"],
+          ["1", teacher.id, classroom.id],
+        )
         .execute();
       await tx
-        .insert(["user_id", "classroom_id"], [student.id, classroom.id])
+        .insert(
+          ["id", "user_id", "classroom_id"],
+          ["2", student.id, classroom.id],
+        )
         .execute();
     });
 

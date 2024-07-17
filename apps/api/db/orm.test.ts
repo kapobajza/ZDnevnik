@@ -2,14 +2,19 @@ import type { Pool } from "pg";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 
 import { ModelORM } from "./orm";
+import { UserClasroomModel } from "./models";
+import { mapTables } from "./util";
 
 import { setupPgTestDatabase } from "~/api/test/util";
 import { UserModel } from "~/api/features/users/users.model";
+import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 
 describe("ORM tests", () => {
   let postgresContainer: StartedPostgreSqlContainer;
   let postgresClient: Pool;
   let usersTable: ModelORM<typeof UserModel>;
+  let userClasroomTable: ModelORM<typeof UserClasroomModel>;
+  let clasroomTable: ModelORM<typeof ClassroomModel>;
   const USER_ID = "1";
 
   beforeAll(async () => {
@@ -17,8 +22,15 @@ describe("ORM tests", () => {
 
     postgresContainer = pgContent.postgresContainer;
     postgresClient = pgContent.postgresClient;
+    const mappedTable = await mapTables(postgresClient);
 
-    usersTable = new ModelORM(UserModel, postgresClient);
+    usersTable = new ModelORM(UserModel, postgresClient, mappedTable);
+    userClasroomTable = new ModelORM(
+      UserClasroomModel,
+      postgresClient,
+      mappedTable,
+    );
+    clasroomTable = new ModelORM(ClassroomModel, postgresClient, mappedTable);
 
     await usersTable.transaction(async (tx) => {
       await tx
@@ -138,6 +150,49 @@ describe("ORM tests", () => {
     const result = await usersTable.select("id").offset(1).execute();
 
     expect(result).toEqual([{ id: "2" }]);
+  });
+
+  it("join works correctly", async () => {
+    await clasroomTable.insert(["id", "name"], ["1", "test"]).execute();
+    await userClasroomTable
+      .insert(["id", "user_id", "classroom_id"], ["1", "2", "1"])
+      .execute();
+    const result = await usersTable
+      .select()
+      .join({
+        table: UserClasroomModel,
+        on: {
+          field: "id",
+          value: "user_id",
+        },
+      })
+      .execute();
+
+    expect(result).toEqual([
+      {
+        users: {
+          avatar: null,
+          average_grade: null,
+          created_at: null,
+          first_name: "test 2",
+          id: "2",
+          last_name: "test 2",
+          ordinal_number: null,
+          password_hash: null,
+          password_salt: null,
+          role: null,
+          updated_at: null,
+          username: null,
+        },
+        users_classrooms: {
+          classroom_id: "1",
+          created_at: null,
+          id: "1",
+          updated_at: null,
+          user_id: "2",
+        },
+      },
+    ]);
   });
 
   it("insert should insert values into table", async () => {

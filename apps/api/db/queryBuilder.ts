@@ -6,10 +6,15 @@ import type {
   QueryBuilderState,
   SortingOptions,
   ModelSchema,
+  JoinOptions,
 } from "./types";
 
-export class QueryBuilder<TModel extends ModelSchema>
-  implements IQueryBuilder<TModel>
+export class QueryBuilder<
+  TModel extends ModelSchema,
+  TModelFields extends (keyof InferModelField<
+    TModel["fields"]
+  >)[] = (keyof InferModelField<TModel["fields"]>)[],
+> implements IQueryBuilder<TModel, TModelFields>
 {
   state: Partial<QueryBuilderState<TModel>> = {};
 
@@ -52,8 +57,15 @@ export class QueryBuilder<TModel extends ModelSchema>
     return this;
   }
 
-  select(...columns: (keyof InferModelField<TModel["fields"]>)[]) {
-    return this.cloneAndUpdate({ selectColumns: columns.join(", ") });
+  select(...columns: TModelFields) {
+    return this.cloneAndUpdate({
+      selectColumns:
+        columns.length === 0
+          ? undefined
+          : columns
+              .map((column) => `${this.model.name}.${column as string}`)
+              .join(", "),
+    });
   }
 
   where(clause: ConditionalClause<TModel>) {
@@ -94,6 +106,53 @@ export class QueryBuilder<TModel extends ModelSchema>
     return this.cloneAndUpdate({ offset: by });
   }
 
+  join<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    return this.cloneAndUpdate({
+      joinOptions: [options] as JoinOptions<TModel, ModelSchema>[],
+    });
+  }
+
+  leftJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    return this.cloneAndUpdate({
+      joinOptions: [
+        {
+          ...options,
+          type: "LEFT",
+        },
+      ] as JoinOptions<TModel, ModelSchema>[],
+    });
+  }
+
+  rightJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    return this.cloneAndUpdate({
+      joinOptions: [
+        {
+          ...options,
+          type: "RIGHT",
+        },
+      ] as JoinOptions<TModel, ModelSchema>[],
+    });
+  }
+
+  fullJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    return this.cloneAndUpdate({
+      joinOptions: [
+        {
+          ...options,
+          type: "FULL",
+        },
+      ] as JoinOptions<TModel, ModelSchema>[],
+    });
+  }
+
   build() {
     let query: string | undefined;
     const {
@@ -104,6 +163,10 @@ export class QueryBuilder<TModel extends ModelSchema>
       insertOptions,
       additionalClauses,
       deleteStatement,
+      joinOptions,
+      sortOptions,
+      limit,
+      offset,
     } = this.state || {};
 
     if (insertColumns && insertValues) {
@@ -113,6 +176,15 @@ export class QueryBuilder<TModel extends ModelSchema>
 
     if (deleteStatement) {
       query = `DELETE FROM ${this.model.name}`;
+    }
+
+    if (!deleteStatement && joinOptions) {
+      query += joinOptions
+        .map((join) => {
+          const joinTableName = join.table.name;
+          return ` ${join.type ?? "INNER"} JOIN ${joinTableName} ON ${this.model.name}.${join.on.field as string} = ${joinTableName}.${join.on.value as string}`;
+        })
+        .join("");
     }
 
     if (whereClause) {
@@ -127,23 +199,23 @@ export class QueryBuilder<TModel extends ModelSchema>
       return query;
     }
 
-    if (this.state.sortOptions) {
-      query += ` ORDER BY ${this.state.sortOptions.by.join(", ")} ${this.state.sortOptions.order ?? "ASC"}`;
+    if (sortOptions) {
+      query += ` ORDER BY ${sortOptions.by.join(", ")} ${sortOptions.order ?? "ASC"}`;
     }
 
-    if (this.state.limit) {
-      query += ` LIMIT ${this.state.limit}`;
+    if (limit) {
+      query += ` LIMIT ${limit}`;
     }
 
-    if (this.state.offset) {
-      query += ` OFFSET ${this.state.offset}`;
+    if (offset) {
+      query += ` OFFSET ${offset}`;
     }
 
     return query;
   }
 
   insert(
-    columns: (keyof InferModelField<TModel["fields"]>)[],
+    columns: TModelFields,
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>>,
   ) {

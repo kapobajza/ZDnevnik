@@ -1,17 +1,11 @@
 import type { FieldModel, InferModelField, ModelSchema } from "./types";
 import { CommonModelField } from "./util";
 
-import {
-  ClassroomModel,
-  ClassroomModelField,
-} from "~/api/features/clasrooms/classrooms.model";
-import { UserModel, UserModelField } from "~/api/features/users/users.model";
-import {
-  SubjectModel,
-  SubjectModelField,
-} from "~/api/features/subjects/subjects.models";
+import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
+import { UserModel } from "~/api/features/users/users.model";
+import { SubjectModel } from "~/api/features/subjects/subjects.models";
 
-export const UserClasroomModelField = {
+const UserClasroomModelField = {
   ...CommonModelField,
   Id: {
     name: "id",
@@ -35,12 +29,12 @@ export const UserClasroomModel = {
   foreignKeys: [
     {
       key: UserClasroomModelField.UserId.name,
-      referenceKey: UserModelField.Id.name,
+      referenceKey: UserModel.fields.Id.name,
       references: UserModel.name,
     },
     {
       key: UserClasroomModelField.ClassroomId.name,
-      referenceKey: ClassroomModelField.Id.name,
+      referenceKey: ClassroomModel.fields.Id.name,
       references: ClassroomModel.name,
     },
   ],
@@ -73,12 +67,12 @@ export const UserGradeModel = {
   foreignKeys: [
     {
       key: UserGradeModelField.UserId.name,
-      referenceKey: UserModelField.Id.name,
+      referenceKey: UserModel.fields.Id.name,
       references: UserModel.name,
     },
     {
       key: UserGradeModelField.SubjectId.name,
-      referenceKey: SubjectModelField.Id.name,
+      referenceKey: SubjectModel.fields.Id.name,
       references: SubjectModel.name,
     },
   ],

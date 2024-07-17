@@ -1,11 +1,8 @@
 import { CommonModelField } from "~/api/db/util";
 import type { FieldModel, ModelSchema } from "~/api/db/types";
-import {
-  ClassroomModel,
-  ClassroomModelField,
-} from "~/api/features/clasrooms/classrooms.model";
+import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 
-export const SubjectModelField = {
+const SubjectModelField = {
   ...CommonModelField,
   Id: {
     name: "id",
@@ -29,7 +26,7 @@ export const SubjectModel = {
     {
       key: SubjectModelField.ClassroomId.name,
       references: ClassroomModel.name,
-      referenceKey: ClassroomModelField.Id.name,
+      referenceKey: ClassroomModel.fields.Id.name,
     },
   ],
 } as const satisfies ModelSchema;

@@ -1,7 +1,7 @@
 import { CommonModelField } from "~/api/db/util";
 import type { FieldModel, InferModelField, ModelSchema } from "~/api/db/types";
 
-export const ClassroomModelField = {
+const ClassroomModelField = {
   ...CommonModelField,
   Id: {
     name: "id",

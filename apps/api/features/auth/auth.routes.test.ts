@@ -19,7 +19,7 @@ describe("auth routes", () => {
 
   beforeAll(async () => {
     fastify = await buildTestApp();
-    usersModel = new ModelORM(UserModel, fastify.dbPool);
+    usersModel = new ModelORM(UserModel, fastify.dbPool, fastify.mappedTable);
   });
 
   afterAll(async () => {

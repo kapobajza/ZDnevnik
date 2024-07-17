@@ -19,6 +19,18 @@ export type AdditionalClause<TModel extends ModelSchema> = {
   type: "AND" | "OR";
 } & ConditionalClause<TModel>;
 
+export type JoinOptions<
+  TModel extends ModelSchema,
+  TJoinModel extends ModelSchema,
+> = {
+  type?: "INNER" | "LEFT" | "RIGHT" | "FULL";
+  table: TJoinModel;
+  on: {
+    field: keyof InferModelField<TModel["fields"]>;
+    value: keyof InferModelField<TJoinModel["fields"]>;
+  };
+};
+
 export type QueryBuilderState<TModel extends ModelSchema> = {
   selectColumns: string | undefined;
   whereClause: ConditionalClause<TModel> | undefined;
@@ -30,17 +42,21 @@ export type QueryBuilderState<TModel extends ModelSchema> = {
   limit: number | undefined;
   offset: number | undefined;
   deleteStatement: boolean | undefined;
+  joinOptions: JoinOptions<TModel, ModelSchema>[] | undefined;
 };
 
-export type IQueryBuilder<TModel extends ModelSchema> = {
-  select(
-    ...columns: (keyof InferModelField<TModel["fields"]>)[]
-  ): IQueryBuilder<TModel>;
+export type IQueryBuilder<
+  TModel extends ModelSchema,
+  TModelFields extends (keyof InferModelField<
+    TModel["fields"]
+  >)[] = (keyof InferModelField<TModel["fields"]>)[],
+> = {
+  select(...columns: TModelFields): IQueryBuilder<TModel>;
   where(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   and(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   or(clause: ConditionalClause<TModel>): IQueryBuilder<TModel>;
   insert(
-    columns: (keyof InferModelField<TModel["fields"]>)[],
+    columns: TModelFields,
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>>,
   ): IQueryBuilder<TModel>;
@@ -48,6 +64,18 @@ export type IQueryBuilder<TModel extends ModelSchema> = {
   sort(options: SortingOptions<TModel>): IQueryBuilder<TModel>;
   limit(by: number): IQueryBuilder<TModel>;
   offset(by: number): IQueryBuilder<TModel>;
+  join<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ): IQueryBuilder<TModel>;
+  leftJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ): IQueryBuilder<TModel>;
+  rightJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ): IQueryBuilder<TModel>;
+  fullJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ): IQueryBuilder<TModel>;
   build(): string;
 };
 

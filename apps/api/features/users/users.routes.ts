@@ -9,7 +9,11 @@ export default function users(
   _opts: unknown,
   done: () => void,
 ) {
-  const usersModel = new ModelORM(UserModel, fastify.dbPool);
+  const usersModel = new ModelORM(
+    UserModel,
+    fastify.dbPool,
+    fastify.mappedTable,
+  );
 
   fastify.get("", async (_request, reply) => {
     const users = await usersModel

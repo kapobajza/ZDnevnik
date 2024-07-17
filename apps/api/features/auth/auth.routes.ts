@@ -3,7 +3,6 @@ import { type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 
-import type { LoginSelectedUserDTO } from "./types";
 import { hashPassword } from "./util";
 
 import { UserModel } from "~/api/features/users/users.model";
@@ -14,7 +13,11 @@ export default function auth(
   _opts: unknown,
   done: () => void,
 ) {
-  const usersModel = new ModelORM(UserModel, fastify.dbPool);
+  const usersModel = new ModelORM(
+    UserModel,
+    fastify.dbPool,
+    fastify.mappedTable,
+  );
 
   fastify.withTypeProvider<ZodTypeProvider>().post(
     "/login",
@@ -35,7 +38,7 @@ export default function auth(
           operator: "=",
           value: request.body.username,
         })
-        .executeOne<LoginSelectedUserDTO>();
+        .executeOne();
 
       if (!user) {
         return reply.code(400).send({ error: "invalid_credentials" });

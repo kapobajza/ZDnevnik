@@ -5,20 +5,28 @@ import type {
   IQueryBuilder,
   InferModelField,
   InsertOptions,
+  JoinOptions,
   ModelSchema,
   QueryBuilderState,
   SortingOptions,
 } from "./types";
 import { QueryBuilder } from "./queryBuilder";
 
-export class ModelORM<TModel extends ModelSchema>
-  implements IQueryBuilder<TModel>
+import type { MappedTable } from "~/api/types";
+
+export class ModelORM<
+  TModel extends ModelSchema,
+  TModelFields extends (keyof InferModelField<
+    TModel["fields"]
+  >)[] = (keyof InferModelField<TModel["fields"]>)[],
+> implements IQueryBuilder<TModel>
 {
   private queryBuilder: QueryBuilder<TModel>;
 
   constructor(
     private model: TModel,
     private pool: PgPool,
+    private mappedTable: MappedTable,
   ) {
     this.queryBuilder = new QueryBuilder(this.model);
   }
@@ -28,9 +36,14 @@ export class ModelORM<TModel extends ModelSchema>
     return this;
   }
 
-  select(...columns: (keyof InferModelField<TModel["fields"]>)[]) {
+  select<
+    TSelectFields extends (keyof InferModelField<TModel["fields"]>)[] = [],
+  >(...columns: TSelectFields) {
     this.queryBuilder = this.queryBuilder.select(...columns);
-    return this;
+    return this as ModelORM<
+      TModel,
+      TSelectFields extends [] ? TModelFields : TSelectFields
+    >;
   }
 
   where(clause: ConditionalClause<TModel>) {
@@ -67,17 +80,52 @@ export class ModelORM<TModel extends ModelSchema>
     return this.queryBuilder.build();
   }
 
-  insert(
-    columns: (keyof InferModelField<TModel["fields"]>)[],
+  insert<
+    TInsertReturnFields extends (keyof InferModelField<
+      TModel["fields"]
+    >)[] = [],
+  >(
+    columns: TInsertReturnFields,
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(columns, values, options);
-    return this;
+    return this as ModelORM<
+      TModel,
+      TInsertReturnFields extends [] ? TModelFields : TInsertReturnFields
+    >;
   }
 
   delete() {
     this.queryBuilder = this.queryBuilder.delete();
+    return this;
+  }
+
+  join<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    this.queryBuilder = this.queryBuilder.join(options);
+    return this;
+  }
+
+  leftJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    this.queryBuilder = this.queryBuilder.leftJoin(options);
+    return this;
+  }
+
+  rightJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    this.queryBuilder = this.queryBuilder.rightJoin(options);
+    return this;
+  }
+
+  fullJoin<TJoinModel extends ModelSchema>(
+    options: JoinOptions<TModel, TJoinModel>,
+  ) {
+    this.queryBuilder = this.queryBuilder.fullJoin(options);
     return this;
   }
 
@@ -101,14 +149,55 @@ export class ModelORM<TModel extends ModelSchema>
     return undefined;
   };
 
-  async execute<TResult extends QueryResultRow>() {
+  async execute<
+    TResult extends QueryResultRow = Pick<
+      InferModelField<TModel["fields"]>,
+      TModelFields[number]
+    >,
+  >() {
     const client = await this.pool.connect();
+    const { joinOptions } = this.queryBuilder.state;
 
     try {
       const query = this.build();
       const queryValues = this.getQueryValues();
 
-      const res = await this.pool.query<TResult>(query, queryValues);
+      const res = await this.pool.query<TResult>(
+        {
+          text: query,
+          // @ts-expect-error - Incorrect types provided by pg
+          rowMode: joinOptions ? "array" : undefined,
+        },
+        queryValues,
+      );
+
+      if (joinOptions) {
+        const finalResult: Record<string, Record<string, TResult>>[] = [];
+
+        for (const row of res.rows as unknown as TResult[][]) {
+          const obj: Record<string, Record<string, TResult>> = {};
+          const joinedTables = joinOptions.map((join) => join.table.name);
+
+          for (const table of [this.model.name, ...joinedTables]) {
+            const tableId = this.mappedTable[table];
+            for (let i = 0; i < res.fields.length; i++) {
+              const field = res.fields[i];
+              const value = row[i];
+
+              if (tableId === field?.tableID) {
+                obj[table] = {
+                  ...obj[table],
+                  [field?.name as string]: value as TResult,
+                };
+              }
+            }
+          }
+
+          finalResult.push(obj);
+        }
+
+        return finalResult as unknown as TResult[];
+      }
 
       return res.rows;
     } finally {
@@ -117,7 +206,12 @@ export class ModelORM<TModel extends ModelSchema>
     }
   }
 
-  async executeOne<TResult extends QueryResultRow>() {
+  async executeOne<
+    TResult extends QueryResultRow = Pick<
+      InferModelField<TModel["fields"]>,
+      TModelFields[number]
+    >,
+  >() {
     const results = await this.execute<TResult>();
     return results?.[0];
   }
