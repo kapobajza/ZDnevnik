@@ -91,9 +91,13 @@ export type ModelFieldsMap = Record<string, ModelFieldOptions>;
 
 export type ModelFieldsStartingMap = Record<string, ModelFieldStartingOptions>;
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export interface NestedColumnOptionsMap
+  extends Record<string, ModelFieldOptions | NestedColumnOptionsMap> {}
+
 export type ColumnOptionsMap = Record<
   string,
-  ModelFieldOptions | Record<string, ModelFieldOptions>
+  ModelFieldOptions | NestedColumnOptionsMap
 >;
 
 export type QueryBuilderState<
@@ -102,7 +106,7 @@ export type QueryBuilderState<
   selectColumns: TColumnOptions | undefined;
   whereClause: ConditionalClause | undefined;
   additionalClauses: AdditionalClause[] | undefined;
-  insertColumns: TColumnOptions | undefined;
+  insertColumns: string[] | undefined;
   insertValues: (string | number)[] | undefined;
   insertOptions: Partial<InsertOptions<TColumnOptions>> | undefined;
   sortOptions: SortingOptions | undefined;
@@ -116,14 +120,12 @@ export type IQueryBuilder<
   TModel extends ModelSchema,
   TColumnOptions extends ColumnOptionsMap = ColumnOptionsMap,
 > = {
-  select(columns?: TColumnOptions): IQueryBuilder<TModel, TColumnOptions>;
   where(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
   and(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
   or(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
   insert(
-    columns: TColumnOptions,
-    values: (string | number)[],
-    options?: Partial<InsertOptions<TColumnOptions>>,
+    def: [keyof TModel["fields"], string | number][],
+    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ): IQueryBuilder<TModel, TColumnOptions>;
   delete(): IQueryBuilder<TModel, TColumnOptions>;
   sort(options: SortingOptions): IQueryBuilder<TModel, TColumnOptions>;
@@ -152,3 +154,13 @@ export type InferModelFields<
       ? number
       : never;
 }>;
+
+export type InferColumnOptionsResult<TColumnOptions> = {
+  [key in keyof TColumnOptions]: TColumnOptions[key] extends ModelFieldStartingOptions
+    ? TColumnOptions[key]["type"] extends "string"
+      ? string
+      : TColumnOptions[key]["type"] extends "number"
+        ? number
+        : never
+    : InferColumnOptionsResult<TColumnOptions[key]>;
+};

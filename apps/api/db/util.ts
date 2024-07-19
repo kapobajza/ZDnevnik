@@ -39,7 +39,7 @@ export const CommonModelField = {
 } as const satisfies Record<string, ModelFieldStartingOptions>;
 
 export const mapTables = async (client: Pool) => {
-  const res = await client.query<{ table_id: string; table_name: string }>(`
+  const res = await client.query<{ table_id: number; table_name: string }>(`
       SELECT oid as table_id, relname as table_name
       FROM pg_class
       WHERE relkind = 'r' AND relname NOT LIKE 'pg_%';
@@ -67,11 +67,13 @@ export function model<
       name: "created_at",
       type: "number",
       category: "timestamp",
+      modelName: otherSchemaOptions.name,
     },
     UpdatedAt: {
       name: "updated_at",
       type: "number",
       category: "timestamp",
+      modelName: otherSchemaOptions.name,
     },
   } as const satisfies Record<string, ModelFieldStartingOptions>;
 

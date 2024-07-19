@@ -4,6 +4,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 
 import { hashPassword } from "./util";
+import { LoginSelectedUserDTO } from "./types";
 
 import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
@@ -32,9 +33,9 @@ export default function auth(
     },
     async (request, reply) => {
       const user = await usersModel
-        .select("username", "password_hash", "password_salt", "id", "role")
+        .select(LoginSelectedUserDTO)
         .where({
-          field: "username",
+          field: UserModel.fields.Username,
           operator: "=",
           value: request.body.username,
         })
@@ -46,10 +47,10 @@ export default function auth(
 
       const dbPasswordHash = hashPassword(
         request.body.password,
-        user.password_salt,
+        user.passwordSalt,
       );
 
-      if (dbPasswordHash !== user.password_hash) {
+      if (dbPasswordHash !== user.passwordHash) {
         return reply.code(400).send({ error: "invalid_credentials" });
       }
 

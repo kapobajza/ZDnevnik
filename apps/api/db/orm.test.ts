@@ -34,13 +34,19 @@ describe("ORM tests", () => {
 
     await usersTable.transaction(async (tx) => {
       await tx
-        .insert(["id", "first_name", "last_name"], [USER_ID, "test", "test"])
+        .insert([
+          ["Id", USER_ID],
+          ["FirstName", "test"],
+          ["LastName", "test"],
+        ])
         .execute();
 
       await tx
-        .insert(["id", "first_name", "last_name"], ["2", "test 2", "test 2"], {
-          returningFields: ["id", "first_name", "last_name"],
-        })
+        .insert([
+          ["Id", "2"],
+          ["FirstName", "test 2"],
+          ["LastName", "test 2"],
+        ])
         .execute();
     });
   });
@@ -50,25 +56,77 @@ describe("ORM tests", () => {
     await postgresContainer.stop();
   });
 
-  it("select should select values from table", async () => {
+  it("select should select specifc values from table", async () => {
     const result = await usersTable
       .select({
         userId: UserModel.fields.Id,
+        firstName: UserModel.fields.FirstName,
+        lastName: UserModel.fields.LastName,
       })
       .executeOne();
 
     expect(result).toEqual({
+      firstName: "test",
+      lastName: "test",
+      userId: "1",
+    });
+  });
+
+  it("select should select specifc nested values from table", async () => {
+    const result = await usersTable
+      .select({
+        userId: UserModel.fields.Id,
+        name: {
+          firstName: UserModel.fields.FirstName,
+          lastName: UserModel.fields.LastName,
+          date: {
+            createdAt: UserModel.fields.CreatedAt,
+            updatedAt: UserModel.fields.UpdatedAt,
+          },
+        },
+      })
+      .executeOne();
+
+    expect(result).toEqual({
+      name: {
+        firstName: "test",
+        lastName: "test",
+        date: {
+          createdAt: null,
+          updatedAt: null,
+        },
+      },
+      userId: "1",
+    });
+  });
+
+  it("select should select all values from table", async () => {
+    const result = await usersTable.select().executeOne();
+
+    expect(result).toEqual({
+      avatar: null,
+      average_grade: null,
+      created_at: null,
       first_name: "test",
-      last_name: "test",
       id: "1",
+      last_name: "test",
+      ordinal_number: null,
+      password_hash: null,
+      password_salt: null,
+      role: null,
+      updated_at: null,
+      username: null,
     });
   });
 
   it("select with where clause should select values from table", async () => {
     const result = await usersTable
-      .select("first_name", "last_name")
+      .select({
+        first_name: UserModel.fields.FirstName,
+        last_name: UserModel.fields.LastName,
+      })
       .where({
-        field: "id",
+        field: UserModel.fields.Id,
         operator: "=",
         value: USER_ID,
       })
@@ -79,14 +137,17 @@ describe("ORM tests", () => {
 
   it("select with where clause and AND clause should select values from table", async () => {
     const result = await usersTable
-      .select("first_name", "last_name")
+      .select({
+        first_name: UserModel.fields.FirstName,
+        last_name: UserModel.fields.LastName,
+      })
       .where({
-        field: "id",
+        field: UserModel.fields.Id,
         operator: "=",
         value: USER_ID,
       })
       .and({
-        field: "first_name",
+        field: UserModel.fields.FirstName,
         operator: "=",
         value: "test",
       })
@@ -97,19 +158,22 @@ describe("ORM tests", () => {
 
   it("select with multiple AND statements should select values from table", async () => {
     const result = await usersTable
-      .select("first_name", "last_name")
+      .select({
+        first_name: UserModel.fields.FirstName,
+        last_name: UserModel.fields.LastName,
+      })
       .where({
-        field: "id",
+        field: UserModel.fields.Id,
         operator: "=",
         value: USER_ID,
       })
       .and({
-        field: "first_name",
+        field: UserModel.fields.FirstName,
         operator: "=",
         value: "test",
       })
       .and({
-        field: "last_name",
+        field: UserModel.fields.LastName,
         operator: "=",
         value: "test",
       })
@@ -120,9 +184,11 @@ describe("ORM tests", () => {
 
   it("sort by ASC works correctly", async () => {
     const result = await usersTable
-      .select("id")
+      .select({
+        id: UserModel.fields.Id,
+      })
       .sort({
-        by: ["id"],
+        by: [UserModel.fields.Id],
         order: "ASC",
       })
       .execute();
@@ -132,9 +198,11 @@ describe("ORM tests", () => {
 
   it("sort by DESC works correctly", async () => {
     const result = await usersTable
-      .select("id")
+      .select({
+        id: UserModel.fields.Id,
+      })
       .sort({
-        by: ["id"],
+        by: [UserModel.fields.Id],
         order: "DESC",
       })
       .execute();
@@ -143,29 +211,44 @@ describe("ORM tests", () => {
   });
 
   it("limit works correctly", async () => {
-    const result = await usersTable.select("id").limit(1).execute();
+    const result = await usersTable
+      .select({ id: UserModel.fields.Id })
+      .limit(1)
+      .execute();
 
     expect(result).toEqual([{ id: "1" }]);
   });
 
   it("offset works correctly", async () => {
-    const result = await usersTable.select("id").offset(1).execute();
+    const result = await usersTable
+      .select({ id: UserModel.fields.Id })
+      .offset(1)
+      .execute();
 
     expect(result).toEqual([{ id: "2" }]);
   });
 
   it("join works correctly", async () => {
-    await clasroomTable.insert(["id", "name"], ["1", "test"]).execute();
+    await clasroomTable
+      .insert([
+        ["Id", "clasroom_1"],
+        ["Name", "clasroom_test"],
+      ])
+      .execute();
     await userClasroomTable
-      .insert(["id", "user_id", "classroom_id"], ["1", "2", "1"])
+      .insert([
+        ["Id", "user_classroom_1"],
+        ["UserId", "2"],
+        ["ClassroomId", "clasroom_1"],
+      ])
       .execute();
     const result = await usersTable
       .select()
       .join({
         table: UserClasroomModel,
         on: {
-          field: "id",
-          other: "user_id",
+          field: UserModel.fields.Id,
+          other: UserClasroomModel.fields.UserId,
         },
       })
       .execute();
@@ -187,9 +270,9 @@ describe("ORM tests", () => {
           username: null,
         },
         users_classrooms: {
-          classroom_id: "1",
+          classroom_id: "clasroom_1",
           created_at: null,
-          id: "1",
+          id: "user_classroom_1",
           updated_at: null,
           user_id: "2",
         },
@@ -197,12 +280,50 @@ describe("ORM tests", () => {
     ]);
   });
 
+  it("join with specific select fields works correctly", async () => {
+    const result = await usersTable
+      .select({
+        id: UserModel.fields.Id,
+        first_name: UserModel.fields.FirstName,
+        last_name: UserModel.fields.LastName,
+        user_classroom_id: UserClasroomModel.fields.Id,
+      })
+      .join({
+        table: UserClasroomModel,
+        on: {
+          field: UserModel.fields.Id,
+          other: UserClasroomModel.fields.UserId,
+        },
+      })
+      .execute();
+
+    expect(result).toEqual([
+      {
+        id: "2",
+        first_name: "test 2",
+        last_name: "test 2",
+        user_classroom_id: "user_classroom_1",
+      },
+    ]);
+  });
+
   it("insert should insert values into table", async () => {
     const userId = "3";
     const result = await usersTable
-      .insert(["id", "first_name", "last_name"], [userId, "test 3", "test 3"], {
-        returningFields: ["id", "first_name", "last_name"],
-      })
+      .insert(
+        [
+          ["Id", userId],
+          ["FirstName", "test 3"],
+          ["LastName", "test 3"],
+        ],
+        {
+          returningFields: {
+            id: UserModel.fields.Id,
+            first_name: UserModel.fields.FirstName,
+            last_name: UserModel.fields.LastName,
+          },
+        },
+      )
       .executeOne();
 
     expect(result).toEqual({

@@ -93,13 +93,10 @@ describe("ORM query builder part", () => {
   it("insert statement works correctly", () => {
     expect(
       userQueryBuilder
-        .insert(
-          {
-            firstName: UserModel.fields.FirstName,
-            lastName: UserModel.fields.LastName,
-          },
-          ["test", "test2"],
-        )
+        .insert([
+          ["FirstName", "test"],
+          ["LastName", "test2"],
+        ])
         .build(),
     ).toBe(
       "INSERT INTO users(first_name, last_name) VALUES($1, $2) RETURNING *",
@@ -107,11 +104,10 @@ describe("ORM query builder part", () => {
     expect(
       userQueryBuilder
         .insert(
-          {
-            id: UserModel.fields.Id,
-            role: UserModel.fields.Role,
-          },
-          ["1", "teacher"],
+          [
+            ["Id", "1"],
+            ["Role", "teacher"],
+          ],
           {
             returningFields: {
               id: UserModel.fields.Id,
@@ -126,13 +122,10 @@ describe("ORM query builder part", () => {
   it("should have different statements when build is used multiple times", () => {
     expect(
       userQueryBuilder
-        .insert(
-          {
-            id: UserModel.fields.Id,
-            role: UserModel.fields.Role,
-          },
-          ["1", "teacher"],
-        )
+        .insert([
+          ["Id", "1"],
+          ["Role", "teacher"],
+        ])
         .build(),
     ).toBe("INSERT INTO users(id, role) VALUES($1, $2) RETURNING *");
     expect(

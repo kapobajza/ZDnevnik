@@ -5,4 +5,4 @@ export const FastifyCustomProp = {
   MappedTable: "mappedTable",
 } as const;
 
-export type MappedTable = Record<string, string>;
+export type MappedTable = Record<string, number>;

@@ -31,10 +31,12 @@ describe("auth routes", () => {
     const hashedPassword = hashPassword(password, salt);
 
     await usersModel
-      .insert(
-        ["id", "username", "password_hash", "password_salt"],
-        ["1", username, hashedPassword, salt],
-      )
+      .insert([
+        ["Id", "1"],
+        ["Username", username],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+      ])
       .executeOne();
   };
 

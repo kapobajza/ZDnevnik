@@ -60,10 +60,13 @@ describe("students routes", () => {
     const hashedPassword = hashPassword(password, salt);
 
     const student = await usersModel
-      .insert(
-        ["id", "username", "role", "password_hash", "password_salt"],
-        ["1", "test", UserRole.Student, hashedPassword, salt],
-      )
+      .insert([
+        ["Id", "1"],
+        ["Username", "test"],
+        ["Role", UserRole.Student],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+      ])
       .executeOne<UserModel>();
 
     if (!student) {
@@ -102,38 +105,50 @@ describe("students routes", () => {
     const hashedPassword = hashPassword(password, salt);
 
     const classroom = await clasroomsModel
-      .insert(["id", "name"], ["1", "classroom"])
+      .insert([
+        ["Id", "1"],
+        ["Name", "classroom"],
+      ])
       .executeOne<ClassroomModel>();
 
     invariant(classroom, "Classroom not created");
 
     const teacher = await usersModel
-      .insert(
-        ["id", "username", "role", "password_hash", "password_salt"],
-        ["1", "teacher", UserRole.Teacher, hashedPassword, salt],
-      )
+      .insert([
+        ["Id", "1"],
+        ["Username", "teacher"],
+        ["Role", UserRole.Teacher],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+      ])
       .executeOne<UserModel>();
 
     invariant(teacher, "Teacher not created");
 
     const student = await usersModel
-      .insert(["id", "username", "role"], ["2", "student", UserRole.Student])
+      .insert([
+        ["Id", "2"],
+        ["Username", "student"],
+        ["Role", UserRole.Student],
+      ])
       .executeOne<UserModel>();
 
     invariant(student, "Student not created");
 
     await userClassroomModel.transaction(async (tx) => {
       await tx
-        .insert(
-          ["id", "user_id", "classroom_id"],
-          ["1", teacher.id, classroom.id],
-        )
+        .insert([
+          ["Id", "1"],
+          ["UserId", teacher.id],
+          ["ClassroomId", classroom.id],
+        ])
         .execute();
       await tx
-        .insert(
-          ["id", "user_id", "classroom_id"],
-          ["2", student.id, classroom.id],
-        )
+        .insert([
+          ["Id", "2"],
+          ["UserId", student.id],
+          ["ClassroomId", classroom.id],
+        ])
         .execute();
     });
 

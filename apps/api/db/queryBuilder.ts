@@ -1,3 +1,5 @@
+import { fromPascalToSnakeCase } from "@zdnevnik/toolkit";
+
 import {
   type ConditionalClause,
   type IQueryBuilder,
@@ -191,7 +193,7 @@ export class QueryBuilder<
     } = this.state || {};
 
     if (insertColumns && insertValues) {
-      return `INSERT INTO ${this.model.name}(${this.buildTableColumns(insertColumns)}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")}) RETURNING ${this.buildTableColumns(insertOptions?.returningFields)}`;
+      return `INSERT INTO ${this.model.name}(${insertColumns.join(", ")}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")}) RETURNING ${this.buildTableColumns(insertOptions?.returningFields)}`;
     }
 
     query = `SELECT ${this.buildTableColumns(selectColumns as TColumnOptions, true)} FROM ${this.model.name}`;
@@ -236,12 +238,27 @@ export class QueryBuilder<
   }
 
   insert(
-    columns: TColumnOptions,
-    values: (string | number)[],
-    options?: Partial<InsertOptions<TColumnOptions>>,
+    def: [keyof TModel["fields"], string | number][],
+    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ) {
+    const { values, fields } = def.reduce(
+      (obj, [field, value]) => {
+        return {
+          fields: [...obj.fields, fromPascalToSnakeCase(field as string)],
+          values: [...obj.values, value],
+        };
+      },
+      {
+        fields: [],
+        values: [],
+      } as {
+        fields: string[];
+        values: (string | number)[];
+      },
+    );
+
     return this.cloneAndUpdate({
-      insertColumns: columns,
+      insertColumns: fields,
       insertValues: values,
       insertOptions: options,
     });

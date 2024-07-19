@@ -17,7 +17,11 @@ export default function users(
 
   fastify.get("", async (_request, reply) => {
     const users = await usersModel
-      .select("id", "first_name", "last_name")
+      .select({
+        id: UserModel.fields.Id,
+        firstName: UserModel.fields.FirstName,
+        lastName: UserModel.fields.LastName,
+      })
       .limit(10)
       .execute();
 

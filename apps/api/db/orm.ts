@@ -1,33 +1,29 @@
-import type { Pool as PgPool, QueryResultRow } from "pg";
+import type {
+  FieldDef,
+  Pool as PgPool,
+  QueryArrayResult,
+  QueryResultRow,
+} from "pg";
 import type {
   PascalToSnakeCaseRecord,
   SnakeToPascalCase,
 } from "@zdnevnik/toolkit";
 
-import type {
-  ColumnOptionsMap,
-  ConditionalClause,
-  IQueryBuilder,
-  InsertOptions,
-  JoinOptions,
-  ModelFieldStartingOptions,
-  ModelSchema,
-  QueryBuilderState,
-  SortingOptions,
+import {
+  modelFieldOptionsSchema,
+  type ColumnOptionsMap,
+  type ConditionalClause,
+  type IQueryBuilder,
+  type InsertOptions,
+  type JoinOptions,
+  type ModelSchema,
+  type QueryBuilderState,
+  type SortingOptions,
+  type InferColumnOptionsResult,
 } from "./types";
 import { QueryBuilder } from "./queryBuilder";
 
 import type { MappedTable } from "~/api/types";
-
-type InferColumnOptionsResult<TColumnOptions> = {
-  [key in keyof TColumnOptions]: TColumnOptions[key] extends ModelFieldStartingOptions
-    ? TColumnOptions[key]["type"] extends "string"
-      ? string
-      : TColumnOptions[key]["type"] extends "number"
-        ? number
-        : never
-    : InferColumnOptionsResult<TColumnOptions[key]>;
-};
 
 export class ModelORM<
   TModel extends ModelSchema,
@@ -44,7 +40,7 @@ export class ModelORM<
     this.queryBuilder = new QueryBuilder(this.model);
   }
 
-  cloneAndUpdate(update: Partial<QueryBuilderState<TModel>>) {
+  cloneAndUpdate(update: Partial<QueryBuilderState<TColumnOptions>>) {
     this.queryBuilder = this.queryBuilder.cloneAndUpdate(update);
     return this;
   }
@@ -65,22 +61,22 @@ export class ModelORM<
     >;
   }
 
-  where(clause: ConditionalClause<TModel>) {
+  where(clause: ConditionalClause) {
     this.queryBuilder = this.queryBuilder.where(clause);
     return this;
   }
 
-  and(clause: ConditionalClause<TModel>) {
+  and(clause: ConditionalClause) {
     this.queryBuilder = this.queryBuilder.and(clause);
     return this;
   }
 
-  or(clause: ConditionalClause<TModel>) {
+  or(clause: ConditionalClause) {
     this.queryBuilder = this.queryBuilder.or(clause);
     return this;
   }
 
-  sort(options: SortingOptions<TModel>) {
+  sort(options: SortingOptions) {
     this.queryBuilder = this.queryBuilder.sort(options);
     return this;
   }
@@ -100,11 +96,10 @@ export class ModelORM<
   }
 
   insert(
-    columns: TColumnOptions,
-    values: (string | number)[],
-    options?: Partial<InsertOptions<TModel>> | undefined,
+    def: [keyof TModel["fields"], string | number][],
+    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ) {
-    this.queryBuilder = this.queryBuilder.insert(columns, values, options);
+    this.queryBuilder = this.queryBuilder.insert(def, options);
     return this as ModelORM<TModel, TColumnOptions>;
   }
 
@@ -113,30 +108,22 @@ export class ModelORM<
     return this;
   }
 
-  join<TJoinModel extends ModelSchema>(
-    options: JoinOptions<TModel, TJoinModel>,
-  ) {
+  join(options: JoinOptions) {
     this.queryBuilder = this.queryBuilder.join(options);
     return this;
   }
 
-  leftJoin<TJoinModel extends ModelSchema>(
-    options: JoinOptions<TModel, TJoinModel>,
-  ) {
+  leftJoin(options: JoinOptions) {
     this.queryBuilder = this.queryBuilder.leftJoin(options);
     return this;
   }
 
-  rightJoin<TJoinModel extends ModelSchema>(
-    options: JoinOptions<TModel, TJoinModel>,
-  ) {
+  rightJoin(options: JoinOptions) {
     this.queryBuilder = this.queryBuilder.rightJoin(options);
     return this;
   }
 
-  fullJoin<TJoinModel extends ModelSchema>(
-    options: JoinOptions<TModel, TJoinModel>,
-  ) {
+  fullJoin(options: JoinOptions) {
     this.queryBuilder = this.queryBuilder.fullJoin(options);
     return this;
   }
@@ -161,9 +148,120 @@ export class ModelORM<
     return undefined;
   };
 
+  private buildSingleSelectColumn<
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
+  >(
+    selectColumns: ColumnOptionsMap,
+    fields: FieldDef[],
+    values: TResult[],
+  ): TResult {
+    const obj: Record<string, unknown> = {};
+
+    for (const columnKey in selectColumns) {
+      const column = selectColumns[columnKey];
+      const columnParseRes = modelFieldOptionsSchema.safeParse(column);
+
+      if (!columnParseRes.success && typeof column === "object") {
+        obj[columnKey] = this.buildSingleSelectColumn(
+          column as ColumnOptionsMap,
+          fields,
+          values,
+        );
+        continue;
+      }
+
+      for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
+        const value = values[i];
+        const tableId = this.mappedTable[column?.modelName as string];
+
+        if (field?.name === column?.name && tableId === field?.tableID) {
+          obj[columnKey] = value;
+        }
+      }
+    }
+
+    return obj as unknown as TResult;
+  }
+
+  private buildTableFromFields<
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
+  >(
+    fields: FieldDef[],
+    values: TResult[],
+    tableId: number | undefined,
+  ): TResult {
+    return fields.reduce((obj, field, index) => {
+      const value = values[index];
+
+      if (!field?.name || tableId !== field?.tableID) {
+        return obj;
+      }
+
+      return {
+        ...obj,
+        [field.name]: value ?? null,
+      };
+    }, {} as TResult);
+  }
+
+  private buildSelectColumns<
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
+  >(queryResult: QueryArrayResult<TResult[]>): TResult[] {
+    const { selectColumns } = this.queryBuilder.state || {};
+
+    if (!selectColumns) {
+      return queryResult.rows.map((row) => {
+        return this.buildTableFromFields(
+          queryResult.fields,
+          row,
+          this.mappedTable[this.model.name],
+        );
+      });
+    }
+
+    return queryResult.rows.map((row) => {
+      return this.buildSingleSelectColumn(
+        selectColumns,
+        queryResult.fields,
+        row,
+      );
+    });
+  }
+
+  private buildJoinSelectColumns<
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
+  >(queryResult: QueryArrayResult<TResult[]>): TResult[] {
+    const { selectColumns, joinOptions = [] } = this.queryBuilder.state;
+
+    if (!selectColumns) {
+      const tables = [
+        this.model.name,
+        ...joinOptions.map((join) => join.table.name),
+      ];
+
+      return queryResult.rows.map((row) => {
+        return tables.reduce((obj, table) => {
+          const customTable = this.buildTableFromFields(
+            queryResult.fields,
+            row,
+            this.mappedTable[table],
+          );
+
+          return {
+            ...obj,
+            [table]: customTable,
+          };
+        }, {} as TResult);
+      });
+    }
+
+    return this.buildSelectColumns(queryResult);
+  }
+
   async execute<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
-  >() {
+  >(): Promise<TResult[]> {
     const client = await this.pool.connect();
     const { joinOptions } = this.queryBuilder.state;
 
@@ -171,44 +269,50 @@ export class ModelORM<
       const query = this.build();
       const queryValues = this.getQueryValues();
 
-      const res = await this.pool.query<TResult>(
+      const res = (await this.pool.query<TResult>(
         {
           text: query,
           // @ts-expect-error - Incorrect types provided by pg
-          rowMode: joinOptions ? "array" : undefined,
+          rowMode: "array",
         },
         queryValues,
-      );
+      )) as unknown as QueryArrayResult<TResult[]>;
 
       if (joinOptions) {
-        const finalResult: Record<string, Record<string, TResult>>[] = [];
-
-        for (const row of res.rows as unknown as TResult[][]) {
-          const obj: Record<string, Record<string, TResult>> = {};
-          const joinedTables = joinOptions.map((join) => join.table.name);
-
-          for (const table of [this.model.name, ...joinedTables]) {
-            const tableId = this.mappedTable[table];
-            for (let i = 0; i < res.fields.length; i++) {
-              const field = res.fields[i];
-              const value = row[i];
-
-              if (tableId === field?.tableID) {
-                obj[table] = {
-                  ...obj[table],
-                  [field?.name as string]: value as TResult,
-                };
-              }
-            }
-          }
-
-          finalResult.push(obj);
-        }
-
-        return finalResult as unknown as TResult[];
+        return this.buildJoinSelectColumns(res);
       }
 
-      return res.rows;
+      return this.buildSelectColumns(res);
+
+      // if (joinOptions) {
+      //   const finalResult: Record<string, Record<string, TResult>>[] = [];
+
+      //   for (const row of res.rows as unknown as TResult[][]) {
+      //     const obj: Record<string, Record<string, TResult>> = {};
+      //     const joinedTables = joinOptions.map((join) => join.table.name);
+
+      //     for (const table of [this.model.name, ...joinedTables]) {
+      //       const tableId = this.mappedTable[table];
+      //       for (let i = 0; i < res.fields.length; i++) {
+      //         const field = res.fields[i];
+      //         const value = row[i];
+
+      //         if (tableId === field?.tableID) {
+      //           obj[table] = {
+      //             ...obj[table],
+      //             [field?.name as string]: value as TResult,
+      //           };
+      //         }
+      //       }
+      //     }
+
+      //     finalResult.push(obj);
+      //   }
+
+      //   return finalResult as unknown as TResult[];
+      // }
+
+      // return res.rows;
     } finally {
       this.queryBuilder.reset();
       client?.release();
@@ -217,7 +321,7 @@ export class ModelORM<
 
   async executeOne<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
-  >() {
+  >(): Promise<TResult | undefined> {
     const results = await this.execute<TResult>();
     return results?.[0];
   }
