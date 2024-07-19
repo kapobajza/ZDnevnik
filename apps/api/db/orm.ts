@@ -1,11 +1,16 @@
 import type { Pool as PgPool, QueryResultRow } from "pg";
+import type {
+  PascalToSnakeCaseRecord,
+  SnakeToPascalCase,
+} from "@zdnevnik/toolkit";
 
 import type {
+  ColumnOptionsMap,
   ConditionalClause,
   IQueryBuilder,
-  InferModelField,
   InsertOptions,
   JoinOptions,
+  ModelFieldStartingOptions,
   ModelSchema,
   QueryBuilderState,
   SortingOptions,
@@ -14,12 +19,20 @@ import { QueryBuilder } from "./queryBuilder";
 
 import type { MappedTable } from "~/api/types";
 
+type InferColumnOptionsResult<TColumnOptions> = {
+  [key in keyof TColumnOptions]: TColumnOptions[key] extends ModelFieldStartingOptions
+    ? TColumnOptions[key]["type"] extends "string"
+      ? string
+      : TColumnOptions[key]["type"] extends "number"
+        ? number
+        : never
+    : InferColumnOptionsResult<TColumnOptions[key]>;
+};
+
 export class ModelORM<
   TModel extends ModelSchema,
-  TModelFields extends (keyof InferModelField<
-    TModel["fields"]
-  >)[] = (keyof InferModelField<TModel["fields"]>)[],
-> implements IQueryBuilder<TModel>
+  TColumnOptions extends ColumnOptionsMap = ColumnOptionsMap,
+> implements IQueryBuilder<TModel, TColumnOptions>
 {
   private queryBuilder: QueryBuilder<TModel>;
 
@@ -36,13 +49,19 @@ export class ModelORM<
     return this;
   }
 
-  select<
-    TSelectFields extends (keyof InferModelField<TModel["fields"]>)[] = [],
-  >(...columns: TSelectFields) {
-    this.queryBuilder = this.queryBuilder.select(...columns);
-    return this as ModelORM<
+  select<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
+    columns?: TColumnOptions,
+  ) {
+    this.queryBuilder = this.queryBuilder.select(columns);
+    return this as unknown as ModelORM<
       TModel,
-      TSelectFields extends [] ? TModelFields : TSelectFields
+      TColumnOptions extends undefined
+        ? {
+            [Key in keyof PascalToSnakeCaseRecord<
+              TModel["fields"]
+            >]: TModel["fields"][SnakeToPascalCase<Key>];
+          }
+        : TColumnOptions
     >;
   }
 
@@ -80,20 +99,13 @@ export class ModelORM<
     return this.queryBuilder.build();
   }
 
-  insert<
-    TInsertReturnFields extends (keyof InferModelField<
-      TModel["fields"]
-    >)[] = [],
-  >(
-    columns: TInsertReturnFields,
+  insert(
+    columns: TColumnOptions,
     values: (string | number)[],
     options?: Partial<InsertOptions<TModel>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(columns, values, options);
-    return this as ModelORM<
-      TModel,
-      TInsertReturnFields extends [] ? TModelFields : TInsertReturnFields
-    >;
+    return this as ModelORM<TModel, TColumnOptions>;
   }
 
   delete() {
@@ -150,10 +162,7 @@ export class ModelORM<
   };
 
   async execute<
-    TResult extends QueryResultRow = Pick<
-      InferModelField<TModel["fields"]>,
-      TModelFields[number]
-    >,
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
   >() {
     const client = await this.pool.connect();
     const { joinOptions } = this.queryBuilder.state;
@@ -207,10 +216,7 @@ export class ModelORM<
   }
 
   async executeOne<
-    TResult extends QueryResultRow = Pick<
-      InferModelField<TModel["fields"]>,
-      TModelFields[number]
-    >,
+    TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
   >() {
     const results = await this.execute<TResult>();
     return results?.[0];

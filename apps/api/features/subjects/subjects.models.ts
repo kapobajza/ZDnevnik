@@ -1,9 +1,8 @@
-import { CommonModelField } from "~/api/db/util";
-import type { FieldModel, ModelSchema } from "~/api/db/types";
+import type { InferModelFields, ModelFieldsStartingMap } from "~/api/db/types";
+import { model } from "~/api/db/util";
 import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 
 const SubjectModelField = {
-  ...CommonModelField,
   Id: {
     name: "id",
     type: "string",
@@ -17,9 +16,9 @@ const SubjectModelField = {
     name: "classroom_id",
     type: "string",
   },
-} as const satisfies FieldModel;
+} as const satisfies ModelFieldsStartingMap;
 
-export const SubjectModel = {
+export const SubjectModel = model({
   name: "subjects",
   fields: SubjectModelField,
   foreignKeys: [
@@ -29,4 +28,6 @@ export const SubjectModel = {
       referenceKey: ClassroomModel.fields.Id.name,
     },
   ],
-} as const satisfies ModelSchema;
+});
+
+export type SubjectModel = InferModelFields<typeof SubjectModel>;

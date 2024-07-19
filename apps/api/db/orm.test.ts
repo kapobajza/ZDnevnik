@@ -52,7 +52,9 @@ describe("ORM tests", () => {
 
   it("select should select values from table", async () => {
     const result = await usersTable
-      .select("first_name", "last_name", "id")
+      .select({
+        userId: UserModel.fields.Id,
+      })
       .executeOne();
 
     expect(result).toEqual({
@@ -163,7 +165,7 @@ describe("ORM tests", () => {
         table: UserClasroomModel,
         on: {
           field: "id",
-          value: "user_id",
+          other: "user_id",
         },
       })
       .execute();

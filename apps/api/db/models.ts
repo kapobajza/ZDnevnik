@@ -1,12 +1,11 @@
-import type { FieldModel, InferModelField, ModelSchema } from "./types";
-import { CommonModelField } from "./util";
+import type { InferModelFields, ModelFieldsStartingMap } from "./types";
+import { model } from "./util";
 
 import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 import { UserModel } from "~/api/features/users/users.model";
 import { SubjectModel } from "~/api/features/subjects/subjects.models";
 
 const UserClasroomModelField = {
-  ...CommonModelField,
   Id: {
     name: "id",
     type: "string",
@@ -19,11 +18,9 @@ const UserClasroomModelField = {
     name: "classroom_id",
     type: "string",
   },
-} as const satisfies FieldModel;
+} as const satisfies ModelFieldsStartingMap;
 
-export type UserClasroomModel = InferModelField<typeof UserClasroomModelField>;
-
-export const UserClasroomModel = {
+export const UserClasroomModel = model({
   name: "users_classrooms",
   fields: UserClasroomModelField,
   foreignKeys: [
@@ -38,10 +35,11 @@ export const UserClasroomModel = {
       references: ClassroomModel.name,
     },
   ],
-} as const satisfies ModelSchema;
+});
+
+export type UserClasroomModel = InferModelFields<typeof UserClasroomModel>;
 
 export const UserGradeModelField = {
-  ...CommonModelField,
   Id: {
     name: "id",
     type: "string",
@@ -59,9 +57,9 @@ export const UserGradeModelField = {
     type: "number",
     category: "smallint",
   },
-} as const satisfies FieldModel;
+} as const satisfies ModelFieldsStartingMap;
 
-export const UserGradeModel = {
+export const UserGradeModel = model({
   name: "users_grades",
   fields: UserGradeModelField,
   foreignKeys: [
@@ -76,4 +74,4 @@ export const UserGradeModel = {
       references: SubjectModel.name,
     },
   ],
-} as const satisfies ModelSchema;
+});

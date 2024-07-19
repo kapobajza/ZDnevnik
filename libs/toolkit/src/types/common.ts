@@ -25,3 +25,9 @@ export type PascalToSnakeCaseRecord<InputType> =
           >]: PascalToSnakeCaseRecord<InputType[K]>;
         }
       : InputType;
+
+export type SnakeToPascalCase<Key extends string | number | symbol> =
+  Key extends `${infer First}_${infer Rest}`
+    ? `${Capitalize<Lowercase<First>>}${SnakeToPascalCase<Rest>}`
+    : // @ts-expect-error - Key should never be a number or a symbol
+      Capitalize<Lowercase<Key>>;
