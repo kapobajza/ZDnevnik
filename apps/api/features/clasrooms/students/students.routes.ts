@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { z } from "zod";
+
+import { idParamSchema } from "~/api/types/validation.types";
 
 export const autoPrefix = "/clasrooms/:id/students";
 
@@ -13,9 +14,7 @@ export default function clasroomStudents(
     "",
     {
       schema: {
-        params: z.object({
-          id: z.string().min(1),
-        }),
+        params: idParamSchema,
       },
       preHandler: fastify.auth(
         [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],

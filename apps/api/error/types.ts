@@ -21,7 +21,7 @@ export const HttpErrorCode = {
   ValidationError: "validation_error",
   Unathorized: "unauthorized",
   Forbidden: "forbidden",
-};
+} as const;
 
 export type HttpError = {
   statusCode: number;

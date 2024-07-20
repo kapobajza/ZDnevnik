@@ -283,36 +283,6 @@ export class ModelORM<
       }
 
       return this.buildSelectColumns(res);
-
-      // if (joinOptions) {
-      //   const finalResult: Record<string, Record<string, TResult>>[] = [];
-
-      //   for (const row of res.rows as unknown as TResult[][]) {
-      //     const obj: Record<string, Record<string, TResult>> = {};
-      //     const joinedTables = joinOptions.map((join) => join.table.name);
-
-      //     for (const table of [this.model.name, ...joinedTables]) {
-      //       const tableId = this.mappedTable[table];
-      //       for (let i = 0; i < res.fields.length; i++) {
-      //         const field = res.fields[i];
-      //         const value = row[i];
-
-      //         if (tableId === field?.tableID) {
-      //           obj[table] = {
-      //             ...obj[table],
-      //             [field?.name as string]: value as TResult,
-      //           };
-      //         }
-      //       }
-      //     }
-
-      //     finalResult.push(obj);
-      //   }
-
-      //   return finalResult as unknown as TResult[];
-      // }
-
-      // return res.rows;
     } finally {
       this.queryBuilder.reset();
       client?.release();

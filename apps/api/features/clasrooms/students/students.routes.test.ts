@@ -36,6 +36,7 @@ describe("students routes", () => {
   });
 
   afterEach(async () => {
+    await userClassroomModel.delete().execute();
     await usersModel.delete().execute();
   });
 
@@ -48,7 +49,7 @@ describe("students routes", () => {
     expect(response.statusCode).toBe(401);
     const error: HttpError = {
       code: HttpErrorCode.Unathorized,
-      message: "Unauthorized",
+      message: "unauthorized",
       statusCode: 401,
     };
     expect(response.json()).toEqual(error);
@@ -93,7 +94,7 @@ describe("students routes", () => {
     expect(response.statusCode).toBe(403);
     const error: HttpError = {
       code: HttpErrorCode.Forbidden,
-      message: "Forbidden",
+      message: "forbidden",
       statusCode: 403,
     };
     expect(response.json()).toEqual(error);
