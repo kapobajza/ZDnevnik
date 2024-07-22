@@ -39,7 +39,7 @@ export default fp((fastify, _opts, done) => {
 
   fastify.decorate(
     FastifyCustomProp.VerifyTeacherHasAccessToClass,
-    async (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
+    async (request: FastifyRequest, reply: FastifyReply) => {
       const { user } = request.session;
       const userClasroomTable = new ModelORM(
         UserClasroomModel,
@@ -88,8 +88,6 @@ export default fp((fastify, _opts, done) => {
       if (!result) {
         return createForbiddenReply(reply);
       }
-
-      return done();
     },
   );
 

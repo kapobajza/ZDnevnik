@@ -1,17 +1,19 @@
-import { ClassroomModel } from "../features/clasrooms/classrooms.model";
-
 import { UserClasroomModel } from "./models";
 import { QueryBuilder } from "./queryBuilder";
 
+import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
+import { UserRole } from "~/api/features/users/user.types";
 import { UserModel } from "~/api/features/users/users.model";
 
 describe("ORM query builder part", () => {
   let userQueryBuilder: QueryBuilder<typeof UserModel>;
+  let userClasroomQueryModel: QueryBuilder<typeof UserClasroomModel>;
 
   const formatSql = (sql: string) => sql.trim().replace(/\n\s+/g, " ");
 
   beforeEach(() => {
     userQueryBuilder = new QueryBuilder(UserModel);
+    userClasroomQueryModel = new QueryBuilder(UserClasroomModel);
   });
 
   it("select statement works correctly", () => {
@@ -428,6 +430,87 @@ describe("ORM query builder part", () => {
         INNER JOIN users_classrooms ON users.id = users_classrooms.user_id
         INNER JOIN classrooms ON classrooms.id = users_classrooms.classroom_id
       `),
+    );
+  });
+
+  it("should return correct SQL for students in clasroom", () => {
+    expect(
+      userClasroomQueryModel
+        .select({
+          teacherId: UserClasroomModel.fields.UserId,
+        })
+        .join({
+          table: UserModel,
+          on: {
+            field: UserModel.fields.Id,
+            other: UserClasroomModel.fields.UserId,
+          },
+        })
+        .where({
+          field: UserClasroomModel.fields.ClassroomId,
+          operator: "=",
+          value: "1",
+        })
+        .and({
+          field: UserModel.fields.Role,
+          operator: "=",
+          value: UserRole.Teacher,
+        })
+        .and({
+          field: UserModel.fields.Id,
+          operator: "=",
+          value: "1",
+        })
+        .build(),
+    ).toBe(
+      formatSql(`
+        SELECT users_classrooms.user_id
+        FROM users_classrooms
+        INNER JOIN users ON users.id = users_classrooms.user_id
+        WHERE users_classrooms.classroom_id = $1
+        AND users.role = $2
+        AND users.id = $3
+      `),
+    );
+
+    expect(
+      userQueryBuilder
+        .select({
+          id: UserModel.fields.Id,
+          firstName: UserModel.fields.FirstName,
+          lastName: UserModel.fields.LastName,
+          avatar: UserModel.fields.Avatar,
+          ordinalNumber: UserModel.fields.OrdinalNumber,
+        })
+        .join({
+          table: UserClasroomModel,
+          on: {
+            field: UserModel.fields.Id,
+            other: UserClasroomModel.fields.UserId,
+          },
+        })
+        .where({
+          field: UserClasroomModel.fields.ClassroomId,
+          operator: "=",
+          value: "1",
+        })
+        .and({
+          field: UserModel.fields.Role,
+          operator: "=",
+          value: UserRole.Student,
+        })
+        .limit(10)
+        .offset(0)
+        .build(),
+    ).toBe(
+      formatSql(`
+      SELECT users.id, users.first_name, users.last_name, users.avatar, users.ordinal_number
+      FROM users
+      INNER JOIN users_classrooms ON users.id = users_classrooms.user_id
+      WHERE users_classrooms.classroom_id = $1
+      AND users.role = $2
+      LIMIT 10
+    `),
     );
   });
 });

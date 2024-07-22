@@ -259,6 +259,10 @@ export class ModelORM<
     return this.buildSelectColumns(queryResult);
   }
 
+  private reset() {
+    this.queryBuilder = this.queryBuilder.reset();
+  }
+
   async execute<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
   >(): Promise<TResult[]> {
@@ -284,7 +288,7 @@ export class ModelORM<
 
       return this.buildSelectColumns(res);
     } finally {
-      this.queryBuilder.reset();
+      this.reset();
       client?.release();
     }
   }
@@ -308,7 +312,7 @@ export class ModelORM<
       throw e;
     } finally {
       client.release();
-      this.queryBuilder.reset();
+      this.reset();
     }
   }
 }

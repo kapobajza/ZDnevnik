@@ -6,6 +6,13 @@
       "name": "Development server",
       "request": "launch",
       "type": "node-terminal"
+    },
+    // Run script: api:test with arguments
+    {
+      "command": "pnpm --filter api test -- -t \"return 200 if a teacher tries to access list\"",
+      "name": "API test",
+      "request": "launch",
+      "type": "node-terminal"
     }
   ]
 }

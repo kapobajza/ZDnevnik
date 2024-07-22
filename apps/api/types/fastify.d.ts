@@ -12,6 +12,7 @@ declare module "fastify" {
     [FastifyCustomProp.DbPool]: Pool;
     [FastifyCustomProp.VerifyUserFromSession]: FastifyAuthFunction;
     [FastifyCustomProp.VerifyTeacherFromSession]: FastifyAuthFunction;
+    [FastifyCustomProp.VerifyTeacherHasAccessToClass]: FastifyAuthFunction;
     [FastifyCustomProp.MappedTable]: MappedTable;
   }
 }
