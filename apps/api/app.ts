@@ -20,7 +20,7 @@ import {
   type HttpValidationError,
   type ValidationError,
 } from "~/api/error/types";
-import { type EnvRecord } from "~/api/env/types";
+import { type EnvRecord } from "~/api/env/util";
 
 export async function buildApp(
   fastify: FastifyInstance,

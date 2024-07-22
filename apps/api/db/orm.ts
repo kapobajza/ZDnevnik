@@ -95,12 +95,21 @@ export class ModelORM<
     return this.queryBuilder.build();
   }
 
-  insert(
+  insert<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
     def: [keyof TModel["fields"], string | number][],
     options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(def, options);
-    return this as ModelORM<TModel, TColumnOptions>;
+    return this as unknown as ModelORM<
+      TModel,
+      TColumnOptions extends undefined
+        ? {
+            [Key in keyof PascalToSnakeCaseRecord<
+              TModel["fields"]
+            >]: TModel["fields"][SnakeToPascalCase<Key>];
+          }
+        : TColumnOptions
+    >;
   }
 
   delete() {

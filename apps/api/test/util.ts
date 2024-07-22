@@ -8,18 +8,27 @@ import Postgrator from "postgrator";
 import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit";
 
 import { buildApp } from "~/api/app";
+import { registerEnvPlugin, type EnvRecord } from "~/api/env/util";
 
 export async function buildTestApp() {
   const app = Fastify();
   const { postgresClient, postgresContainer } = await setupPgTestDatabase();
 
+  const env: EnvRecord = {
+    DATABASE_URL: postgresContainer.getConnectionUri(),
+    COOKIE_NAME: "test",
+    ACCESS_COOKIE_MAX_AGE: 60 * 1000,
+    REFRESH_COOKIE_MAX_AGE: 60 * 60 * 1000,
+  };
+
+  await registerEnvPlugin(app, {
+    data: env,
+  });
+
   await app.register(fp(buildApp), {
     testing: true,
     pgPool: postgresClient,
-    env: {
-      DATABASE_URL: postgresContainer.getConnectionUri(),
-      COOKIE_NAME: "test",
-    },
+    env,
   });
 
   app.addHook("onClose", async () => {

@@ -1,4 +1,5 @@
 import type { Pool } from "pg";
+import { describe, beforeAll, expect, it, afterAll } from "vitest";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 
 import { ModelORM } from "./orm";

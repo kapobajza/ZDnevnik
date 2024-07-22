@@ -1,4 +1,6 @@
 import { type FastifyInstance } from "fastify";
+import invariant from "tiny-invariant";
+import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
 
 import { generatePasswordSalt, hashPassword } from "./util";
 
@@ -8,6 +10,7 @@ import { ModelORM } from "~/api/db/orm";
 import {
   HttpErrorCode,
   HttpErrorStatus,
+  type HttpError,
   type HttpValidationError,
 } from "~/api/error/types";
 
@@ -15,10 +18,20 @@ describe("auth routes", () => {
   let fastify: FastifyInstance;
   const username = "test";
   const password = "testtesttest";
+  const protectedRoute = "/protected";
   let usersModel: ModelORM<typeof UserModel>;
 
   beforeAll(async () => {
     fastify = await buildTestApp();
+    fastify.get(
+      protectedRoute,
+      {
+        preHandler: [fastify.verifyUserFromSession],
+      },
+      (_request, reply) => {
+        return reply.send({ ok: true });
+      },
+    );
     usersModel = new ModelORM(UserModel, fastify.dbPool, fastify.mappedTable);
   });
 
@@ -30,7 +43,7 @@ describe("auth routes", () => {
     const salt = generatePasswordSalt();
     const hashedPassword = hashPassword(password, salt);
 
-    await usersModel
+    const user = await usersModel
       .insert([
         ["Id", "1"],
         ["Username", username],
@@ -38,6 +51,10 @@ describe("auth routes", () => {
         ["PasswordSalt", salt],
       ])
       .executeOne();
+
+    invariant(user, "User not created");
+
+    return user;
   };
 
   afterEach(async () => {
@@ -128,5 +145,44 @@ describe("auth routes", () => {
     };
 
     expect(response.body).toEqual(JSON.stringify(errorResponse));
+  });
+
+  it("should return unauthorized if not logged in for protected routes", async () => {
+    const response = await fastify.inject({
+      method: "GET",
+      url: protectedRoute,
+    });
+
+    expect(response.statusCode).toBe(401);
+    const error: HttpError = {
+      code: HttpErrorCode.Unathorized,
+      message: "unauthorized",
+      statusCode: 401,
+    };
+    expect(response.json()).toEqual(error);
+  });
+
+  it("should return ok if logged in", async () => {
+    await inserNewUser();
+
+    const authResponse = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username: username,
+        password: password,
+      },
+    });
+
+    const okResponse = await fastify.inject({
+      method: "GET",
+      url: protectedRoute,
+      headers: {
+        cookie: authResponse.headers["set-cookie"],
+      },
+    });
+
+    expect(okResponse.statusCode).toBe(200);
+    expect(okResponse.body).toEqual(JSON.stringify({ ok: true }));
   });
 });

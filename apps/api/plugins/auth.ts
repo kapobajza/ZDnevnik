@@ -1,6 +1,8 @@
 import fp from "fastify-plugin";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
+import { getCookieExpiry } from "../features/auth/util/session";
+
 import { UserClasroomModel } from "~/api/db/models";
 import { UserModel } from "~/api/features/users/users.model";
 import { FastifyCustomProp } from "~/api/types";
@@ -16,11 +18,31 @@ export default fp((fastify, _opts, done) => {
   fastify.decorate(
     FastifyCustomProp.VerifyUserFromSession,
     (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
-      if (!request.session?.user) {
+      const sessionOptions = request.session.get("options");
+
+      if (!request.session?.user || !sessionOptions) {
         return createUnauthorizedReply(reply);
       }
 
-      return done();
+      const now = Date.now();
+      const { accessCookieMaxAge, refreshCookieMaxAge } = sessionOptions;
+
+      if (!(now > accessCookieMaxAge)) {
+        return done();
+      }
+
+      if (now < refreshCookieMaxAge) {
+        const { ACCESS_COOKIE_MAX_AGE } = fastify.getEnvs();
+        const newExpiry = getCookieExpiry(ACCESS_COOKIE_MAX_AGE);
+        request.session.set("options", {
+          ...sessionOptions,
+          accessCookieMaxAge: newExpiry,
+        });
+        return done();
+      }
+
+      request.session.delete();
+      return reply.redirect("/login");
     },
   );
 

@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
 import invariant from "tiny-invariant";
 
 import { ModelORM } from "~/api/db/orm";
@@ -66,21 +67,6 @@ describe("students routes", () => {
     await userClassroomModel.delete().execute();
     await usersModel.delete().execute();
     await clasroomsModel.delete().execute();
-  });
-
-  it("should return unauthorized if not logged in", async () => {
-    const response = await fastify.inject({
-      method: "GET",
-      url: "/clasrooms/sadsadsa/students",
-    });
-
-    expect(response.statusCode).toBe(401);
-    const error: HttpError = {
-      code: HttpErrorCode.Unathorized,
-      message: "unauthorized",
-      statusCode: 401,
-    };
-    expect(response.json()).toEqual(error);
   });
 
   it("should return 403 if a student tries to access list of classroom students", async () => {

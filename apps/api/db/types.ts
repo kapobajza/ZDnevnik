@@ -20,7 +20,7 @@ export type ModelSchema = {
 };
 
 export type InsertOptions<
-  TColumnOptions extends ColumnOptionsMap = ColumnOptionsMap,
+  TColumnOptions extends ColumnOptionsMap | undefined = ColumnOptionsMap,
 > = {
   returningFields?: TColumnOptions;
 };
@@ -123,10 +123,6 @@ export type IQueryBuilder<
   where(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
   and(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
   or(clause: ConditionalClause): IQueryBuilder<TModel, TColumnOptions>;
-  insert(
-    def: [keyof TModel["fields"], string | number][],
-    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
-  ): IQueryBuilder<TModel, TColumnOptions>;
   delete(): IQueryBuilder<TModel, TColumnOptions>;
   sort(options: SortingOptions): IQueryBuilder<TModel, TColumnOptions>;
   limit(by: number): IQueryBuilder<TModel, TColumnOptions>;

@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { hashPassword } from "./util";
 import { LoginSelectedUserDTO } from "./types";
+import { getCookieExpiry } from "./util/session";
 
 import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
@@ -54,7 +55,14 @@ export default function auth(
         return reply.code(400).send({ error: "invalid_credentials" });
       }
 
+      const { ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } =
+        fastify.getEnvs();
+
       request.session.set("user", user);
+      request.session.set("options", {
+        accessCookieMaxAge: getCookieExpiry(ACCESS_COOKIE_MAX_AGE),
+        refreshCookieMaxAge: getCookieExpiry(REFRESH_COOKIE_MAX_AGE),
+      });
 
       return reply.send({ ok: true });
     },

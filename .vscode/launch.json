@@ -9,7 +9,7 @@
     },
     // Run script: api:test with arguments
     {
-      "command": "pnpm --filter api test -- -t \"return 200 if a teacher tries to access list\"",
+      "command": "pnpm --filter api test -- -t \"should redirect to login when session expires\"",
       "name": "API test",
       "request": "launch",
       "type": "node-terminal"

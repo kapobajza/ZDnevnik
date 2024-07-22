@@ -1,3 +1,5 @@
+import { describe, expect, it, beforeEach } from "vitest";
+
 import { UserClasroomModel } from "./models";
 import { QueryBuilder } from "./queryBuilder";
 
