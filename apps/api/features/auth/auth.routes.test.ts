@@ -1,6 +1,14 @@
 import { type FastifyInstance } from "fastify";
 import invariant from "tiny-invariant";
-import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
+import {
+  describe,
+  beforeAll,
+  expect,
+  it,
+  afterEach,
+  afterAll,
+  vi,
+} from "vitest";
 
 import { generatePasswordSalt, hashPassword } from "./util";
 
@@ -59,6 +67,7 @@ describe("auth routes", () => {
 
   afterEach(async () => {
     await usersModel.delete().execute();
+    vi.useRealTimers();
   });
 
   it("should get invalid_credentials if username doesn't exist", async () => {
@@ -184,5 +193,44 @@ describe("auth routes", () => {
 
     expect(okResponse.statusCode).toBe(200);
     expect(okResponse.body).toEqual(JSON.stringify({ ok: true }));
+  });
+
+  it("should redirect to login if session expired", async () => {
+    await inserNewUser();
+
+    const authResponse = await fastify.inject({
+      method: "POST",
+      url: "/auth/login",
+      payload: {
+        username: username,
+        password: password,
+      },
+    });
+
+    const response = await fastify.inject({
+      method: "GET",
+      url: protectedRoute,
+      headers: {
+        cookie: authResponse.headers["set-cookie"],
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const { REFRESH_COOKIE_MAX_AGE } = fastify.getEnvs();
+
+    vi.useFakeTimers();
+    vi.setSystemTime(Date.now() + REFRESH_COOKIE_MAX_AGE);
+
+    const unauthorizedRes = await fastify.inject({
+      method: "GET",
+      url: protectedRoute,
+      headers: {
+        cookie: authResponse.headers["set-cookie"],
+      },
+    });
+
+    expect(unauthorizedRes.statusCode).toBe(302);
+    expect(unauthorizedRes.headers.location).toBe("/login");
   });
 });
