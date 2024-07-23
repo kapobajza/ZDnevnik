@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "generate_project_name_types": "tsx scripts/generate_project_name_types.ts"
+    "generate_project_name_types": "tsx scripts/generate_project_name_types.ts",
+    "lint": "eslint"
   },
   "author": "",
   "license": "ISC",

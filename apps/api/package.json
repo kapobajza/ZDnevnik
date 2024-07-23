@@ -7,7 +7,8 @@
     "dev": "tsx watch start.ts",
     "migrate": "tsx ./scripts/generate_sql_migrations.ts && postgrator --host 127.0.0.1 --database zdnevnik --driver pg -m ./migrations/sql/*",
     "tsc": "tsc",
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "eslint"
   },
   "author": "",
   "license": "ISC",
