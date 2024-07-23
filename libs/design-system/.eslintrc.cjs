@@ -2,7 +2,11 @@
 module.exports = {
   root: true,
   env: { browser: true, es2020: true },
-  extends: ["plugin:react-hooks/recommended", "../../.eslintrc.strict.js"],
+  extends: [
+    "plugin:react-hooks/recommended",
+    "../../.eslintrc.strict.js",
+    "plugin:storybook/recommended"
+  ],
   ignorePatterns: ["!**/*", "dist", ".eslintrc.cjs"],
   plugins: ["react-refresh"],
   rules: {

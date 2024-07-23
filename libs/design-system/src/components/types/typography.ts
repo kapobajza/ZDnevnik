@@ -1,0 +1,18 @@
+export type TypographyVariant =
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "p"
+  | "blockquote"
+  | "table_head"
+  | "table_item"
+  | "list"
+  | "inline_code"
+  | "lead"
+  | "large"
+  | "small"
+  | "subtle"
+  | "p_ui"
+  | "body_medium"
+  | "emphasize";

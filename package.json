@@ -12,7 +12,8 @@
     "api:tsc": "pnpm --filter api tsc",
     "api:migrate": "pnpm --filter api migrate",
     "api:dev": "pnpm --filter api dev",
-    "api:test": "pnpm --filter api test"
+    "api:test": "pnpm --filter api test",
+    "ds:storybook": "pnpm --filter design-system storybook"
   },
   "keywords": [],
   "author": "",

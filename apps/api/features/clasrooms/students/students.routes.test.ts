@@ -171,6 +171,7 @@ describe("students routes", () => {
         ["LastName", "Last"],
         ["OrdinalNumber", 1],
         ["Role", UserRole.Student],
+        ["AverageGrade", 0.0],
       ])
       .executeOne<UserModel>();
 
@@ -218,6 +219,7 @@ describe("students routes", () => {
         lastName: student.last_name,
         avatar: student.avatar,
         ordinalNumber: student.ordinal_number,
+        averageGrade: student.average_grade,
       },
     ]);
   });

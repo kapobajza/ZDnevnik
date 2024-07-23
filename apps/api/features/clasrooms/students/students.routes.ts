@@ -43,6 +43,14 @@ export default function clasroomStudents(
           lastName: UserModel.fields.LastName,
           avatar: UserModel.fields.Avatar,
           ordinalNumber: UserModel.fields.OrdinalNumber,
+          averageGrade: UserModel.fields.AverageGrade,
+        })
+        .join({
+          table: UserClasroomModel,
+          on: {
+            field: UserModel.fields.Id,
+            other: UserClasroomModel.fields.UserId,
+          },
         })
         .where({
           field: UserClasroomModel.fields.ClassroomId,
@@ -56,13 +64,6 @@ export default function clasroomStudents(
         })
         .limit(request.query.limit)
         .offset((request.query.page - 1) * request.query.limit)
-        .join({
-          table: UserClasroomModel,
-          on: {
-            field: UserModel.fields.Id,
-            other: UserClasroomModel.fields.UserId,
-          },
-        })
         .execute();
 
       return reply.send(students);
