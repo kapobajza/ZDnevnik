@@ -2,13 +2,13 @@ import { cva } from "class-variance-authority";
 
 import type { TypographyVariant } from "@/components/types";
 
-export const headingVariants = cva("text-foreground", {
+export const headingVariants = cva("zd-text-foreground", {
   variants: {
     variant: {
-      h1: "text-h1",
-      h2: "text-h2",
-      h3: "text-h3",
-      h4: "text-h4",
+      h1: "zd-text-h1",
+      h2: "zd-text-h2",
+      h3: "zd-text-h3",
+      h4: "zd-text-h4",
     } satisfies Record<
       Extract<TypographyVariant, "h1" | "h2" | "h3" | "h4">,
       string
@@ -16,18 +16,18 @@ export const headingVariants = cva("text-foreground", {
   },
 });
 
-export const paragraphVariants = cva("text-foreground", {
+export const paragraphVariants = cva("zd-text-foreground", {
   variants: {
     variant: {
-      p: "text-p",
-      p_ui: "text-p_ui",
-      body_medium: "text-body_medium",
-      blockquote: "text-blockquote",
-      table_head: "text-table_head",
-      lead: "text-lead",
-      large: "text-large",
-      subtle: "text-subtle",
-      emphasize: "text-emphasize",
+      p: "zd-text-p",
+      p_ui: "zd-text-p_ui",
+      body_medium: "zd-text-body_medium",
+      blockquote: "zd-text-blockquote",
+      table_head: "zd-text-table_head",
+      lead: "zd-text-lead",
+      large: "zd-text-large",
+      subtle: "zd-text-subtle",
+      emphasize: "zd-text-emphasize",
     } satisfies Record<
       Extract<
         TypographyVariant,
@@ -49,12 +49,12 @@ export const paragraphVariants = cva("text-foreground", {
   },
 });
 
-export const spanVariants = cva("text-foreground", {
+export const spanVariants = cva("zd-text-foreground", {
   variants: {
     variant: {
-      small: "text-small",
-      inline_code: "text-inline_code",
-      table_item: "text-table_item",
+      small: "zd-text-small",
+      inline_code: "zd-text-inline_code",
+      table_item: "zd-text-table_item",
     } satisfies Record<
       Extract<TypographyVariant, "small" | "inline_code" | "table_item">,
       string
