@@ -7,5 +7,5 @@
       "~/scripting/*": ["./scripting/*"]
     }
   },
-  "include": ["**/*.ts", "rollup.config.js"]
+  "include": ["**/*.ts", "rollup.config.js", ".eslintrc.js"]
 }
