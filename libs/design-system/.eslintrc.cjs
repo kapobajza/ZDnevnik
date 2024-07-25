@@ -5,17 +5,18 @@ module.exports = {
   extends: [
     "plugin:react-hooks/recommended",
     "../../.eslintrc.strict.js",
-    "plugin:storybook/recommended"
+    "plugin:storybook/recommended",
+    "plugin:jsx-a11y/recommended",
   ],
   ignorePatterns: ["!**/*", "dist", ".eslintrc.cjs"],
   plugins: ["react-refresh"],
   rules: {
     "react-refresh/only-export-components": [
       "warn",
-      { allowConstantExport: true }
-    ]
+      { allowConstantExport: true },
+    ],
   },
   parserOptions: {
-    project: "./tsconfig.json"
-  }
+    project: "./tsconfig.json",
+  },
 };

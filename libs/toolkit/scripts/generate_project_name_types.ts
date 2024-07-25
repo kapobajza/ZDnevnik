@@ -3,12 +3,13 @@ import path from "path";
 
 import yaml from "yaml";
 
-import { applyPrettier } from "~/toolkit/format/prettier";
+import { applyPrettier } from "~/scripting/format";
+import { getRootPath } from "~/scripting/path";
 import { strToPascalCase } from "~/toolkit/string/manipulation";
-import { getRootPath } from "~/toolkit/path";
 
 function generateProjectNameTypes() {
   const rootPath = getRootPath();
+
   const pnpmWorkspace = yaml.parse(
     fs.readFileSync(path.join(rootPath, "pnpm-workspace.yaml"), "utf-8"),
   ) as {

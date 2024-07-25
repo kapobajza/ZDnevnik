@@ -1,6 +1,7 @@
 import { spawnSync } from "child_process";
 import path from "path";
-import type { ProjectName } from "~/toolkit/types/project.types";
+
+import type { ProjectName } from "~/scripting/types/project.types";
 
 export const getRootPath = () =>
   spawnSync("git", ["rev-parse", "--show-toplevel"]).stdout.toString().trim();

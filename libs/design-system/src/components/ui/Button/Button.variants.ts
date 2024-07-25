@@ -6,7 +6,7 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "zd-bg-primary zd-text-primary-foreground hover:zd-bg-background hover:zd-text-primary hover:zd-border-primary hover:zd-border",
+          "zd-bg-primary zd-text-primary-foreground hover:zd-bg-primary-foreground hover:zd-text-primary hover:zd-border-primary hover:zd-border",
       },
       size: {
         default: "zd-h-10 zd-px-4 zd-py-2",

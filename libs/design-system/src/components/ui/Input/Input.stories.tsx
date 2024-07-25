@@ -17,4 +17,12 @@ export const Default: Story = {
   },
 };
 
+export const InputWithError: Story = {
+  args: {
+    type: "text",
+    placeholder: "Input",
+    error: "Field is required",
+  },
+};
+
 export default meta;

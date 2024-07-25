@@ -4,7 +4,7 @@ import { fn } from "@storybook/test";
 import { Paragraph as ParagraphComponent } from "@/components/ui/Typography";
 
 const meta: Meta<typeof ParagraphComponent> = {
-  title: "Components/Typography/Parahraphs",
+  title: "Components/Typography/Paragraphs",
   component: ParagraphComponent,
   parameters: {
     layout: "centered",
