@@ -1,6 +1,9 @@
-import { superValidate } from "sveltekit-superforms";
+import { superValidate, setError } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { loginBodySchema } from "@zdnevnik/toolkit";
+import {
+  loginBodySchema,
+  type InvalidCredentialsSchema,
+} from "@zdnevnik/toolkit";
 import { fail, type Actions } from "@sveltejs/kit";
 
 export const load = async () => {
@@ -14,7 +17,18 @@ export const actions: Actions = {
     const form = await superValidate(request, zod(loginBodySchema));
 
     if (!form.valid) {
-      return fail(400, { form });
+      return fail(422, { form });
+    }
+
+    const res = await fetch("http://localhost:5000/auth/login", {
+      body: JSON.stringify(form.data),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!res.ok) {
+      const errRes = (await res.json()) as InvalidCredentialsSchema;
+      return setError(form, errRes.error);
     }
 
     return { form };

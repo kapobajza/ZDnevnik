@@ -15,3 +15,9 @@ const invalidCredentialsSchema = createErrorResponseSchema(
 );
 
 export type InvalidCredentialsSchema = z.infer<typeof invalidCredentialsSchema>;
+
+export const ErrorResponseCode = {
+  INVALID_CREDENTIALS: "invalid_credentials",
+} as const satisfies {
+  [key in Uppercase<ErrorResponseLiteral>]: ErrorResponseLiteral;
+};

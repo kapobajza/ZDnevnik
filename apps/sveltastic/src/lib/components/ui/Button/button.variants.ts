@@ -1,7 +1,7 @@
 import { tv } from "tailwind-variants";
 
 export const buttonVariants = tv({
-  base: "zd-text-sm zd-inline-flex zd-items-center zd-justify-center zd-whitespace-nowrap zd-rounded-md zd-font-medium zd-ring-offset-background zd-transition-colors focus-visible:zd-outline-none focus-visible:zd-ring-2 focus-visible:zd-ring-ring focus-visible:zd-ring-offset-2 disabled:zd-cursor-not-allowed disabled:zd-opacity-50",
+  base: "zd-inline-flex zd-items-center zd-justify-center zd-whitespace-nowrap zd-rounded-md zd-font-medium zd-ring-offset-background zd-transition-colors focus-visible:zd-outline-none focus-visible:zd-ring-2 focus-visible:zd-ring-ring focus-visible:zd-ring-offset-2 disabled:zd-cursor-not-allowed disabled:zd-opacity-50",
   variants: {
     variant: {
       primary:

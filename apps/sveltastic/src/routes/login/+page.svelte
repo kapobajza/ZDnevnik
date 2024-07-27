@@ -6,6 +6,9 @@
   import { Button } from "$lib/components/ui/Button";
   import { superForm } from "sveltekit-superforms";
   import type { PageData } from "./$types";
+  import { ErrorResponseCode } from "@zdnevnik/toolkit";
+  import { Alert } from "$lib/components/ui/Alert";
+  import { slide } from "svelte/transition";
 
   export let data: PageData;
   const { errors, enhance, form } = superForm(data.form);
@@ -23,6 +26,16 @@
     <span class="zd-text-primary">"Koji si ti broj"</span>?
   </Typography>
   <form method="post" class="zd-w-full zd-max-w-[500px]" use:enhance>
+    {#if $errors._errors?.[0] === ErrorResponseCode.INVALID_CREDENTIALS}
+      <div in:slide out:slide>
+        <Alert
+          variant="destructive"
+          class="zd-mb-8"
+          title="Greška"
+          description="Pogrešno korisničko ime ili lozinka"
+        />
+      </div>
+    {/if}
     <Input
       name="username"
       placeholder="Korisničko ime"
