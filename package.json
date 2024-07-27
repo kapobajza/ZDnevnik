@@ -16,7 +16,9 @@
     "api:test": "pnpm --filter api test",
     "ds:storybook": "pnpm --filter design-system storybook",
     "ds:build": "pnpm --filter design-system build",
-    "sv:storybook": "pnpm --filter sveltastic storybook"
+    "sv:storybook": "pnpm --filter sveltastic storybook",
+    "sv:check": "pnpm --filter sveltastic check",
+    "sv:dev": "pnpm --filter sveltastic dev"
   },
   "keywords": [],
   "author": "",

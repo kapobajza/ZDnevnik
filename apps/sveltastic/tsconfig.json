@@ -10,12 +10,13 @@
       "$src": ["./src"],
       "$src/*": ["./src/*"]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "rootDirs": [".", "./.svelte-kit/types"]
   },
   "include": [
     "ambient.d.ts",
     "non-ambient.d.ts",
-    "./svelte-kit/types/**/$types.d.ts",
+    "./.svelte-kit/types/**/$types.d.ts",
     "./vite.config.js",
     "./vite.config.ts",
     "./src/**/*.js",
