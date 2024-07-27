@@ -1,6 +1,5 @@
 import React from "react";
-
-import { cn } from "@/lib/utils";
+import { cn } from "@ds/lib/utils";
 
 export type ContainerProps = React.HTMLAttributes<HTMLDivElement>;
 

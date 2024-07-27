@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-
-import { Span } from "@/components/ui/Typography";
+import { Span } from "@ds/components/ui/Typography";
 
 const meta: Meta<typeof Span> = {
   title: "Components/Typography/Spans",

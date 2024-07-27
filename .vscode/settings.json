@@ -1,6 +1,7 @@
 {
   "eslint.workingDirectories": [
     { "directory": "./apps/web" },
+    { "directory": "./apps/sveltastic" },
     { "directory": "./apps/api" },
     { "directory": "./libs/toolkit" },
     { "directory": "./libs/design-system" }
@@ -12,7 +13,9 @@
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cva<[^>]*>\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["tv<[^>]*>\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
   ],
   "tailwindCSS.classAttributes": [
     "class",
@@ -26,5 +29,8 @@
   },
   "editor.quickSuggestions": {
     "strings": "on"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
   }
 }

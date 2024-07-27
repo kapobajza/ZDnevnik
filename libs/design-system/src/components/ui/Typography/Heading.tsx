@@ -1,9 +1,8 @@
 import React from "react";
+import { cn } from "@ds/lib/utils";
+import type { RequiredVariantProps } from "@ds/components/types/util";
 
 import { headingVariants } from "./Typography.variants";
-
-import { cn } from "@/lib/utils";
-import type { RequiredVariantProps } from "@/components/types/util";
 
 export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> &
   RequiredVariantProps<typeof headingVariants>;

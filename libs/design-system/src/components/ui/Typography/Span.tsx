@@ -1,9 +1,8 @@
 import React from "react";
 import type { VariantProps } from "class-variance-authority";
+import { cn } from "@ds/lib/utils";
 
 import { spanVariants } from "./Typography.variants";
-
-import { cn } from "@/lib/utils";
 
 export type SpanProps = React.HTMLAttributes<HTMLSpanElement> &
   VariantProps<typeof spanVariants>;

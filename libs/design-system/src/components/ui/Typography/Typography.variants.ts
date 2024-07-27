@@ -1,6 +1,5 @@
 import { cva } from "class-variance-authority";
-
-import type { TypographyVariant } from "@/components/types";
+import type { TypographyVariant } from "@ds/components/types";
 
 export const headingVariants = cva("zd-text-foreground", {
   variants: {

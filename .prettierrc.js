@@ -4,6 +4,5 @@ module.exports = {
   bracketSpacing: true,
   bracketSameLine: false,
   printWidth: 80,
-  plugins: ["prettier-plugin-astro"],
   trailingComma: "all",
 };

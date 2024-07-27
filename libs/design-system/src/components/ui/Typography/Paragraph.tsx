@@ -1,9 +1,8 @@
 import React from "react";
 import type { VariantProps } from "class-variance-authority";
+import { cn } from "@ds/lib/utils";
 
 import { paragraphVariants } from "./Typography.variants";
-
-import { cn } from "@/lib/utils";
 
 export type ParagraphProps = React.HTMLAttributes<HTMLParagraphElement> &
   VariantProps<typeof paragraphVariants>;

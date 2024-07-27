@@ -9,3 +9,9 @@ export const createErrorResponseSchema = (error: ErrorResponseLiteral) => {
     error: z.literal(error),
   });
 };
+
+const invalidCredentialsSchema = createErrorResponseSchema(
+  "invalid_credentials",
+);
+
+export type InvalidCredentialsSchema = z.infer<typeof invalidCredentialsSchema>;

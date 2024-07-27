@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-
-import { Heading } from "@/components/ui/Typography";
+import { Heading } from "@ds/components/ui/Typography";
 
 const meta: Meta<typeof Heading> = {
   title: "Components/Typography/Headings",
@@ -19,6 +18,7 @@ export const H1: Story = {
   args: {
     variant: "h1",
     children: "heading 1",
+    className: "zd-text-primary",
   },
 };
 

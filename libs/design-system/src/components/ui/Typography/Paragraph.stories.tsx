@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn } from "@storybook/test";
-
-import { Paragraph as ParagraphComponent } from "@/components/ui/Typography";
+import { Paragraph as ParagraphComponent } from "@ds/components/ui/Typography";
 
 const meta: Meta<typeof ParagraphComponent> = {
   title: "Components/Typography/Paragraphs",

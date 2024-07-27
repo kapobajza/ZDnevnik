@@ -29,7 +29,7 @@ async function main() {
     await pool.end();
   });
 
-  app.listen({ port: 3000 }, function (err, address) {
+  app.listen({ port: 5000 }, function (err, address) {
     if (err) {
       app.log.error(err);
       process.exit(1);

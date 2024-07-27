@@ -47,11 +47,11 @@ lint:
         modified_files=$(node ./scripts/relative_file_paths.js --path $path)
         cd $path
         pnpm run --filter toolkit lint ${modified_files} --fix
-    web:
+    sveltastic:
       files: git diff --name-only --staged
       run: |
         set -e
-        path="apps/web"
+        path="apps/sveltastic"
         modified_files=$(node ./scripts/relative_file_paths.js --path $path)
         cd $path
-        pnpm run --filter web lint ${modified_files} --fix
+        pnpm run --filter sveltastic lint ${modified_files} --fix

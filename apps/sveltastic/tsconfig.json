@@ -1,0 +1,42 @@
+{
+  "extends": ["../../tsconfig.strictest.json"],
+  "compilerOptions": {
+    "lib": ["esnext", "DOM", "DOM.Iterable"],
+    "allowJs": true,
+    "checkJs": true,
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "$src": ["./src"],
+      "$src/*": ["./src/*"]
+    },
+    "baseUrl": "."
+  },
+  "include": [
+    "ambient.d.ts",
+    "non-ambient.d.ts",
+    "./svelte-kit/types/**/$types.d.ts",
+    "./vite.config.js",
+    "./vite.config.ts",
+    "./src/**/*.js",
+    "./src/**/*.ts",
+    "./tw/**/*.ts",
+    "./src/**/*.svelte",
+    "./tests/**/*.js",
+    "./tests/**/*.ts",
+    "./tests/**/*.svelte",
+    "./.eslintrc.cjs",
+    "./.storybook/**/*",
+    "./**/*.svelte",
+    "tailwind.config.ts",
+    "svelte.config.js",
+    "postcss.config.js",
+    ".prettierrc.js"
+  ],
+  "exclude": [
+    "./node_modules/**",
+    "./src/service-worker.js",
+    "./src/service-worker.ts",
+    "./src/service-worker.d.ts"
+  ]
+}

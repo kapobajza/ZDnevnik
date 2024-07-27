@@ -1,4 +1,4 @@
-import type { TypographyVariant } from "@/components/types/typography";
+import type { TypographyVariant } from "@ds/components/types/typography";
 
 type TWFontSizeConfig = [
   fontSize: string,

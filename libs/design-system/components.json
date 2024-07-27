@@ -11,7 +11,7 @@
     "prefix": "zd-"
   },
   "aliases": {
-    "components": "@/components",
-    "utils": "@/lib/utils"
+    "components": "@ds/components",
+    "utils": "@ds/lib/utils"
   }
 }
