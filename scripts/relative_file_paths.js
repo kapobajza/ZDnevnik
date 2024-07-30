@@ -14,9 +14,13 @@ const argv = yargs(args)
   })
   .parse();
 
-const filesSpawn = spawnSync("git", ["diff", "--name-only", "--staged"], {
-  encoding: "utf8",
-});
+const filesSpawn = spawnSync(
+  "git",
+  ["diff", "--name-only", "--staged", "--diff-filter", "ACMRT"],
+  {
+    encoding: "utf8",
+  },
+);
 
 if (filesSpawn.status !== 0) {
   throw new Error("Failed to get modified files", filesSpawn.stderr);

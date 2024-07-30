@@ -6,7 +6,9 @@ import {
 } from "@zdnevnik/toolkit";
 import { fail, type Actions } from "@sveltejs/kit";
 
-export const load = async () => {
+import type { PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(loginBodySchema));
 
   return { form };

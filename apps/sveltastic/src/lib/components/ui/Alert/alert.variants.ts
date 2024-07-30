@@ -6,7 +6,7 @@ export const alertVariants = tv({
     variant: {
       default: "zd-bg-background zd-text-foreground",
       destructive:
-        "zd-border-destructive/50 zd-text-destructive dark:zd-border-destructive",
+        "zd-border-destructive/50 zd-bg-destructive/20 zd-text-destructive dark:zd-border-destructive",
     },
   },
   defaultVariants: {

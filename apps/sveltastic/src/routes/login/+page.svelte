@@ -9,6 +9,7 @@
   import { ErrorResponseCode } from "@zdnevnik/toolkit";
   import { Alert } from "$lib/components/ui/Alert";
   import { slide } from "svelte/transition";
+  import { LL } from "$src/i18n/i18n-svelte";
 
   export let data: PageData;
   const { errors, enhance, form } = superForm(data.form);
@@ -22,8 +23,8 @@
     class="zd-w-full zd-h-[256px] zd-mb-16 zd-object-contain"
   />
   <Typography variant="h4" class="zd-mb-8 zd-text-center">
-    Prijavi se i odgovori na pitanje{" "}
-    <span class="zd-text-primary">"Koji si ti broj"</span>?
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html $LL.login_title()}
   </Typography>
   <form method="post" class="zd-w-full zd-max-w-[500px]" use:enhance>
     {#if $errors._errors?.[0] === ErrorResponseCode.INVALID_CREDENTIALS}
@@ -32,25 +33,27 @@
           variant="destructive"
           class="zd-mb-8"
           title="Greška"
-          description="Pogrešno korisničko ime ili lozinka"
+          description={$LL.login_error_invalid_credentials()}
         />
       </div>
     {/if}
     <Input
       name="username"
-      placeholder="Korisničko ime"
+      placeholder={$LL.login_username_placeholder()}
       containerClass="zd-mb-4"
       error={$errors.username?.[0]}
       bind:value={$form.username}
     />
     <Input
       name="password"
-      placeholder="Lozinka"
+      placeholder={$LL.login_password_placeholder()}
       type="password"
       containerClass="zd-mb-14"
       error={$errors.password?.[0]}
       bind:value={$form.password}
     />
-    <Button type="submit" class="zd-w-full">Prijava</Button>
+    <Button type="submit" class="zd-w-full">
+      {$LL.login_submit_button()}
+    </Button>
   </form>
 </Container>

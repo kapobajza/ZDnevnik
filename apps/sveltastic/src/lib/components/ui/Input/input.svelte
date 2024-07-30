@@ -48,6 +48,7 @@
     on:paste
     on:input
     on:wheel|passive
+    aria-label={$$restProps.name}
     {...$$restProps}
   />
 

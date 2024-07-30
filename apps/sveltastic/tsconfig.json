@@ -11,7 +11,8 @@
       "$src/*": ["./src/*"]
     },
     "baseUrl": ".",
-    "rootDirs": [".", "./.svelte-kit/types"]
+    "rootDirs": [".", "./.svelte-kit/types"],
+    "types": ["@testing-library/jest-dom"]
   },
   "include": [
     "ambient.d.ts",
@@ -32,7 +33,8 @@
     "tailwind.config.ts",
     "svelte.config.js",
     "postcss.config.js",
-    ".prettierrc.js"
+    ".prettierrc.js",
+    "vitest-setup.js"
   ],
   "exclude": [
     "./node_modules/**",
