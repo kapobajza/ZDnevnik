@@ -11,6 +11,8 @@ const ba = {
     "{field:string} je {gender?|{m: obavezan, f: obavezna, *: obavezno}}",
   validation_field_too_short:
     "{field:string} je {gender?|{m: prekratak, f: prekratka, *: prekratko}}",
+  error_title: "Greška",
+  error_unknown: "Dogodila se nepoznata greška",
 } satisfies BaseTranslation;
 
 export default ba;

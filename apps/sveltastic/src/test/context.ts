@@ -1,4 +1,4 @@
-import type { ComponentType, SvelteComponent } from "svelte";
+import type { ComponentProps, ComponentType, SvelteComponent } from "svelte";
 import {
   render,
   type RenderOptions,
@@ -8,6 +8,7 @@ import {
 import { MockLL } from "./i18n";
 
 import { type Context } from "$lib/util";
+import { baseLocale } from "$src/i18n/i18n-util";
 
 export const testContext = (): Map<keyof Context, Context[keyof Context]> => {
   const map = new Map<keyof Context, Context[keyof Context]>();
@@ -19,7 +20,11 @@ export const testContext = (): Map<keyof Context, Context[keyof Context]> => {
 
 export const renderWithContext = <TComponent extends SvelteComponent>(
   component: ComponentType<TComponent>,
-  options?: SvelteComponentOptions<TComponent>,
+  options?: Omit<SvelteComponentOptions<TComponent>, "props"> & {
+    props?: Omit<ComponentProps<TComponent>, "data"> & {
+      data?: Omit<ComponentProps<TComponent>["data"], "locale">;
+    };
+  },
   renderOptions?: RenderOptions,
 ) => {
   return render(
@@ -27,6 +32,13 @@ export const renderWithContext = <TComponent extends SvelteComponent>(
     {
       ...options,
       context: testContext(),
+      props: {
+        ...options?.props,
+        data: {
+          ...(options?.props?.data as object),
+          locale: baseLocale,
+        },
+      } as ComponentProps<TComponent>,
     },
     renderOptions,
   );

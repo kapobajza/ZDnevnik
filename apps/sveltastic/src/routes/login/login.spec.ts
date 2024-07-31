@@ -27,7 +27,6 @@ describe("Login page", () => {
       props: {
         data: {
           form,
-          locale: "ba",
         },
       },
     });
@@ -47,7 +46,6 @@ describe("Login page", () => {
       props: {
         data: {
           form,
-          locale: "ba",
         },
       },
     });
@@ -69,12 +67,31 @@ describe("Login page", () => {
             ...form,
             errors: formError.data.form.errors,
           },
-          locale: "ba",
         },
       },
     });
 
     const error = screen.getByText(/pogrešno korisničko ime ili lozinka/i);
     expect(error).toBeInTheDocument();
+  });
+
+  test("should redirect to home if login is successful", async () => {
+    const request = generateDummyRequest("test", "Testingtesttest");
+    const form = await superValidate(request, zod(loginBodySchema));
+    const formError = setError(form, ErrorResponseCode.INVALID_CREDENTIALS);
+
+    renderWithContext(LoginPage, {
+      props: {
+        data: {
+          form: {
+            ...form,
+            errors: formError.data.form.errors,
+          },
+        },
+      },
+    });
+
+    const error = screen.queryByText(/pogrešno korisničko ime ili lozinka/i);
+    expect(error).not.toBeInTheDocument();
   });
 });

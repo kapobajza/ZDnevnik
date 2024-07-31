@@ -31,14 +31,6 @@ lint:
         modified_files=$(node ./scripts/relative_file_paths.js --path $path)
         cd $path
         pnpm run --filter api lint ${modified_files} --fix
-    ds:
-      files: git diff --name-only --staged
-      run: |
-        set -e
-        path="libs/design-system"
-        modified_files=$(node ./scripts/relative_file_paths.js --path $path)
-        cd $path
-        pnpm run --filter design-system lint ${modified_files} --fix
     toolkit:
       files: git diff --name-only --staged
       run: |

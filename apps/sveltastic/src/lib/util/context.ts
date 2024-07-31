@@ -2,9 +2,11 @@ import type { Readable } from "svelte/store";
 import { getContext, setContext } from "svelte";
 
 import type { TranslationFunctions } from "$src/i18n/i18n-types";
+import type { ApiInstance } from "$lib/api";
 
 export type Context = {
   LL: Readable<TranslationFunctions>;
+  api: ApiInstance;
 };
 
 export const createContext = <

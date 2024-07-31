@@ -1,4 +1,8 @@
-import type { LoginBody } from "@zdnevnik/toolkit";
+import {
+  errorResponseSchema,
+  type ErrorResponseLiteral,
+  type LoginBody,
+} from "@zdnevnik/toolkit";
 import { z } from "zod";
 
 import type { TranslationFunctions } from "$src/i18n/i18n-types";
@@ -45,4 +49,9 @@ export const initZodErrorMap = (LL: TranslationFunctions) => {
 
     return { message };
   });
+};
+
+export const isResponseCode = (error: unknown, code: ErrorResponseLiteral) => {
+  const errRes = errorResponseSchema.safeParse(error);
+  return errRes.success && errRes.data.code === code;
 };

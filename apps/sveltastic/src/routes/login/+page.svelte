@@ -6,7 +6,6 @@
   import { Button } from "$lib/components/ui/Button";
   import { superForm } from "sveltekit-superforms";
   import type { PageData } from "./$types";
-  import { ErrorResponseCode } from "@zdnevnik/toolkit";
   import { Alert } from "$lib/components/ui/Alert";
   import { slide } from "svelte/transition";
   import { useContext } from "$lib/util";
@@ -28,13 +27,13 @@
     {@html $LL.login_title()}
   </Typography>
   <form method="post" class="zd-w-full zd-max-w-[500px]" use:enhance>
-    {#if $errors._errors?.[0] === ErrorResponseCode.INVALID_CREDENTIALS}
+    {#if $errors._errors?.[0]}
       <div in:slide out:slide>
         <Alert
           variant="destructive"
           class="zd-mb-8"
-          title="Greška"
-          description={$LL.login_error_invalid_credentials()}
+          title={$LL.error_title()}
+          description={$errors._errors?.[0]}
         />
       </div>
     {/if}

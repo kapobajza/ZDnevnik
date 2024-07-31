@@ -1,4 +1,4 @@
-import { createErrorResponseSchema, loginBodySchema } from "@zdnevnik/toolkit";
+import { errorResponseSchema, loginBodySchema } from "@zdnevnik/toolkit";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -27,7 +27,7 @@ export default function auth(
       schema: {
         body: loginBodySchema,
         response: {
-          400: createErrorResponseSchema("invalid_credentials"),
+          400: errorResponseSchema,
           200: z.object({ ok: z.literal(true) }),
         },
       },
@@ -43,7 +43,7 @@ export default function auth(
         .executeOne();
 
       if (!user) {
-        return reply.code(400).send({ error: "invalid_credentials" });
+        return reply.code(400).send({ code: "invalid_credentials" });
       }
 
       const dbPasswordHash = hashPassword(
@@ -52,7 +52,7 @@ export default function auth(
       );
 
       if (dbPasswordHash !== user.passwordHash) {
-        return reply.code(400).send({ error: "invalid_credentials" });
+        return reply.code(400).send({ code: "invalid_credentials" });
       }
 
       const { ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } =
