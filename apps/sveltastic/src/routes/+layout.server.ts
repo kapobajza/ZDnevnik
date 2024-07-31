@@ -12,8 +12,9 @@ export const load: LayoutServerLoad = (event) => {
 
   if (newLocale) {
     event.cookies.set(langParam, newLocale, { path: "/" });
-    event.url.searchParams.delete(langParam);
-    throw redirect(303, event.url.toString());
+    const url = new URL(event.url);
+    url.searchParams.delete(langParam);
+    return redirect(303, url.toString());
   }
 
   const locale = detectLocale(baseLocale, locales);

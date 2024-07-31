@@ -10,7 +10,7 @@ export default defineConfig({
   test: {
     include: ["src/**/*.{test,spec}.{js,ts}"],
     environment: "jsdom",
-    setupFiles: ["./vitest-setup.js"],
+    setupFiles: ["./src/test/setup.ts"],
   },
   resolve: {
     alias: {

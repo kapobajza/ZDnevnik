@@ -33,8 +33,7 @@
     "tailwind.config.ts",
     "svelte.config.js",
     "postcss.config.js",
-    ".prettierrc.js",
-    "vitest-setup.js"
+    ".prettierrc.js"
   ],
   "exclude": [
     "./node_modules/**",

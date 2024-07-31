@@ -9,9 +9,10 @@
   import { ErrorResponseCode } from "@zdnevnik/toolkit";
   import { Alert } from "$lib/components/ui/Alert";
   import { slide } from "svelte/transition";
-  import { LL } from "$src/i18n/i18n-svelte";
+  import { useContext } from "$lib/util";
 
   export let data: PageData;
+  const LL = useContext("LL");
   const { errors, enhance, form } = superForm(data.form);
 </script>
 
