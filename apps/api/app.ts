@@ -13,6 +13,7 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
+import FastifyCors from "@fastify/cors";
 
 import {
   HttpErrorCode,
@@ -55,6 +56,26 @@ export async function buildApp(
   fastify.setValidatorCompiler(zodValidatorCompiler);
   fastify.setSerializerCompiler(zodSerializerCompiler);
 
+  if (!opts?.testing) {
+    await fastify.register(FastifyCors, {
+      origin: (origin, cb) => {
+        if (!origin) {
+          cb(new Error("Not allowed"), false);
+          return;
+        }
+
+        const hostname = new URL(origin).hostname;
+
+        if (hostname !== "localhost" && !hostname.includes("zdnevnik")) {
+          cb(new Error("Not allowed"), false);
+          return;
+        }
+
+        cb(null, true);
+      },
+    });
+  }
+
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "plugins"),
     options: {
@@ -68,7 +89,12 @@ export async function buildApp(
 
   await fastify.register(SecureSession, {
     key: fs.readFileSync(path.join(__dirname, "session_key")),
-    cookieName: opts.env.COOKIE_NAME,
+    cookieName: opts.env.SESSION_COOKIE_NAME,
+    cookie: {
+      httpOnly: true,
+      path: "/",
+      domain: opts.env.SESSION_COOKIE_DOMAIN,
+    },
   });
 
   await fastify.register(FastifyAuth);

@@ -42,7 +42,7 @@ export default fp((fastify, _opts, done) => {
       }
 
       request.session.delete();
-      return reply.redirect("/login");
+      return createUnauthorizedReply(reply);
     },
   );
 

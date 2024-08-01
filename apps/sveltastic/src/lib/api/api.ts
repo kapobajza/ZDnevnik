@@ -5,11 +5,13 @@ export type ApiMethodOptions = Omit<RequestInit, "method" | "body">;
 
 export type CreateApiOptions = {
   baseUrl: string;
+  origin: string;
 };
 
 export const createApi = ({
   baseUrl,
   routePrefix,
+  origin,
 }: {
   routePrefix?: string;
 } & CreateApiOptions) => {
@@ -22,15 +24,19 @@ export const createApi = ({
     options?: RequestInit,
   ) => {
     const res = await fetch(constructRoute(route), {
+      credentials: "include",
       ...options,
+      headers: {
+        ...options?.headers,
+        Origin: origin,
+      },
     });
 
     if (!res.ok) {
       let errorToThrow: ErrorResponse;
 
       try {
-        const errorResponse = await (res.json() as Promise<ErrorResponse>);
-        errorToThrow = errorResponse;
+        errorToThrow = await (res.json() as Promise<ErrorResponse>);
       } catch {
         errorToThrow = {
           code: ErrorResponseCode.UNKNOWN,
@@ -40,7 +46,12 @@ export const createApi = ({
       throw errorToThrow;
     }
 
-    return res.json() as Promise<TResponse>;
+    const data = (await res.json()) as TResponse;
+
+    return {
+      response: res,
+      data,
+    };
   };
 
   return {

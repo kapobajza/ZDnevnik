@@ -8,7 +8,7 @@ export const createAuthApi = (options: CreateApiOptions) => {
 
   return {
     login: async (username: string, password: string) => {
-      await authApi.post("login", {
+      return authApi.post("login", {
         username,
         password,
       });

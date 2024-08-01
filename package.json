@@ -18,7 +18,7 @@
     "ds:build": "pnpm --filter design-system build",
     "sv:storybook": "pnpm --filter sveltastic storybook",
     "sv:check": "pnpm --filter sveltastic check",
-    "sv:dev": "pnpm --filter sveltastic dev",
+    "sv:dev": "pnpm --filter sveltastic vite",
     "sv:dev:translations": "pnpm --filter sveltastic dev:translations",
     "sv:test": "pnpm --filter sveltastic test",
     "sv:test:ui": "pnpm --filter sveltastic test:ui"
@@ -50,6 +50,7 @@
     "overrides": {
       "@types/eslint": "8.56.10",
       "@types/node": "20.14.7",
+      "@types/yargs": "15.0.19",
       "@typescript-eslint/eslint-plugin": "7.13.1",
       "@typescript-eslint/parser": "7.13.1",
       "eslint": "8.57.0",
@@ -59,7 +60,8 @@
       "typescript": "5.5.2",
       "vite": "5.3.1",
       "vitest": "2.0.4",
-      "zod": "3.23.8"
+      "zod": "3.23.8",
+      "yargs": "17.7.2"
     }
   }
 }

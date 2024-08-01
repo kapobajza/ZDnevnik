@@ -21,6 +21,7 @@
   <enhanced:img
     src={ZDnevnikLogo}
     class="zd-w-full zd-h-[256px] zd-mb-16 zd-object-contain"
+    alt="ZDnevnik Logo"
   />
   <Typography variant="h4" class="zd-mb-8 zd-text-center">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->

@@ -1,2 +1,5 @@
 migrations/dist
 session_key
+.env
+.env.*
+!.env.example

@@ -21,6 +21,7 @@ import {
   type HttpError,
   type HttpValidationError,
 } from "~/api/error/types";
+import { getCookieExpiry } from "~/api/features/auth/util/session";
 
 describe("auth routes", () => {
   let fastify: FastifyInstance;
@@ -83,7 +84,7 @@ describe("auth routes", () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual(
       JSON.stringify({
-        error: "invalid_credentials",
+        code: "invalid_credentials",
       }),
     );
   });
@@ -103,7 +104,7 @@ describe("auth routes", () => {
     expect(response.statusCode).toBe(400);
     expect(response.body).toEqual(
       JSON.stringify({
-        error: "invalid_credentials",
+        code: "invalid_credentials",
       }),
     );
   });
@@ -143,6 +144,11 @@ describe("auth routes", () => {
           code: "too_small",
           message: "String must contain at least 1 character(s)",
           path: ["username"],
+        },
+        {
+          code: "too_small",
+          message: "String must contain at least 1 character(s)",
+          path: ["password"],
         },
         {
           code: "too_small",
@@ -220,7 +226,7 @@ describe("auth routes", () => {
     const { REFRESH_COOKIE_MAX_AGE } = fastify.getEnvs();
 
     vi.useFakeTimers();
-    vi.setSystemTime(Date.now() + REFRESH_COOKIE_MAX_AGE);
+    vi.setSystemTime(getCookieExpiry(REFRESH_COOKIE_MAX_AGE));
 
     const unauthorizedRes = await fastify.inject({
       method: "GET",
@@ -230,7 +236,6 @@ describe("auth routes", () => {
       },
     });
 
-    expect(unauthorizedRes.statusCode).toBe(302);
-    expect(unauthorizedRes.headers.location).toBe("/login");
+    expect(unauthorizedRes.statusCode).toBe(401);
   });
 });

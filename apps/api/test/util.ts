@@ -16,9 +16,10 @@ export async function buildTestApp() {
 
   const env: EnvRecord = {
     DATABASE_URL: postgresContainer.getConnectionUri(),
-    COOKIE_NAME: "test",
     ACCESS_COOKIE_MAX_AGE: 60 * 1000,
     REFRESH_COOKIE_MAX_AGE: 60 * 60 * 1000,
+    SESSION_COOKIE_NAME: "test",
+    SESSION_COOKIE_DOMAIN: "test",
   };
 
   await registerEnvPlugin(app, {
