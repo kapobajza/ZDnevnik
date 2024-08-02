@@ -28,7 +28,7 @@ function generateProjectNameTypes() {
 
   const destinationPath = path.join(
     rootPath,
-    "libs/toolkit/src/types/project.types.ts",
+    "libs/toolkit/scripting/types/project.types.ts",
   );
 
   fs.writeFileSync(
