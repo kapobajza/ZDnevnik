@@ -2,8 +2,8 @@
   "name": "@zdnevnik/toolkit",
   "version": "1.0.0",
   "description": "Toolkit that contains shared types and utilities",
-  "main": "dist/main/toolkit.es.js",
-  "types": "dist/main/index.d.ts",
+  "main": "dist/toolkit.es.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "generate_project_name_types": "tsx scripts/generate_project_name_types.ts",

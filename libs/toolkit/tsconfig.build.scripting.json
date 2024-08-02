@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "outDir": "./scripting/dist"
+  },
+  "exclude": ["./scripting/dist/**/*"]
+}

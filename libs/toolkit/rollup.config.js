@@ -4,7 +4,7 @@ const { dts } = require("rollup-plugin-dts");
 const alias = require("@rollup/plugin-alias");
 const path = require("path");
 
-const generateConfig = ({ input, output }) => [
+const generateConfig = ({ input, inputDts, output }) => [
   {
     input,
     output: [
@@ -33,12 +33,12 @@ const generateConfig = ({ input, output }) => [
     ],
   },
   {
-    input: `${output}/index.d.ts`,
+    input: `${inputDts}/index.d.ts`,
     output: [{ file: `${output}/index.d.ts`, format: "es" }],
     plugins: [
       alias({
         entries: {
-          "~/toolkit": path.resolve("./dist/main/src"),
+          "~/toolkit": path.resolve("./dist/src"),
           "~/scripting": path.resolve("./dist/scripting"),
         },
       }),
@@ -48,6 +48,14 @@ const generateConfig = ({ input, output }) => [
 ];
 
 module.exports = defineConfig([
-  ...generateConfig({ input: "src/index.ts", output: "dist/main" }),
-  ...generateConfig({ input: "scripting/index.ts", output: "dist/scripting" }),
+  ...generateConfig({
+    input: "src/index.ts",
+    inputDts: "dist",
+    output: "dist",
+  }),
+  ...generateConfig({
+    input: "scripting/index.ts",
+    inputDts: "dist/scripting",
+    output: "scripting/dist",
+  }),
 ]);

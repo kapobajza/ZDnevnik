@@ -5,7 +5,7 @@ import Fastify from "fastify";
 import fp from "fastify-plugin";
 import { Pool } from "pg";
 import Postgrator from "postgrator";
-import { getRelativeMonoRepoPath } from "@zdnevnik/toolkit/scripting";
+import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
 
 import { buildApp } from "~/api/app";
 import { registerEnvPlugin, type EnvRecord } from "~/api/env/util";

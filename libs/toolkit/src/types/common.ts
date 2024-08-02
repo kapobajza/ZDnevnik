@@ -31,3 +31,5 @@ export type SnakeToPascalCase<Key extends string | number | symbol> =
     ? `${Capitalize<Lowercase<First>>}${SnakeToPascalCase<Rest>}`
     : // @ts-expect-error - Key should never be a number or a symbol
       Capitalize<Lowercase<Key>>;
+
+export type HelperType = "helper" | "type";

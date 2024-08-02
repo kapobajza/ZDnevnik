@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "tsx watch start.ts",
-    "migrate": "tsx ./scripts/generate_sql_migrations.ts && postgrator --host 127.0.0.1 --database zdnevnik --driver pg -m ./migrations/sql/*",
+    "migrate": "postgrator --host 127.0.0.1 --database zdnevnik --driver pg -m ./migrations/*",
     "tsc": "tsc",
     "test": "vitest",
     "lint": "eslint"
@@ -19,7 +19,8 @@
     "@fastify/env": "4.4.0",
     "@fastify/postgres": "5.2.2",
     "@fastify/secure-session": "7.5.1",
-    "@zdnevnik/toolkit": "workspace:^",
+    "@zdnevnik/toolkit": "workspace:*",
+    "@zdnevnik/scripting": "workspace:../../libs/toolkit/scripting",
     "fastify": "4.28.1",
     "fastify-plugin": "4.5.1",
     "fastify-print-routes": "3.2.0",
