@@ -1,48 +1,48 @@
 CREATE TABLE "users" (
   "id" varchar PRIMARY KEY,
-  "created_at" timestamp,
-  "updated_at" timestamp,
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
   "first_name" varchar(255),
   "last_name" varchar(255),
-  "username" varchar(255) UNIQUE,
-  "password_hash" varchar,
-  "password_salt" varchar,
+  "username" varchar(255) UNIQUE NOT NULL,
+  "password_hash" varchar NOT NULL,
+  "password_salt" varchar NOT NULL,
   "avatar" varchar,
-  "role" varchar(255),
+  "role" varchar(255) NOT NULL,
   "ordinal_number" integer,
-  "average_grade" decimal
+  "average_grade" decimal DEFAULT 0
 );
   
 CREATE TABLE "classrooms" (
   "id" varchar PRIMARY KEY,
-  "created_at" timestamp,
-  "updated_at" timestamp,
-  "name" varchar(255)
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  "name" varchar(255) NOT NULL
 );
 
 CREATE TABLE "subjects" (
   "id" varchar PRIMARY KEY,
-  "created_at" timestamp,
-  "updated_at" timestamp,
-  "name" varchar(500),
-  "classroom_id" varchar
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  "name" varchar(500) NOT NULL,
+  "classroom_id" varchar NOT NULL
 );
 
 CREATE TABLE "users_grades" (
   "id" varchar PRIMARY KEY,
-  "created_at" timestamp,
-  "updated_at" timestamp,
-  "user_id" varchar,
-  "subject_id" varchar,
-  "grade" smallint
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  "user_id" varchar NOT NULL,
+  "subject_id" varchar NOT NULL,
+  "grade" smallint NOT NULL
 );
 
 CREATE TABLE "users_classrooms" (
   "id" varchar PRIMARY KEY,
-  "created_at" timestamp,
-  "updated_at" timestamp,
-  "user_id" varchar,
-  "classroom_id" varchar
+  "created_at" timestamp NOT NULL,
+  "updated_at" timestamp NOT NULL,
+  "user_id" varchar NOT NULL,
+  "classroom_id" varchar NOT NULL
 );
 
 

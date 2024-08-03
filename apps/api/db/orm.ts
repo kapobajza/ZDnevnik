@@ -1,8 +1,9 @@
-import type {
-  FieldDef,
-  Pool as PgPool,
-  QueryArrayResult,
-  QueryResultRow,
+import {
+  types as PgTypes,
+  type FieldDef,
+  type Pool as PgPool,
+  type QueryArrayResult,
+  type QueryResultRow,
 } from "pg";
 import type {
   PascalToSnakeCaseRecord,
@@ -207,9 +208,44 @@ export class ModelORM<
         return obj;
       }
 
+      let finalValue: number | boolean | string | null = null;
+
+      if (value) {
+        const strValue = value as unknown as string;
+        type Builtins =
+          | typeof PgTypes.builtins.INT2
+          | typeof PgTypes.builtins.INT4
+          | typeof PgTypes.builtins.INT8
+          | typeof PgTypes.builtins.NUMERIC
+          | typeof PgTypes.builtins.BOOL
+          | typeof PgTypes.builtins.TIMESTAMP;
+        const dataType = field.dataTypeID as unknown as Builtins;
+
+        switch (dataType) {
+          case PgTypes.builtins.INT2:
+          case PgTypes.builtins.INT4:
+          case PgTypes.builtins.INT8:
+          case PgTypes.builtins.NUMERIC:
+            finalValue = parseInt(strValue, 10);
+            break;
+
+          case PgTypes.builtins.TIMESTAMP:
+            finalValue = new Date(strValue).getTime();
+            break;
+
+          case PgTypes.builtins.BOOL:
+            finalValue = strValue === "true";
+            break;
+
+          default:
+            finalValue = strValue;
+            break;
+        }
+      }
+
       return {
         ...obj,
-        [field.name]: value ?? null,
+        [field.name]: finalValue,
       };
     }, {} as TResult);
   }
