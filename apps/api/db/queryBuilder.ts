@@ -1,5 +1,5 @@
 import { fromPascalToSnakeCase } from "@zdnevnik/toolkit";
-import DateFns from "date-fns";
+import * as DateFns from "date-fns";
 
 import {
   type ConditionalClause,
@@ -12,6 +12,7 @@ import {
   modelFieldOptionsSchema,
   type ColumnOptionsMap,
 } from "./types";
+import { CommonModelField } from "./util";
 
 export class QueryBuilder<
   TModel extends ModelSchema,
@@ -194,12 +195,21 @@ export class QueryBuilder<
     } = this.state || {};
 
     if (insertColumns && insertValues) {
-      insertColumns.push("created_at", "updated_at");
-      const createdUpdatedDate = DateFns.format(
-        new Date(),
-        "yyyy-MM-dd HH:mm:ss",
-      );
-      insertValues.push(createdUpdatedDate, createdUpdatedDate);
+      if (
+        !insertColumns.includes(CommonModelField.CreatedAt.name) &&
+        !insertColumns.includes(CommonModelField.UpdatedAt.name)
+      ) {
+        insertColumns.push(
+          CommonModelField.CreatedAt.name,
+          CommonModelField.UpdatedAt.name,
+        );
+        const createdUpdatedDate = DateFns.format(
+          new Date(),
+          "yyyy-MM-dd HH:mm:ss",
+        );
+        insertValues.push(createdUpdatedDate, createdUpdatedDate);
+      }
+
       return `INSERT INTO ${this.model.name}(${insertColumns.join(", ")}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")}) RETURNING ${this.buildTableColumns(insertOptions?.returningFields)}`;
     }
 

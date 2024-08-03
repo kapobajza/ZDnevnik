@@ -103,7 +103,7 @@ describe("ORM query builder part", () => {
         ])
         .build(),
     ).toBe(
-      "INSERT INTO users(first_name, last_name) VALUES($1, $2) RETURNING *",
+      "INSERT INTO users(first_name, last_name, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING *",
     );
     expect(
       userQueryBuilder
@@ -120,7 +120,9 @@ describe("ORM query builder part", () => {
           },
         )
         .build(),
-    ).toBe("INSERT INTO users(id, role) VALUES($1, $2) RETURNING id, role");
+    ).toBe(
+      "INSERT INTO users(id, role, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING id, role",
+    );
   });
 
   it("should have different statements when build is used multiple times", () => {
@@ -131,7 +133,9 @@ describe("ORM query builder part", () => {
           ["Role", "teacher"],
         ])
         .build(),
-    ).toBe("INSERT INTO users(id, role) VALUES($1, $2) RETURNING *");
+    ).toBe(
+      "INSERT INTO users(id, role, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING *",
+    );
     expect(
       userQueryBuilder
         .select({

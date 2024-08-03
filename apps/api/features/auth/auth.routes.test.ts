@@ -58,6 +58,7 @@ describe("auth routes", () => {
         ["Username", username],
         ["PasswordHash", hashedPassword],
         ["PasswordSalt", salt],
+        ["Role", "test"],
       ])
       .executeOne();
 

@@ -172,6 +172,8 @@ describe("students routes", () => {
         ["OrdinalNumber", 1],
         ["Role", UserRole.Student],
         ["AverageGrade", 0.0],
+        ["PasswordHash", "test"],
+        ["PasswordSalt", "test"],
       ])
       .executeOne<UserModel>();
 
