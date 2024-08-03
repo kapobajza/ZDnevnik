@@ -9,8 +9,7 @@ export const envSchema = {
     "DATABASE_URL",
     "SESSION_COOKIE_NAME",
     "SESSION_COOKIE_DOMAIN",
-    "ACCESS_COOKIE_MAX_AGE",
-    "REFRESH_COOKIE_MAX_AGE",
+    "SESSION_COOKIE_MAX_AGE",
   ],
   properties: {
     DATABASE_URL: {
@@ -22,10 +21,7 @@ export const envSchema = {
     SESSION_COOKIE_DOMAIN: {
       type: "string",
     },
-    ACCESS_COOKIE_MAX_AGE: {
-      type: "integer",
-    },
-    REFRESH_COOKIE_MAX_AGE: {
+    SESSION_COOKIE_MAX_AGE: {
       type: "integer",
     },
   },

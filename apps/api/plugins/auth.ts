@@ -1,8 +1,6 @@
 import fp from "fastify-plugin";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { getCookieExpiry } from "../features/auth/util/session";
-
 import { UserClasroomModel } from "~/api/db/models";
 import { UserModel } from "~/api/features/users/users.model";
 import { FastifyCustomProp } from "~/api/types";
@@ -25,19 +23,9 @@ export default fp((fastify, _opts, done) => {
       }
 
       const now = Date.now();
-      const { accessCookieMaxAge, refreshCookieMaxAge } = sessionOptions;
+      const { sessionCookieMaxAge } = sessionOptions;
 
-      if (!(now > accessCookieMaxAge)) {
-        return done();
-      }
-
-      if (now < refreshCookieMaxAge) {
-        const { ACCESS_COOKIE_MAX_AGE } = fastify.getEnvs();
-        const newExpiry = getCookieExpiry(ACCESS_COOKIE_MAX_AGE);
-        request.session.set("options", {
-          ...sessionOptions,
-          accessCookieMaxAge: newExpiry,
-        });
+      if (!(now > sessionCookieMaxAge)) {
         return done();
       }
 

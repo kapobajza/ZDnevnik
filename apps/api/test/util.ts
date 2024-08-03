@@ -16,8 +16,7 @@ export async function buildTestApp() {
 
   const env: EnvRecord = {
     DATABASE_URL: postgresContainer.getConnectionUri(),
-    ACCESS_COOKIE_MAX_AGE: 60 * 1000,
-    REFRESH_COOKIE_MAX_AGE: 60 * 60 * 1000,
+    SESSION_COOKIE_MAX_AGE: 60 * 60 * 1000,
     SESSION_COOKIE_NAME: "test",
     SESSION_COOKIE_DOMAIN: "test",
   };
@@ -51,7 +50,7 @@ export async function setupPgTestDatabase() {
   await postgresClient.query(`CREATE DATABASE ${database}`);
 
   const postgrator = new Postgrator({
-    migrationPattern: `${path.join(getRelativeMonoRepoPath("api"), "migrations", "sql")}/*`,
+    migrationPattern: `${path.join(getRelativeMonoRepoPath("api"), "migrations")}/*`,
     driver: "pg",
     database,
     execQuery: (query) => postgresClient.query(query),

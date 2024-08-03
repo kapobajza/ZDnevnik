@@ -223,10 +223,10 @@ describe("auth routes", () => {
 
     expect(response.statusCode).toBe(200);
 
-    const { REFRESH_COOKIE_MAX_AGE } = fastify.getEnvs();
+    const { SESSION_COOKIE_MAX_AGE } = fastify.getEnvs();
 
     vi.useFakeTimers();
-    vi.setSystemTime(getCookieExpiry(REFRESH_COOKIE_MAX_AGE));
+    vi.setSystemTime(getCookieExpiry(SESSION_COOKIE_MAX_AGE));
 
     const unauthorizedRes = await fastify.inject({
       method: "GET",

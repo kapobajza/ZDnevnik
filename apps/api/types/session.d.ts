@@ -5,8 +5,7 @@ declare module "@fastify/secure-session" {
   interface SessionData {
     user: LoginSelectedUserDTO;
     options: {
-      accessCookieMaxAge: number;
-      refreshCookieMaxAge: number;
+      sessionCookieMaxAge: number;
     };
   }
 }

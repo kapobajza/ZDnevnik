@@ -55,13 +55,11 @@ export default function auth(
         return reply.code(400).send({ code: "invalid_credentials" });
       }
 
-      const { ACCESS_COOKIE_MAX_AGE, REFRESH_COOKIE_MAX_AGE } =
-        fastify.getEnvs();
+      const { SESSION_COOKIE_MAX_AGE } = fastify.getEnvs();
 
       request.session.set("user", user);
       request.session.set("options", {
-        accessCookieMaxAge: getCookieExpiry(ACCESS_COOKIE_MAX_AGE),
-        refreshCookieMaxAge: getCookieExpiry(REFRESH_COOKIE_MAX_AGE),
+        sessionCookieMaxAge: getCookieExpiry(SESSION_COOKIE_MAX_AGE),
       });
 
       return reply.send({ ok: true });
