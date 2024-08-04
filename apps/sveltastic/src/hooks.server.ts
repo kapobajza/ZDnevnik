@@ -1,6 +1,7 @@
 import { redirect, type Handle } from "@sveltejs/kit";
 import { detectLocale } from "typesafe-i18n/detectors";
 import { i18nObject } from "typesafe-i18n";
+import cookie from "cookie";
 
 import type { TranslationFunctions } from "./i18n/i18n-types";
 
@@ -24,6 +25,26 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   event.locals.api = createApiInstance({
     origin: event.url.origin,
+    responseInterceptor(response) {
+      const setCookie = response.headers?.getSetCookie?.()?.[0];
+
+      if (!setCookie) {
+        event.cookies.delete(SESSION_COOKIE_NAME, { path: "/" });
+        return;
+      }
+
+      const parsedCookie = cookie.parse(setCookie);
+      const value = parsedCookie[SESSION_COOKIE_NAME];
+
+      if (!value) {
+        event.cookies.delete(SESSION_COOKIE_NAME, { path: "/" });
+        return;
+      }
+
+      event.cookies.set(SESSION_COOKIE_NAME, value, {
+        path: parsedCookie.Path ?? "/",
+      });
+    },
   });
   event.locals.LL = LL;
 
@@ -31,6 +52,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (event.route.id?.includes("protected") && !sessionCookie) {
     throw redirect(303, "/login");
+  }
+
+  if (event.route.id?.includes("auth") && sessionCookie) {
+    throw redirect(303, "/");
   }
 
   return resolve(event, {

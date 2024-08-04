@@ -10,6 +10,7 @@ overrides:
   '@types/yargs': 15.0.19
   '@typescript-eslint/eslint-plugin': 7.13.1
   '@typescript-eslint/parser': 7.13.1
+  date-fns: 3.6.0
   eslint: 8.57.0
   react: 18.3.1
   react-dom: 18.3.1
@@ -178,6 +179,9 @@ importers:
 
   apps/sveltastic:
     dependencies:
+      '@tanstack/svelte-query':
+        specifier: 5.51.21
+        version: 5.51.21(svelte@4.2.18)
       '@zdnevnik/toolkit':
         specifier: workspace:^
         version: link:../../libs/toolkit
@@ -239,6 +243,9 @@ importers:
       '@sveltejs/vite-plugin-svelte':
         specifier: 3.1.1
         version: 3.1.1(svelte@4.2.18)(vite@5.3.1(@types/node@20.14.7)(terser@5.31.3))
+      '@tanstack/svelte-query-devtools':
+        specifier: 5.51.21
+        version: 5.51.21(@tanstack/svelte-query@5.51.21(svelte@4.2.18))(svelte@4.2.18)
       '@testing-library/jest-dom':
         specifier: 6.4.8
         version: 6.4.8
@@ -1903,6 +1910,23 @@ packages:
 
   '@swc/helpers@0.5.12':
     resolution: {integrity: sha512-KMZNXiGibsW9kvZAO1Pam2JPTDBm+KSHMMHWdsyI/1DbIZjT2A6Gy3hblVXUMEDvUAKq+e0vL0X0o54owWji7g==}
+
+  '@tanstack/query-core@5.51.21':
+    resolution: {integrity: sha512-POQxm42IUp6n89kKWF4IZi18v3fxQWFRolvBA6phNVmA8psdfB1MvDnGacCJdS+EOX12w/CyHM62z//rHmYmvw==}
+
+  '@tanstack/query-devtools@5.51.16':
+    resolution: {integrity: sha512-ajwuq4WnkNCMj/Hy3KR8d3RtZ6PSKc1dD2vs2T408MdjgKzQ3klVoL6zDgVO7X+5jlb5zfgcO3thh4ojPhfIaw==}
+
+  '@tanstack/svelte-query-devtools@5.51.21':
+    resolution: {integrity: sha512-MQYgMWr/35fYwsWFJx5VqkwXOIM8Htajq2VQWk7OZVskpmjRhJDJkqpv8OJ42SG1SIWMbF1IEYeEas62DOt4+A==}
+    peerDependencies:
+      '@tanstack/svelte-query': ^5.51.21
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
+
+  '@tanstack/svelte-query@5.51.21':
+    resolution: {integrity: sha512-NaayXSdq6LDxcbtrdo45dliFuXz7tHfDSijDyyGQv5R7bqIaK1OJ2io+mXF75ufIj1WReR1tNb9qGBOjo8/Jqw==}
+    peerDependencies:
+      svelte: ^3.54.0 || ^4.0.0 || ^5.0.0-next.0
 
   '@testcontainers/postgresql@10.10.1':
     resolution: {integrity: sha512-Wsc/OGT9vcwLJ34PPJ9lMngQY4SkyJaRePSXaFzXVzZS39TZdUUXiPAhdrZw36MQJsslZluqiwl95EsXJIIsuA==}
@@ -8024,6 +8048,22 @@ snapshots:
   '@swc/helpers@0.5.12':
     dependencies:
       tslib: 2.6.3
+
+  '@tanstack/query-core@5.51.21': {}
+
+  '@tanstack/query-devtools@5.51.16': {}
+
+  '@tanstack/svelte-query-devtools@5.51.21(@tanstack/svelte-query@5.51.21(svelte@4.2.18))(svelte@4.2.18)':
+    dependencies:
+      '@tanstack/query-devtools': 5.51.16
+      '@tanstack/svelte-query': 5.51.21(svelte@4.2.18)
+      esm-env: 1.0.0
+      svelte: 4.2.18
+
+  '@tanstack/svelte-query@5.51.21(svelte@4.2.18)':
+    dependencies:
+      '@tanstack/query-core': 5.51.21
+      svelte: 4.2.18
 
   '@testcontainers/postgresql@10.10.1':
     dependencies:

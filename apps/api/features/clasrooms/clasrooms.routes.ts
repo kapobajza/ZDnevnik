@@ -1,16 +1,14 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import { paginationQueryParamSchema } from "@zdnevnik/toolkit";
+import invariant from "tiny-invariant";
 
 import { UserClasroomModel } from "~/api/db/models";
 import { ModelORM } from "~/api/db/orm";
-import { idParamSchema } from "~/api/types/validation.types";
 import { UserModel } from "~/api/features/users/users.model";
 import { UserRole } from "~/api/features/users/user.types";
 
-export const autoPrefix = "/clasrooms/:id/students";
-
-export default function clasroomStudents(
+export default function clasrooms(
   fastify: FastifyInstance,
   _opts: unknown,
   done: () => void,
@@ -20,22 +18,48 @@ export default function clasroomStudents(
     fastify.dbPool,
     fastify.mappedTable,
   );
+  const userClasroomModel = new ModelORM(
+    UserClasroomModel,
+    fastify.dbPool,
+    fastify.mappedTable,
+  );
 
   fastify.withTypeProvider<ZodTypeProvider>().get(
-    "",
+    "/students",
     {
       schema: {
-        params: idParamSchema,
         querystring: paginationQueryParamSchema,
       },
       preHandler: fastify.auth(
-        [fastify.verifyUserFromSession, fastify.verifyTeacherHasAccessToClass],
+        [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],
         {
           relation: "and",
         },
       ),
     },
     async (request, reply) => {
+      invariant(request.session.user, "User from session not found");
+
+      const teacherClasroom = await userClasroomModel
+        .select({
+          clasroomId: UserClasroomModel.fields.ClassroomId,
+        })
+        .where({
+          field: UserClasroomModel.fields.UserId,
+          operator: "=",
+          value: request.session.user.id,
+        })
+        .sort({
+          by: [UserClasroomModel.fields.CreatedAt],
+          order: "DESC",
+        })
+        .limit(1)
+        .executeOne();
+
+      if (!teacherClasroom) {
+        return reply.send([]);
+      }
+
       const students = await userModel
         .select({
           id: UserModel.fields.Id,
@@ -55,7 +79,7 @@ export default function clasroomStudents(
         .where({
           field: UserClasroomModel.fields.ClassroomId,
           operator: "=",
-          value: request.params.id,
+          value: teacherClasroom?.clasroomId,
         })
         .and({
           field: UserModel.fields.Role,

@@ -5,10 +5,12 @@
   import { LL } from "$src/i18n/i18n-svelte";
   import { createContext } from "$lib/util/context";
   import { createApiInstance } from "$lib/api";
+  import { QueryClientProvider } from "@tanstack/svelte-query";
+  import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
   import { page } from "$app/stores";
 
   export let data: LayoutData;
-  // at the very top, set the locale before you access the store and before the actual rendering takes place
+
   setLocale(data.locale);
   createContext("LL", LL);
   createContext(
@@ -19,4 +21,7 @@
   );
 </script>
 
-<slot></slot>
+<QueryClientProvider client={data.queryClient}>
+  <slot></slot>
+  <SvelteQueryDevtools />
+</QueryClientProvider>

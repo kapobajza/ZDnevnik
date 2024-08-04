@@ -6,12 +6,14 @@ import { PUBLIC_API_URL } from "$env/static/public";
 
 export const createApiInstance = ({
   origin,
-}: Pick<CreateApiOptions, "origin">): {
+  responseInterceptor,
+}: Omit<CreateApiOptions, "baseUrl">): {
   auth: AuthApi;
 } => ({
   auth: createAuthApi({
     baseUrl: PUBLIC_API_URL,
     origin,
+    responseInterceptor,
   }),
 });
 

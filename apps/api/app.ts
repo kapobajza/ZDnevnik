@@ -15,6 +15,8 @@ import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
 import FastifyCors from "@fastify/cors";
 
+import type { AppEnv } from "./types";
+
 import {
   HttpErrorCode,
   HttpErrorStatus,
@@ -29,6 +31,7 @@ export async function buildApp(
     testing?: boolean;
     env: EnvRecord;
     pgPool: Pool;
+    appEnv: AppEnv;
   },
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
@@ -94,6 +97,7 @@ export async function buildApp(
       httpOnly: true,
       path: "/",
       domain: opts.env.SESSION_COOKIE_DOMAIN,
+      secure: opts.appEnv !== "local",
     },
   });
 

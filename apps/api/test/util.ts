@@ -29,6 +29,7 @@ export async function buildTestApp() {
     testing: true,
     pgPool: postgresClient,
     env,
+    appEnv: "local",
   });
 
   app.addHook("onClose", async () => {

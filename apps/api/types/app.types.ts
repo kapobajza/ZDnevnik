@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export const FastifyCustomProp = {
   DbPool: "dbPool",
   VerifyUserFromSession: "verifyUserFromSession",
@@ -7,3 +9,11 @@ export const FastifyCustomProp = {
 } as const;
 
 export type MappedTable = Record<string, number>;
+
+export const appEnvArgSchema = z.union([
+  z.literal("local"),
+  z.literal("dev"),
+  z.literal("prod"),
+]);
+
+export type AppEnv = z.infer<typeof appEnvArgSchema>;

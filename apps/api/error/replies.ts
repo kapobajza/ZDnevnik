@@ -19,3 +19,7 @@ export const createForbiddenReply = (reply: FastifyReply) => {
 export const createUnauthorizedReply = (reply: FastifyReply) => {
   return createErrorReply(reply, "unauthorized", 401);
 };
+
+export const createInternalServerErrorReply = (reply: FastifyReply) => {
+  return createErrorReply(reply, "internal_server_error", 500);
+};

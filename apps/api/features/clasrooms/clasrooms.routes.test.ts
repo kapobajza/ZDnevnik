@@ -12,7 +12,7 @@ import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 import { UserClasroomModel } from "~/api/db/models";
 import type { InferModelFields } from "~/api/db/types";
 
-describe("students routes", () => {
+describe("clasrooms routes", () => {
   let fastify: FastifyInstance;
   let clasroomsModel: ModelORM<typeof ClassroomModel>;
   let usersModel: ModelORM<typeof UserModel>;
@@ -33,15 +33,6 @@ describe("students routes", () => {
         ["Role", UserRole.Teacher],
       ])
       .executeOne<InferModelFields<typeof UserModel>>();
-  };
-
-  const insertClassroom = async () => {
-    return clasroomsModel
-      .insert([
-        ["Id", "1"],
-        ["Name", "classroom"],
-      ])
-      .executeOne<InferModelFields<typeof ClassroomModel>>();
   };
 
   beforeAll(async () => {
@@ -99,42 +90,7 @@ describe("students routes", () => {
 
     const response = await fastify.inject({
       method: "GET",
-      url: `/clasrooms/123123/students`,
-      headers: {
-        cookie: authResponse.headers["set-cookie"],
-      },
-    });
-
-    expect(response.statusCode).toBe(403);
-    const error: HttpError = {
-      code: HttpErrorCode.Forbidden,
-      message: "forbidden",
-      statusCode: 403,
-    };
-    expect(response.json()).toEqual(error);
-  });
-
-  it("should return 403 if a teacher tries to access class that they don't teach", async () => {
-    const classroom = await insertClassroom();
-
-    invariant(classroom, "Classroom not created");
-
-    const teacher = await insertTeacher();
-
-    invariant(teacher, "Teacher not created");
-
-    const authResponse = await fastify.inject({
-      method: "POST",
-      url: "/auth/login",
-      payload: {
-        username: teacher.username,
-        password: VALID_PASSWORD,
-      },
-    });
-
-    const response = await fastify.inject({
-      method: "GET",
-      url: `/clasrooms/${classroom.id}/students`,
+      url: `/clasrooms/students`,
       headers: {
         cookie: authResponse.headers["set-cookie"],
       },
@@ -207,7 +163,7 @@ describe("students routes", () => {
 
     const response = await fastify.inject({
       method: "GET",
-      url: `/clasrooms/${classroom.id}/students`,
+      url: `/clasrooms/students`,
       headers: {
         cookie: authResponse.headers["set-cookie"],
       },

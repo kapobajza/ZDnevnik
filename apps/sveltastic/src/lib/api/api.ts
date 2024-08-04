@@ -6,12 +6,14 @@ export type ApiMethodOptions = Omit<RequestInit, "method" | "body">;
 export type CreateApiOptions = {
   baseUrl: string;
   origin: string;
+  responseInterceptor?: (response: Response) => void;
 };
 
 export const createApi = ({
   baseUrl,
   routePrefix,
   origin,
+  responseInterceptor,
 }: {
   routePrefix?: string;
 } & CreateApiOptions) => {
@@ -31,6 +33,8 @@ export const createApi = ({
         Origin: origin,
       },
     });
+
+    responseInterceptor?.(res);
 
     if (!res.ok) {
       let errorToThrow: ErrorResponse;
@@ -70,10 +74,11 @@ export const createApi = ({
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
+        ...options,
         method: "POST",
         body: JSON.stringify(data),
-        ...options,
         headers: {
+          ...options?.headers,
           "Content-Type": "application/json",
         },
       });
@@ -84,10 +89,11 @@ export const createApi = ({
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
+        ...options,
         method: "PUT",
         body: JSON.stringify(data),
-        ...options,
         headers: {
+          ...options?.headers,
           "Content-Type": "application/json",
         },
       });
@@ -97,8 +103,8 @@ export const createApi = ({
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
-        method: "DELETE",
         ...options,
+        method: "DELETE",
       });
     },
   };

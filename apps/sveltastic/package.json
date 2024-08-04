@@ -33,6 +33,7 @@
     "@sveltejs/enhanced-img": "0.3.1",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "3.1.1",
+    "@tanstack/svelte-query-devtools": "5.51.21",
     "@testing-library/jest-dom": "6.4.8",
     "@testing-library/svelte": "5.2.1",
     "@testing-library/user-event": "14.5.2",
@@ -62,6 +63,7 @@
   },
   "type": "module",
   "dependencies": {
+    "@tanstack/svelte-query": "5.51.21",
     "@zdnevnik/toolkit": "workspace:^",
     "bits-ui": "^0.21.12",
     "clsx": "^2.1.1",
