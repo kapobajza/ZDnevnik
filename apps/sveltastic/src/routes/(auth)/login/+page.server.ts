@@ -44,7 +44,7 @@ export const actions: Actions = {
       }
 
       cookies.set(SESSION_COOKIE_NAME, value, {
-        path: parsedCookie.Path ?? "/",
+        path: "/",
       });
     } catch (e) {
       let message = locals.LL.error_unknown();

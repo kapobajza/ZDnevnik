@@ -17,10 +17,6 @@ export default fp((fastify, _opts, done) => {
     (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
       const sessionOptions = request.session.get("options");
 
-      console.log("-------request.session?.user-------");
-      console.log(request.session?.user);
-      console.log("-------request.session?.user-------\n");
-
       if (!request.session?.user || !sessionOptions) {
         return createUnauthorizedReply(reply);
       }

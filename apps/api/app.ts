@@ -76,6 +76,7 @@ export async function buildApp(
 
         cb(null, true);
       },
+      credentials: true,
     });
   }
 

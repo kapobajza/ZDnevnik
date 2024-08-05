@@ -35,10 +35,10 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
     route: string,
     options?: RequestInit & ApiMethodAdditionalOptions,
   ) => {
-    const res = await fetchFn(
-      constructRoute(route, options?.queryParams),
-      options,
-    );
+    const res = await fetchFn(constructRoute(route, options?.queryParams), {
+      credentials: "include",
+      ...options,
+    });
 
     if (!res.ok) {
       let errorToThrow: ErrorResponse;
