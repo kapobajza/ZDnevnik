@@ -8,7 +8,9 @@
       "$lib": ["./src/lib"],
       "$lib/*": ["./src/lib/*"],
       "$src": ["./src"],
-      "$src/*": ["./src/*"]
+      "$src/*": ["./src/*"],
+      "@zdnevnik/toolkit": ["../../libs/toolkit/src"],
+      "~/toolkit/*": ["../../libs/toolkit/src/*"]
     },
     "baseUrl": ".",
     "rootDirs": [".", "./.svelte-kit/types"],

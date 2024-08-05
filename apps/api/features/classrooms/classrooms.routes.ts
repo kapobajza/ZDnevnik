@@ -1,11 +1,14 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
-import { paginationQueryParamSchema } from "@zdnevnik/toolkit";
+import {
+  UserClasroomModel,
+  UserModel,
+  clasroomStudentsSelect,
+  paginationQueryParamSchema,
+} from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
-import { UserClasroomModel } from "~/api/db/models";
 import { ModelORM } from "~/api/db/orm";
-import { UserModel } from "~/api/features/users/users.model";
 import { UserRole } from "~/api/features/users/user.types";
 
 export default function clasrooms(
@@ -61,14 +64,7 @@ export default function clasrooms(
       }
 
       const students = await userModel
-        .select({
-          id: UserModel.fields.Id,
-          firstName: UserModel.fields.FirstName,
-          lastName: UserModel.fields.LastName,
-          avatar: UserModel.fields.Avatar,
-          ordinalNumber: UserModel.fields.OrdinalNumber,
-          averageGrade: UserModel.fields.AverageGrade,
-        })
+        .select(clasroomStudentsSelect)
         .join({
           table: UserClasroomModel,
           on: {

@@ -1,4 +1,22 @@
-<h1>Welcome to SvelteKit</h1>
-<p>
-  Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
-</p>
+<script lang="ts">
+  import { createQuery } from "@tanstack/svelte-query";
+  import { api } from "$lib/api";
+  import { clasroomQuery } from "$lib/query";
+
+  const studentsRes = createQuery({
+    queryKey: clasroomQuery.teacherStudents,
+    queryFn: () =>
+      api().clasroom.students({
+        limit: 10,
+        page: 1,
+      }),
+  });
+</script>
+
+{#if $studentsRes.isPending}
+  Loading...
+{:else if $studentsRes.error}
+  Error
+{:else if $studentsRes.data}
+  {JSON.stringify($studentsRes.data)}
+{/if}

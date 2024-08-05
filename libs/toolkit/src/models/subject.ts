@@ -1,6 +1,6 @@
-import type { InferModelFields, ModelFieldsStartingMap } from "~/api/db/types";
-import { model } from "~/api/db/util";
-import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
+import { ClassroomModel } from "./classroom";
+import type { InferModelFields, ModelFieldsStartingMap } from "./types";
+import { model } from "./util";
 
 const SubjectModelField = {
   Id: {

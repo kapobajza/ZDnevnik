@@ -2,12 +2,12 @@ import crypto from "crypto";
 
 import { Pool } from "pg";
 import yargs from "yargs";
+import { UserModel } from "@zdnevnik/toolkit";
 
 import { UserRole } from "../features/users/user.types";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
-import { UserModel } from "~/api/features/users/users.model";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
 
 const args = process.argv.slice(2);

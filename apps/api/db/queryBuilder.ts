@@ -1,4 +1,8 @@
-import { fromPascalToSnakeCase } from "@zdnevnik/toolkit";
+import {
+  fromPascalToSnakeCase,
+  modelFieldOptionsSchema,
+  type ColumnOptionsMap,
+} from "@zdnevnik/toolkit";
 import * as DateFns from "date-fns";
 
 import {
@@ -9,8 +13,6 @@ import {
   type SortingOptions,
   type ModelSchema,
   type JoinOptions,
-  modelFieldOptionsSchema,
-  type ColumnOptionsMap,
 } from "./types";
 import { CommonModelField } from "./util";
 

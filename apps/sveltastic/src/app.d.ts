@@ -3,14 +3,11 @@
 
 import type { TranslationFunctions } from "./i18n/i18n-types";
 
-import type { ApiInstance } from "$lib/api";
-
 // for information about these interfaces
 declare global {
   namespace App {
     // interface Error {}
     interface Locals {
-      api: ApiInstance;
       LL: TranslationFunctions;
     }
     // interface PageData {}

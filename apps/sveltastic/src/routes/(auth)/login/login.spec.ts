@@ -2,11 +2,13 @@ import { describe, expect, test } from "vitest";
 import { screen } from "@testing-library/svelte";
 import { setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
-import { ErrorResponseCode, loginBodySchema } from "@zdnevnik/toolkit";
+import { loginBodySchema } from "@zdnevnik/toolkit";
+import { get } from "svelte/store";
 
 import LoginPage from "./+page.svelte";
 
 import { renderWithContext } from "$src/test";
+import { MockLL } from "$src/test/i18n";
 
 const generateDummyRequest = (username: string, password: string) => {
   const formData = new FormData();
@@ -58,7 +60,10 @@ describe("Login page", () => {
   test("should render error if username or password are incorrect", async () => {
     const request = generateDummyRequest("test", "Testingtesttest");
     const form = await superValidate(request, zod(loginBodySchema));
-    const formError = setError(form, ErrorResponseCode.INVALID_CREDENTIALS);
+    const formError = setError(
+      form,
+      get(MockLL).login_error_invalid_credentials(),
+    );
 
     renderWithContext(LoginPage, {
       props: {
@@ -78,15 +83,11 @@ describe("Login page", () => {
   test("should redirect to home if login is successful", async () => {
     const request = generateDummyRequest("test", "Testingtesttest");
     const form = await superValidate(request, zod(loginBodySchema));
-    const formError = setError(form, ErrorResponseCode.INVALID_CREDENTIALS);
 
     renderWithContext(LoginPage, {
       props: {
         data: {
-          form: {
-            ...form,
-            errors: formError.data.form.errors,
-          },
+          form,
         },
       },
     });

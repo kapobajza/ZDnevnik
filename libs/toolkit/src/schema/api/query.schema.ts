@@ -1,14 +1,26 @@
 import { z } from "zod";
 
-import { type HelperType } from "~/toolkit/types/common";
-
 export const paginationQueryParamSchema = z.object({
-  page: z.number().min(1).optional().default(1),
-  limit: z.number().min(1).max(100).optional().default(10),
+  page: z
+    .string()
+    .optional()
+    .transform((page) => parseInt(page ?? "1", 10)),
+  limit: z
+    .string()
+    .optional()
+    .transform((limit) => {
+      const parsedLimit = parseInt(limit ?? "10", 10);
+
+      if (isNaN(parsedLimit)) {
+        return 10;
+      }
+
+      if (parsedLimit > 100) {
+        return 100;
+      }
+
+      return parsedLimit;
+    }),
 });
 
 export type PaginationQueryParam = z.infer<typeof paginationQueryParamSchema>;
-
-export const helper = (str: HelperType) => {
-  console.log(str);
-};

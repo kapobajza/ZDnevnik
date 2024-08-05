@@ -1,9 +1,8 @@
+import { ClassroomModel } from "./classroom";
+import { SubjectModel } from "./subject";
 import type { InferModelFields, ModelFieldsStartingMap } from "./types";
+import { UserModel } from "./user";
 import { model } from "./util";
-
-import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
-import { UserModel } from "~/api/features/users/users.model";
-import { SubjectModel } from "~/api/features/subjects/subjects.models";
 
 const UserClasroomModelField = {
   Id: {

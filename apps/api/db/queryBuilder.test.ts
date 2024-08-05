@@ -1,11 +1,13 @@
 import { describe, expect, it, beforeEach } from "vitest";
+import {
+  ClassroomModel,
+  UserClasroomModel,
+  UserModel,
+} from "@zdnevnik/toolkit";
 
-import { UserClasroomModel } from "./models";
 import { QueryBuilder } from "./queryBuilder";
 
-import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 import { UserRole } from "~/api/features/users/user.types";
-import { UserModel } from "~/api/features/users/users.model";
 
 describe("ORM query builder part", () => {
   let userQueryBuilder: QueryBuilder<typeof UserModel>;

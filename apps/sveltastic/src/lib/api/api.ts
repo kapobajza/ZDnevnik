@@ -1,40 +1,44 @@
 import type { ErrorResponse } from "@zdnevnik/toolkit";
 import { ErrorResponseCode } from "@zdnevnik/toolkit";
 
-export type ApiMethodOptions = Omit<RequestInit, "method" | "body">;
+import { PUBLIC_API_URL } from "$env/static/public";
 
-export type CreateApiOptions = {
-  baseUrl: string;
-  origin: string;
-  responseInterceptor?: (response: Response) => void;
+type ApiMethodAdditionalOptions = {
+  queryParams?: Record<string, string | number | boolean>;
 };
 
-export const createApi = ({
-  baseUrl,
-  routePrefix,
-  origin,
-  responseInterceptor,
-}: {
+export type ApiMethodOptions = Omit<RequestInit, "method" | "body"> &
+  ApiMethodAdditionalOptions;
+
+export type CreateApiOptions = {
   routePrefix?: string;
-} & CreateApiOptions) => {
-  const constructRoute = (route: string) => {
-    return `${baseUrl}${routePrefix ? `/${routePrefix}` : ""}/${route}`;
+  fetchFn: typeof fetch;
+};
+
+export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
+  const constructRoute = (
+    route: string,
+    quryParams: Record<string, string | number | boolean> = {},
+  ) => {
+    const url = new URL(
+      `${PUBLIC_API_URL}${routePrefix ? `/${routePrefix}` : ""}/${route}`,
+    );
+
+    for (const [key, value] of Object.entries(quryParams)) {
+      url.searchParams.set(key, String(value));
+    }
+
+    return url.href;
   };
 
   const doFetch = async <TResponse = unknown>(
     route: string,
-    options?: RequestInit,
+    options?: RequestInit & ApiMethodAdditionalOptions,
   ) => {
-    const res = await fetch(constructRoute(route), {
-      credentials: "include",
-      ...options,
-      headers: {
-        ...options?.headers,
-        Origin: origin,
-      },
-    });
-
-    responseInterceptor?.(res);
+    const res = await fetchFn(
+      constructRoute(route, options?.queryParams),
+      options,
+    );
 
     if (!res.ok) {
       let errorToThrow: ErrorResponse;

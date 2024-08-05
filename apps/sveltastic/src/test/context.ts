@@ -4,6 +4,7 @@ import {
   type RenderOptions,
   type SvelteComponentOptions,
 } from "@testing-library/svelte";
+import { QueryClient } from "@tanstack/svelte-query";
 
 import { MockLL } from "./i18n";
 
@@ -18,11 +19,13 @@ export const testContext = (): Map<keyof Context, Context[keyof Context]> => {
   return map;
 };
 
+const testQueryClient = new QueryClient();
+
 export const renderWithContext = <TComponent extends SvelteComponent>(
   component: ComponentType<TComponent>,
   options?: Omit<SvelteComponentOptions<TComponent>, "props"> & {
     props?: Omit<ComponentProps<TComponent>, "data"> & {
-      data?: Omit<ComponentProps<TComponent>["data"], "locale">;
+      data?: Omit<ComponentProps<TComponent>["data"], "locale" | "queryClient">;
     };
   },
   renderOptions?: RenderOptions,
@@ -37,6 +40,7 @@ export const renderWithContext = <TComponent extends SvelteComponent>(
         data: {
           ...(options?.props?.data as object),
           locale: baseLocale,
+          queryClient: testQueryClient,
         },
       } as ComponentProps<TComponent>,
     },

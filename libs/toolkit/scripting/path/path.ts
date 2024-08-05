@@ -8,10 +8,9 @@ export const getRootPath = () =>
 
 export const getRelativeMonoRepoPath = (projectPath: ProjectName) => {
   const projectPrefixPath: Record<ProjectName, "apps" | "libs"> = {
-    "design-system": "libs",
     api: "apps",
     toolkit: "libs",
-    web: "apps",
+    sveltastic: "apps",
   };
 
   return path.join(getRootPath(), projectPrefixPath[projectPath], projectPath);

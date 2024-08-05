@@ -16,6 +16,8 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         $src: path.resolve("./src"),
+        "@zdnevnik/toolkit": path.resolve("../../libs/toolkit/src"),
+        "~/toolkit": path.resolve("../../libs/toolkit/src"),
       },
     },
   };

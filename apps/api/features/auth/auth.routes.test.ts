@@ -9,11 +9,11 @@ import {
   afterAll,
   vi,
 } from "vitest";
+import { UserModel } from "@zdnevnik/toolkit";
 
 import { generatePasswordSalt, hashPassword } from "./util";
 
 import { buildTestApp } from "~/api/test/util";
-import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
 import {
   HttpErrorCode,

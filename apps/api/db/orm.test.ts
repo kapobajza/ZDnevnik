@@ -2,14 +2,16 @@ import type { Pool } from "pg";
 import { describe, beforeAll, expect, it, afterAll } from "vitest";
 import type { StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import * as DateFns from "date-fns";
+import {
+  UserClasroomModel,
+  UserModel,
+  ClassroomModel,
+} from "@zdnevnik/toolkit";
 
 import { ModelORM } from "./orm";
-import { UserClasroomModel } from "./models";
 import { mapTables } from "./util";
 
 import { setupPgTestDatabase } from "~/api/test/util";
-import { UserModel } from "~/api/features/users/users.model";
-import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
 
 describe("ORM tests", () => {
   let postgresContainer: StartedPostgreSqlContainer;

@@ -5,14 +5,15 @@ import {
   type QueryArrayResult,
   type QueryResultRow,
 } from "pg";
-import type {
-  PascalToSnakeCaseRecord,
-  SnakeToPascalCase,
+import {
+  modelFieldOptionsSchema,
+  type InferColumnOptionsResult,
+  type PascalToSnakeCaseRecord,
+  type SnakeToPascalCase,
+  type ColumnOptionsMap,
 } from "@zdnevnik/toolkit";
 
 import {
-  modelFieldOptionsSchema,
-  type ColumnOptionsMap,
   type ConditionalClause,
   type IQueryBuilder,
   type InsertOptions,
@@ -20,7 +21,6 @@ import {
   type ModelSchema,
   type QueryBuilderState,
   type SortingOptions,
-  type InferColumnOptionsResult,
 } from "./types";
 import { QueryBuilder } from "./queryBuilder";
 

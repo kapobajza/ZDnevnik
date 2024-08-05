@@ -1,8 +1,7 @@
 import fp from "fastify-plugin";
 import type { FastifyReply, FastifyRequest } from "fastify";
+import { UserClasroomModel, UserModel } from "@zdnevnik/toolkit";
 
-import { UserClasroomModel } from "~/api/db/models";
-import { UserModel } from "~/api/features/users/users.model";
 import { FastifyCustomProp } from "~/api/types";
 import { UserRole } from "~/api/features/users/user.types";
 import { ModelORM } from "~/api/db/orm";
@@ -17,6 +16,10 @@ export default fp((fastify, _opts, done) => {
     FastifyCustomProp.VerifyUserFromSession,
     (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
       const sessionOptions = request.session.get("options");
+
+      console.log("-------request.session?.user-------");
+      console.log(request.session?.user);
+      console.log("-------request.session?.user-------\n");
 
       if (!request.session?.user || !sessionOptions) {
         return createUnauthorizedReply(reply);

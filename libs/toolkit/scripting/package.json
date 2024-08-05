@@ -1,8 +1,0 @@
-{
-  "name": "@zdnevnik/scripting",
-  "version": "1.0.0",
-  "description": "Scripting part of toolkit",
-  "main": "dist/toolkit.es.js",
-  "types": "dist/index.d.ts",
-  "author": ""
-}

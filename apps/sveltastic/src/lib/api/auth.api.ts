@@ -1,8 +1,8 @@
-import { createApi, type CreateApiOptions } from "./api";
+import { createApi } from "./api";
 
-export const createAuthApi = (options: CreateApiOptions) => {
+export const createAuthApi = (fetchFn: typeof fetch) => {
   const authApi = createApi({
-    ...options,
+    fetchFn,
     routePrefix: "auth",
   });
 

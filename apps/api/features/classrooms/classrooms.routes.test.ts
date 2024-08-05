@@ -1,16 +1,18 @@
 import type { FastifyInstance } from "fastify";
 import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
 import invariant from "tiny-invariant";
+import type { InferModelFields } from "@zdnevnik/toolkit";
+import {
+  UserModel,
+  ClassroomModel,
+  UserClasroomModel,
+} from "@zdnevnik/toolkit";
 
 import { ModelORM } from "~/api/db/orm";
 import { HttpErrorCode, type HttpError } from "~/api/error/types";
 import { buildTestApp } from "~/api/test/util";
 import { UserRole } from "~/api/features/users/user.types";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
-import { UserModel } from "~/api/features/users/users.model";
-import { ClassroomModel } from "~/api/features/clasrooms/classrooms.model";
-import { UserClasroomModel } from "~/api/db/models";
-import type { InferModelFields } from "~/api/db/types";
 
 describe("clasrooms routes", () => {
   let fastify: FastifyInstance;

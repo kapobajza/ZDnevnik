@@ -1,5 +1,5 @@
-import { model } from "~/api/db/util";
-import type { InferModelFields } from "~/api/db/types";
+import type { InferModelFields } from "./types";
+import { model } from "./util";
 
 export const ClassroomModel = model({
   name: "classrooms",

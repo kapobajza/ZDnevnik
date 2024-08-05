@@ -1,4 +1,8 @@
-import { errorResponseSchema, loginBodySchema } from "@zdnevnik/toolkit";
+import {
+  UserModel,
+  errorResponseSchema,
+  loginBodySchema,
+} from "@zdnevnik/toolkit";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
@@ -7,7 +11,6 @@ import { hashPassword } from "./util";
 import { LoginSelectedUserDTO } from "./types";
 import { getCookieExpiry } from "./util/session";
 
-import { UserModel } from "~/api/features/users/users.model";
 import { ModelORM } from "~/api/db/orm";
 
 export default function auth(

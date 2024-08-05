@@ -1,20 +1,14 @@
 import { createAuthApi, type AuthApi } from "./auth.api";
+import { createClassroomApi, type ClassroomApi } from "./clasroom.api";
 
-import type { CreateApiOptions } from ".";
-
-import { PUBLIC_API_URL } from "$env/static/public";
-
-export const createApiInstance = ({
-  origin,
-  responseInterceptor,
-}: Omit<CreateApiOptions, "baseUrl">): {
+export const api = (
+  fetchFn: typeof fetch = fetch,
+): {
   auth: AuthApi;
+  clasroom: ClassroomApi;
 } => ({
-  auth: createAuthApi({
-    baseUrl: PUBLIC_API_URL,
-    origin,
-    responseInterceptor,
-  }),
+  auth: createAuthApi(fetchFn),
+  clasroom: createClassroomApi(fetchFn),
 });
 
-export type ApiInstance = ReturnType<typeof createApiInstance>;
+export type ZdnevnikApi = ReturnType<typeof api>;

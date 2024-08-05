@@ -1,8 +1,8 @@
-import type {
-  ColumnOptionsMap,
-  InferColumnOptionsResult,
-} from "~/api/db/types";
-import { UserModel } from "~/api/features/users/users.model";
+import {
+  UserModel,
+  type InferColumnOptionsResult,
+  type ColumnOptionsMap,
+} from "@zdnevnik/toolkit";
 
 export const LoginSelectedUserDTO = {
   username: UserModel.fields.Username,

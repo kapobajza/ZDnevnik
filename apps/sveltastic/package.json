@@ -64,7 +64,6 @@
   "type": "module",
   "dependencies": {
     "@tanstack/svelte-query": "5.51.21",
-    "@zdnevnik/toolkit": "workspace:^",
     "bits-ui": "^0.21.12",
     "clsx": "^2.1.1",
     "cookie": "0.6.0",
