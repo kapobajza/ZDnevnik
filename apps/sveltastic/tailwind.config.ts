@@ -61,6 +61,10 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      height: {
+        "nav-bar": "var(--nav-bar-height)",
+        "screen-w-nav-bar": "calc(100vh - var(--nav-bar-height))",
+      },
     },
   },
 };

@@ -13,6 +13,5 @@ export const load: PageLoad = async ({ parent, fetch }) => {
         page: 1,
         limit: 10,
       }),
-    staleTime: 0,
   });
 };

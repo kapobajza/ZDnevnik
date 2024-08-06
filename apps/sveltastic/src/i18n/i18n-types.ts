@@ -34,6 +34,18 @@ type RootTranslation = {
 	 */
 	login_password_placeholder: string
 	/**
+	 * T​r​e​n​u​t​n​o​ ​n​e​m​a​t​e​ ​n​i​j​e​d​n​o​g​ ​u​č​e​n​i​k​a​ ​u​ ​r​a​z​r​e​d​u
+	 */
+	home_no_students_found: string
+	/**
+	 * D​o​d​a​j​ ​u​č​e​n​i​k​a
+	 */
+	home_add_student: string
+	/**
+	 * P​o​č​e​t​n​a
+	 */
+	home_title: string
+	/**
 	 * {​f​i​e​l​d​}​ ​j​e​ ​{​g​e​n​d​e​r​?​|​{​m​:​ ​o​b​a​v​e​z​a​n​,​ ​f​:​ ​o​b​a​v​e​z​n​a​,​ ​*​:​ ​o​b​a​v​e​z​n​o​}​}
 	 * @param {string} field
 	 * @param {'m' | 'f' | string} [gender]
@@ -53,6 +65,10 @@ type RootTranslation = {
 	 * D​o​g​o​d​i​l​a​ ​s​e​ ​n​e​p​o​z​n​a​t​a​ ​g​r​e​š​k​a
 	 */
 	error_unknown: string
+	/**
+	 * N​e​m​a​ ​r​e​z​u​l​t​a​t​a
+	 */
+	no_results: string
 }
 
 export type TranslationFunctions = {
@@ -77,6 +93,18 @@ export type TranslationFunctions = {
 	 */
 	login_password_placeholder: () => LocalizedString
 	/**
+	 * Trenutno nemate nijednog učenika u razredu
+	 */
+	home_no_students_found: () => LocalizedString
+	/**
+	 * Dodaj učenika
+	 */
+	home_add_student: () => LocalizedString
+	/**
+	 * Početna
+	 */
+	home_title: () => LocalizedString
+	/**
 	 * {field} je {gender?|{m: obavezan, f: obavezna, *: obavezno}}
 	 */
 	validation_field_required: (arg: { field: string, gender?: 'm' | 'f' | string }) => LocalizedString
@@ -92,6 +120,10 @@ export type TranslationFunctions = {
 	 * Dogodila se nepoznata greška
 	 */
 	error_unknown: () => LocalizedString
+	/**
+	 * Nema rezultata
+	 */
+	no_results: () => LocalizedString
 }
 
 export type Formatters = {}
