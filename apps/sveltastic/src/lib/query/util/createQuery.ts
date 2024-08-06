@@ -9,6 +9,18 @@ import type {
 import { createQuery as createTSQuery } from "@tanstack/svelte-query";
 import { derived, type Readable } from "svelte/store";
 
+import type { AdditionalQueryResult } from "./types";
+
+export type QueryObserverResult<TData, TError> = TSQueryObserverResult<
+  TData,
+  TError
+> &
+  AdditionalQueryResult;
+
+export type CreateQueryResult<TData, TError> = Readable<
+  QueryObserverResult<TData, TError>
+>;
+
 const isResponseEmpty = <TData = unknown>(data: TData) => {
   if (Array.isArray(data) && data.length === 0) {
     return true;
@@ -16,17 +28,6 @@ const isResponseEmpty = <TData = unknown>(data: TData) => {
 
   return !data;
 };
-
-export type QueryObserverResult<TData, TError> = TSQueryObserverResult<
-  TData,
-  TError
-> & {
-  isEmpty: boolean;
-};
-
-export type CreateQueryResult<TData, TError> = Readable<
-  QueryObserverResult<TData, TError>
->;
 
 export function createQuery<
   TQueryFnData = unknown,

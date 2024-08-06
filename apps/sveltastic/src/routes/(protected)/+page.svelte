@@ -1,21 +1,13 @@
 <script lang="ts">
-  import { api } from "$lib/api";
   import { Button } from "$lib/components/ui/Button";
   import { Container } from "$lib/components/ui/Container";
   import { LottiePlayer } from "$lib/components/ui/LottiePlayer";
   import { Typography } from "$lib/components/ui/Typography";
   import { NavBar } from "$lib/components/ui/Nav";
-  import { clasroomQuery, createQuery } from "$lib/query";
+  import { studentsQueryOptions, createInfiniteQuery } from "$lib/query";
   import { useContext } from "$lib/util";
 
-  const studentsQuery = createQuery({
-    queryKey: clasroomQuery.teacherStudents,
-    queryFn: () =>
-      api().clasroom.students({
-        limit: 10,
-        page: 1,
-      }),
-  });
+  const studentsQuery = createInfiniteQuery(studentsQueryOptions());
 
   const LL = useContext("LL");
 </script>
@@ -23,7 +15,7 @@
 <NavBar title={$LL.home_title()} />
 <Container
   isEmpty={$studentsQuery.isEmpty}
-  isPending={$studentsQuery.isFetching}
+  isPending={$studentsQuery.isPending}
 >
   <div
     slot="empty"
