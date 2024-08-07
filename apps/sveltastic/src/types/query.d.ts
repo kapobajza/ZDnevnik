@@ -8,10 +8,8 @@ import type {
 import type { InfiniteQueryFunction } from "$lib/query/util";
 
 declare module "@tanstack/svelte-query" {
-  declare class QueryClient extends Omit<
-    TSQueryClient,
-    "prefetchInfiniteQuery"
-  > {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface QueryClient extends Omit<TSQueryClient, "prefetchInfiniteQuery"> {
     prefetchInfiniteQuery<
       TQueryFnData,
       TError = DefaultError,

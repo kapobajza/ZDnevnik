@@ -1,5 +1,4 @@
 import { type FastifyInstance } from "fastify";
-import invariant from "tiny-invariant";
 import {
   describe,
   beforeAll,
@@ -11,9 +10,7 @@ import {
 } from "vitest";
 import { UserModel } from "@zdnevnik/toolkit";
 
-import { generatePasswordSalt, hashPassword } from "./util";
-
-import { buildTestApp } from "~/api/test/util";
+import { buildTestApp, createMockUser } from "~/api/test/util";
 import { ModelORM } from "~/api/db/orm";
 import {
   HttpErrorCode,
@@ -48,25 +45,6 @@ describe("auth routes", () => {
     await fastify.close();
   });
 
-  const inserNewUser = async () => {
-    const salt = generatePasswordSalt();
-    const hashedPassword = hashPassword(password, salt);
-
-    const user = await usersModel
-      .insert([
-        ["Id", "1"],
-        ["Username", username],
-        ["PasswordHash", hashedPassword],
-        ["PasswordSalt", salt],
-        ["Role", "test"],
-      ])
-      .executeOne();
-
-    invariant(user, "User not created");
-
-    return user;
-  };
-
   afterEach(async () => {
     await usersModel.delete().execute();
     vi.useRealTimers();
@@ -91,7 +69,10 @@ describe("auth routes", () => {
   });
 
   it("should get invalid_credentials if password is incorrect", async () => {
-    await inserNewUser();
+    await createMockUser(usersModel, {
+      username,
+      password,
+    });
 
     const response = await fastify.inject({
       method: "POST",
@@ -111,7 +92,10 @@ describe("auth routes", () => {
   });
 
   it("should login with correct credentials", async () => {
-    await inserNewUser();
+    await createMockUser(usersModel, {
+      username,
+      password,
+    });
 
     const response = await fastify.inject({
       method: "POST",
@@ -179,7 +163,10 @@ describe("auth routes", () => {
   });
 
   it("should return ok if logged in", async () => {
-    await inserNewUser();
+    await createMockUser(usersModel, {
+      username,
+      password,
+    });
 
     const authResponse = await fastify.inject({
       method: "POST",
@@ -203,7 +190,10 @@ describe("auth routes", () => {
   });
 
   it("should redirect to login if session expired", async () => {
-    await inserNewUser();
+    await createMockUser(usersModel, {
+      username,
+      password,
+    });
 
     const authResponse = await fastify.inject({
       method: "POST",

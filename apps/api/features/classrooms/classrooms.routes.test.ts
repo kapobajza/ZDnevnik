@@ -6,12 +6,12 @@ import {
   UserModel,
   ClassroomModel,
   UserClasroomModel,
+  UserRole,
 } from "@zdnevnik/toolkit";
 
 import { ModelORM } from "~/api/db/orm";
 import { HttpErrorCode, type HttpError } from "~/api/error/types";
 import { buildTestApp } from "~/api/test/util";
-import { UserRole } from "~/api/features/users/user.types";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
 
 describe("clasrooms routes", () => {
@@ -92,7 +92,7 @@ describe("clasrooms routes", () => {
 
     const response = await fastify.inject({
       method: "GET",
-      url: `/clasrooms/students`,
+      url: `/classrooms/students`,
       headers: {
         cookie: authResponse.headers["set-cookie"],
       },
@@ -165,7 +165,7 @@ describe("clasrooms routes", () => {
 
     const response = await fastify.inject({
       method: "GET",
-      url: `/clasrooms/students`,
+      url: `/classrooms/students`,
       headers: {
         cookie: authResponse.headers["set-cookie"],
       },

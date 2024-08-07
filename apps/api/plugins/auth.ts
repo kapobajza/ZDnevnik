@@ -1,9 +1,8 @@
 import fp from "fastify-plugin";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { UserClasroomModel, UserModel } from "@zdnevnik/toolkit";
+import { UserClasroomModel, UserModel, UserRole } from "@zdnevnik/toolkit";
 
 import { FastifyCustomProp } from "~/api/types";
-import { UserRole } from "~/api/features/users/user.types";
 import { ModelORM } from "~/api/db/orm";
 import type { IdParam } from "~/api/types/validation.types";
 import {

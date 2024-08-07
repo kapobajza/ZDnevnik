@@ -57,7 +57,7 @@ export type CreateInfiniteQueryOptions<
 const isResponseEmpty = <TData extends Array<unknown>>(
   data: InfiniteData<TData>,
 ) => {
-  return data.pages?.[0]?.length === 0;
+  return data?.pages?.[0]?.length === 0;
 };
 
 const DEFAULT_LIMIT = 10;

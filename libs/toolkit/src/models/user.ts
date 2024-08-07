@@ -54,3 +54,8 @@ export const UserModel = model({
 });
 
 export type UserModel = InferModelFields<typeof UserModel>;
+
+export const UserRole = {
+  Teacher: "teacher",
+  Student: "student",
+} as const;

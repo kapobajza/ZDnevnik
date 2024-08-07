@@ -348,6 +348,7 @@ export class ModelORM<
   async executeOne<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
   >(): Promise<TResult | undefined> {
+    this.queryBuilder = this.queryBuilder.limit(1);
     const results = await this.execute<TResult>();
     return results?.[0];
   }

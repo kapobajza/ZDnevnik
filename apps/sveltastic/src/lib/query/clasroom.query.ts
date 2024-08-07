@@ -7,13 +7,13 @@ import { api } from "$lib/api";
 
 const CLASROOM_PREFIX = "clasroom";
 
-export const clasroomQuery = {
+export const clasroomQueryKey = {
   teacherStudents: [CLASROOM_PREFIX, "teacher", "students"],
 } as const;
 
 export const studentsQueryOptions = (fetchFn: typeof fetch = fetch) =>
   ({
-    queryKey: clasroomQuery.teacherStudents,
+    queryKey: clasroomQueryKey.teacherStudents,
     queryFn: ({ limit, page }) =>
       api(fetchFn).clasroom.students({
         page,

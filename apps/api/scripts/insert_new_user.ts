@@ -2,9 +2,7 @@ import crypto from "crypto";
 
 import { Pool } from "pg";
 import yargs from "yargs";
-import { UserModel } from "@zdnevnik/toolkit";
-
-import { UserRole } from "../features/users/user.types";
+import { UserModel, UserRole } from "@zdnevnik/toolkit";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";

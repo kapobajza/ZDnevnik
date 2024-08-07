@@ -22,5 +22,5 @@
 </script>
 
 {#if Player}
-  <Player class={className} {...$$restProps} />
+  <svelte:component this={Player} class={className} {...$$restProps} />
 {/if}

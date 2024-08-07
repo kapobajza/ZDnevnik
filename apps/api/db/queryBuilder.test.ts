@@ -3,11 +3,10 @@ import {
   ClassroomModel,
   UserClasroomModel,
   UserModel,
+  UserRole,
 } from "@zdnevnik/toolkit";
 
 import { QueryBuilder } from "./queryBuilder";
-
-import { UserRole } from "~/api/features/users/user.types";
 
 describe("ORM query builder part", () => {
   let userQueryBuilder: QueryBuilder<typeof UserModel>;

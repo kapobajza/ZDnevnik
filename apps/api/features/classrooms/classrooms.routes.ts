@@ -3,13 +3,13 @@ import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
   UserClasroomModel,
   UserModel,
+  UserRole,
   clasroomStudentsSelect,
   paginationQueryParamSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
 import { ModelORM } from "~/api/db/orm";
-import { UserRole } from "~/api/features/users/user.types";
 
 export default function clasrooms(
   fastify: FastifyInstance,
@@ -56,7 +56,6 @@ export default function clasrooms(
           by: [UserClasroomModel.fields.CreatedAt],
           order: "DESC",
         })
-        .limit(1)
         .executeOne();
 
       if (!teacherClasroom) {
