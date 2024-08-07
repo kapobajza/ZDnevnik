@@ -3,13 +3,7 @@
   import { cn } from "$lib/utils.js";
   import type { TypographyVariant } from "$lib/components/types/typography.js";
   import type { SvelteHTMLElements } from "svelte/elements";
-
-  type Props = SvelteHTMLElements["span"] & {
-    variant: TypographyVariant;
-  };
-
-  type $$Props = Props;
-  let variant: $$Props["variant"];
+  import type { Snippet } from "svelte";
 
   const variantElements = {
     h1: "h1",
@@ -34,16 +28,21 @@
     "p" | "span" | "h1" | "h2" | "h3" | "h4"
   >;
 
-  $: element = variantElements[variant] ?? variantElements.body_medium;
-
-  let className: $$Props["class"] = undefined;
-  export { className as class, variant };
+  const {
+    class: className,
+    children,
+    variant,
+    ...otherProps
+  }: SvelteHTMLElements["span"] & {
+    variant: TypographyVariant;
+    children: Snippet;
+  } = $props();
 </script>
 
 <svelte:element
-  this={element}
+  this={variantElements[variant] ?? variantElements.body_medium}
   class={cn(typographyVariants({ variant, className }))}
-  {...$$restProps}
+  {...otherProps}
 >
-  <slot />
+  {@render children()}
 </svelte:element>

@@ -3,13 +3,13 @@
   import type { SvelteHTMLElements } from "svelte/elements";
   import { Typography } from "$lib/components/ui/Typography";
 
-  type $$Props = SvelteHTMLElements["nav"] & {
+  const {
+    title,
+    class: className,
+    ...otherProps
+  }: SvelteHTMLElements["nav"] & {
     title: string;
-  };
-
-  let className: $$Props["class"] = undefined;
-  export let title: $$Props["title"];
-  export { className as class };
+  } = $props();
 </script>
 
 <nav
@@ -17,7 +17,7 @@
     "zd-h-nav-bar zd-bg-primary zd-px-4 zd-pb-6 zd-flex zd-items-end",
     className,
   )}
-  {...$$restProps}
+  {...otherProps}
 >
   <Typography variant="h3" class="zd-text-primary-foreground">
     {title}

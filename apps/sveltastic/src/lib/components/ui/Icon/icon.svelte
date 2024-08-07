@@ -3,16 +3,15 @@
   import type { SvelteHTMLElements } from "svelte/elements";
   import * as iconsMap from "./svg";
 
-  export let name: IconName;
-
-  type $$Props = SvelteHTMLElements["svg"] & {
+  const {
+    class: className,
+    name,
+    ...otherProps
+  }: SvelteHTMLElements["svg"] & {
     name: IconName;
-  };
+  } = $props();
 
-  const selected: any = iconsMap[name];
-
-  let className: $$Props["class"] = undefined;
-  export { className as class };
+  const selected = iconsMap[name];
 </script>
 
-<svelte:component this={selected} class={className} {...$$restProps} />
+<svelte:component this={selected} class={className} {...otherProps} />

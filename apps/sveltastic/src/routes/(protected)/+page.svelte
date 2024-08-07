@@ -23,24 +23,25 @@
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
 >
-  <div
-    slot="empty"
-    class="zd-h-screen-w-nav-bar zd-m-auto zd-flex zd-flex-col zd-justify-center zd-items-center zd-max-w-[400px]"
-  >
-    {#if $meQuery.data?.role === UserRole.Teacher}
-      <LottiePlayer
-        src={"/lottie/empty_results.json"}
-        class="zd-w-full zd-max-h-9"
-        autoplay
-        loop
-      />
-      <Typography variant="h4" class="zd-text-center zd-mb-8">
-        {$LL.home_no_students_found()}
-      </Typography>
-      <Button class="zd-w-full">
-        {$LL.home_add_student()}
-      </Button>
-    {/if}
-  </div>
+  {#snippet Empty()}
+    <div
+      class="zd-h-screen-w-nav-bar zd-m-auto zd-flex zd-flex-col zd-justify-center zd-items-center zd-max-w-[400px]"
+    >
+      {#if $meQuery.data?.role === UserRole.Teacher}
+        <LottiePlayer
+          src={"/lottie/empty_results.json"}
+          class="zd-w-full zd-max-h-9"
+          autoplay
+          loop
+        />
+        <Typography variant="h4" class="zd-text-center zd-mb-8">
+          {$LL.home_no_students_found()}
+        </Typography>
+        <Button class="zd-w-full">
+          {$LL.home_add_student()}
+        </Button>
+      {/if}
+    </div>
+  {/snippet}
   <pre>{JSON.stringify($studentsQuery.data, null, 2)}</pre>
 </Container>

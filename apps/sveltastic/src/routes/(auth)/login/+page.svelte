@@ -10,7 +10,11 @@
   import { slide } from "svelte/transition";
   import { useContext } from "$lib/util";
 
-  export let data: PageData;
+  const {
+    data,
+  }: {
+    data: PageData;
+  } = $props();
   const LL = useContext("LL");
   const { errors, enhance, form } = superForm(data.form);
 </script>

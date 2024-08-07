@@ -42,7 +42,7 @@ export const renderWithContext = <TComponent extends SvelteComponent>(
           locale: baseLocale,
           queryClient: testQueryClient,
         },
-      } as ComponentProps<TComponent>,
+      } as unknown as ComponentProps<TComponent>,
     },
     renderOptions,
   );

@@ -2,14 +2,17 @@
   import type { HTMLAttributes } from "svelte/elements";
   import type { HeadingLevel } from "./index.js";
   import { cn } from "$lib/utils.js";
+  import type { Snippet } from "svelte";
 
-  type $$Props = HTMLAttributes<HTMLHeadingElement> & {
+  const {
+    class: className,
+    level = "h5",
+    children,
+    ...otherProps
+  }: HTMLAttributes<HTMLHeadingElement> & {
     level?: HeadingLevel;
-  };
-
-  let className: $$Props["class"] = undefined;
-  export let level: $$Props["level"] = "h5";
-  export { className as class };
+    children: Snippet;
+  } = $props();
 </script>
 
 <svelte:element
@@ -18,7 +21,7 @@
     "zd-mb-1 zd-font-medium zd-leading-none zd-tracking-tight",
     className,
   )}
-  {...$$restProps}
+  {...otherProps}
 >
-  <slot />
+  {@render children()}
 </svelte:element>

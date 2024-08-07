@@ -8,25 +8,26 @@
   import { Icon } from "$lib/components/ui/Icon";
   import type { OmitUndefined } from "tailwind-variants";
 
-  type $$Props = HTMLAttributes<HTMLDivElement> & {
+  const {
+    variant = "default",
+    title,
+    description,
+    ...otherProps
+  }: HTMLAttributes<HTMLDivElement> & {
     variant?: AlertVariant;
     title: string;
     description: string;
-  };
-
-  export let title: string;
-  export let description: string;
-  export let variant: $$Props["variant"] = "default";
+  } = $props();
 
   const variantIconsMap = {
     default: undefined,
     destructive: "Alert",
   } satisfies Record<OmitUndefined<AlertVariant>, IconName | undefined>;
 
-  $: icon = variantIconsMap[variant ?? "default"];
+  const icon = $derived(variantIconsMap[variant ?? "default"]);
 </script>
 
-<AlertContainer {variant} {...$$restProps}>
+<AlertContainer {variant} {...otherProps}>
   {#if icon}
     <Icon name={icon} class="zd-size-5" />
   {/if}

@@ -1,26 +1,25 @@
 <script lang="ts">
   import {
-    LottiePlayer,
     type LottiePlayerProps,
+    type LottiePlayeComponent,
   } from "@lottiefiles/svelte-lottie-player";
   import { onMount } from "svelte";
 
-  let Player: LottiePlayer;
+  let Player: LottiePlayeComponent | undefined = $state(undefined);
 
-  type $$Props = LottiePlayerProps & {
+  const {
+    class: className,
+    ...otherProps
+  }: LottiePlayerProps & {
     class?: string;
-  };
-
-  let className: $$Props["class"] = undefined;
-
-  export { className as class };
+  } = $props();
 
   onMount(async () => {
     const module = await import("@lottiefiles/svelte-lottie-player");
-    Player = module.LottiePlayer as unknown as LottiePlayer;
+    Player = module.LottiePlayer;
   });
 </script>
 
 {#if Player}
-  <svelte:component this={Player} class={className} {...$$restProps} />
+  <svelte:component this={Player} class={className} {...otherProps} />
 {/if}

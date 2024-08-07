@@ -6,14 +6,21 @@
   import { createContext } from "$lib/util/context";
   import { QueryClientProvider } from "@tanstack/svelte-query";
   import { SvelteQueryDevtools } from "@tanstack/svelte-query-devtools";
+  import type { Snippet } from "svelte";
 
-  export let data: LayoutData;
+  const {
+    data,
+    children,
+  }: {
+    data: LayoutData;
+    children: Snippet;
+  } = $props();
 
   setLocale(data.locale);
   createContext("LL", LL);
 </script>
 
 <QueryClientProvider client={data.queryClient}>
-  <slot></slot>
+  {@render children()}
   <SvelteQueryDevtools />
 </QueryClientProvider>

@@ -1,5 +1,5 @@
 declare module "@lottiefiles/svelte-lottie-player" {
-  import type { SvelteComponentTyped } from "svelte";
+  import type { Component } from "svelte";
 
   export type LottiePlayerProps = {
     autoplay?: boolean;
@@ -21,5 +21,6 @@ declare module "@lottiefiles/svelte-lottie-player" {
     width?: number;
   };
 
-  export class LottiePlayer extends SvelteComponentTyped<LottiePlayerProps> {}
+  export declare const LottiePlayer: Component<LottiePlayerProps>;
+  export type LottiePlayeComponent = typeof LottiePlayer;
 }
