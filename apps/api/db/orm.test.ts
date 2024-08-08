@@ -323,6 +323,7 @@ describe("ORM tests", () => {
           id: "user_classroom_1",
           updated_at: createdAtTimestamp,
           user_id: "2",
+          is_teacher: null,
         },
       },
     ]);

@@ -17,6 +17,10 @@ const UserClasroomModelField = {
     name: "classroom_id",
     type: "string",
   },
+  IsTeacher: {
+    name: "is_teacher",
+    type: "boolean",
+  },
 } as const satisfies ModelFieldsStartingMap;
 
 export const UserClasroomModel = model({

@@ -11,6 +11,7 @@
   } from "$lib/query";
   import { useContext } from "$lib/util";
   import { UserRole } from "@zdnevnik/toolkit";
+  import { List } from "$lib/components/ui/List";
 
   const studentsQuery = createInfiniteQuery(studentsQueryOptions());
   const meQuery = createMeQueryCached();
@@ -23,7 +24,7 @@
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
 >
-  {#snippet Empty()}
+  {#snippet empty()}
     <div
       class="zd-h-screen-w-nav-bar zd-m-auto zd-flex zd-flex-col zd-justify-center zd-items-center zd-max-w-[400px]"
     >
@@ -43,5 +44,28 @@
       {/if}
     </div>
   {/snippet}
-  <pre>{JSON.stringify($studentsQuery.data, null, 2)}</pre>
+  <List
+    data={$studentsQuery.data}
+    onEndReached={$studentsQuery.fetchNextPage}
+    hasNextPage={$studentsQuery.hasNextPage}
+    isLoadingMore={$studentsQuery.isFetchingNextPage}
+  >
+    {#snippet renderItem(item)}
+      <div
+        class="zd-border zd-border-primary-foreground zd-w-full zd-rounded-sm zd-mb-4 zd-p-4 first:zd-mt-6"
+      >
+        <Typography variant="h3" class="zd-mb-3">
+          {item.firstName}
+          {item.lastName}
+        </Typography>
+        <div
+          class="zd-size-14 zd-border zd-rounded-full zd-border-foreground zd-flex zd-items-center zd-justify-center"
+        >
+          <Typography variant="h2">
+            {item.averageGrade}
+          </Typography>
+        </div>
+      </div>
+    {/snippet}
+  </List>
 </Container>

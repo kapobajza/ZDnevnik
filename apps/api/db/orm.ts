@@ -97,10 +97,10 @@ export class ModelORM<
   }
 
   insert<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
-    def: [keyof TModel["fields"], string | number][],
+    def: [keyof TModel["fields"], string | number | boolean][],
     options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ) {
-    this.queryBuilder = this.queryBuilder.insert(def, options);
+    this.queryBuilder = this.queryBuilder.insert(def as never, options);
     return this as unknown as ModelORM<
       TModel,
       TColumnOptions extends undefined

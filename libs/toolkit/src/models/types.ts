@@ -26,6 +26,9 @@ const modelFieldUnionSchema = z.union([
       z.literal("smallint"),
     ]),
   }),
+  z.object({
+    type: z.literal("boolean"),
+  }),
 ]);
 
 const modelFieldStartingOptionsSchema = z.intersection(

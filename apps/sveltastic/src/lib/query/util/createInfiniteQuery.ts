@@ -50,7 +50,7 @@ export type CreateInfiniteQueryOptions<
   >,
   "queryFn" | "getNextPageParam" | "initialPageParam"
 > & {
-  queryFn: InfiniteQueryFunction;
+  queryFn: InfiniteQueryFunction<TQueryFnData>;
   limit?: number;
 };
 
@@ -98,7 +98,7 @@ export function createInfiniteQuery<
           ...context,
           limit,
           page: context.pageParam,
-        }) as Promise<TQueryFnData>;
+        });
       },
       getNextPageParam(lastPage, _allPages, lastPageParam) {
         return lastPage?.length >= limit ? lastPageParam + 1 : undefined;

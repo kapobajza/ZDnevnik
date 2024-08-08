@@ -1,6 +1,6 @@
-import type {
-  ClasroomStudentsDTO,
-  PaginationQueryParam,
+import {
+  type ClasroomStudentsDTO,
+  type PaginationQueryParam,
 } from "@zdnevnik/toolkit";
 
 import { createApi } from "./api";

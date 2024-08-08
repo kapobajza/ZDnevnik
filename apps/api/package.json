@@ -5,11 +5,12 @@
   "main": "index.ts",
   "scripts": {
     "dev": "tsx watch start.ts",
-    "migrate": "postgrator --host 127.0.0.1 --database zdnevnik --driver pg -m ./migrations/*",
+    "migrate": "node-pg-migrate",
     "tsc": "tsc",
     "test": "vitest",
     "lint": "eslint",
-    "insert_new_user": "tsx scripts/insert_new_user.ts"
+    "insert_new_user": "tsx scripts/insert_new_user.ts",
+    "insert_new_class": "tsx scripts/insert_new_class.ts"
   },
   "author": "",
   "license": "ISC",
@@ -37,9 +38,9 @@
     "@types/pg": "8.11.6",
     "@types/yargs": "15.0.19",
     "ejs": "3.1.10",
-    "postgrator": "7.2.0",
-    "postgrator-cli": "8.1.0",
+    "node-pg-migrate": "^7.6.1",
     "tiny-invariant": "1.3.3",
+    "ts-node": "10.9.2",
     "tsx": "4.16.2",
     "typescript": "5.5.2",
     "vite-tsconfig-paths": "4.3.2",

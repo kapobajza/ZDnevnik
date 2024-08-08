@@ -65,6 +65,23 @@ const config: Config = {
         "nav-bar": "var(--nav-bar-height)",
         "screen-w-nav-bar": "calc(100vh - var(--nav-bar-height))",
       },
+      keyframes: {
+        loader: {
+          "0%": {
+            transform: "scale(0)",
+          },
+          "50%": {
+            opacity: "0.7",
+          },
+          "100%": {
+            transform: "scale(1)",
+            opacity: "0",
+          },
+        },
+      },
+      animation: {
+        loader: "loader 1.3s infinite",
+      },
     },
   },
 };

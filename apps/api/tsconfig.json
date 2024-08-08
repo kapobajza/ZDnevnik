@@ -10,5 +10,5 @@
       "~/scripting/*": ["../../libs/toolkit/scripting/*"]
     }
   },
-  "include": ["**/*.ts", "./.eslintrc.js"]
+  "include": ["**/*.ts", "./.eslintrc.js", "migrations/*"]
 }

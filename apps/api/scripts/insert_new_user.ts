@@ -1,8 +1,8 @@
-import crypto from "crypto";
-
 import { Pool } from "pg";
 import yargs from "yargs";
 import { UserModel, UserRole } from "@zdnevnik/toolkit";
+
+import { generateUdid } from "./util";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
@@ -39,9 +39,7 @@ const main = async () => {
   const passwordSalt = generatePasswordSalt();
   const passwordHash = hashPassword(argv.password, passwordSalt);
 
-  const udid = [8, 4, 4, 4, 12]
-    .map((n) => crypto.randomBytes(n / 2).toString("hex"))
-    .join("-");
+  const udid = generateUdid();
 
   const res = await userTable
     .insert([

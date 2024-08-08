@@ -4,7 +4,7 @@ import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import Fastify, { type FastifyInstance, type InjectOptions } from "fastify";
 import fp from "fastify-plugin";
 import { Pool } from "pg";
-import Postgrator from "postgrator";
+import { runner as migrate } from "node-pg-migrate";
 import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
 import type { UserModel } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
@@ -51,17 +51,13 @@ export async function setupPgTestDatabase() {
     connectionString,
   });
 
-  const database = "zdnevnik_test";
-  await postgresClient.query(`CREATE DATABASE ${database}`);
-
-  const postgrator = new Postgrator({
-    migrationPattern: `${path.join(getRelativeMonoRepoPath("api"), "migrations")}/*`,
-    driver: "pg",
-    database,
-    execQuery: (query) => postgresClient.query(query),
+  await migrate({
+    databaseUrl: connectionString,
+    dir: path.join(getRelativeMonoRepoPath("api"), "migrations"),
+    direction: "up",
+    migrationsTable: "pgmigrations",
+    log: () => {},
   });
-
-  await postgrator.migrate();
 
   return { postgresContainer, postgresClient };
 }

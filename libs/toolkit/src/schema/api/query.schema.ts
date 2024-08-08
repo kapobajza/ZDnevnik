@@ -4,7 +4,15 @@ export const paginationQueryParamSchema = z.object({
   page: z
     .string()
     .optional()
-    .transform((page) => parseInt(page ?? "1", 10)),
+    .transform((page) => {
+      const parsedPage = parseInt(page ?? "1", 10);
+
+      if (isNaN(parsedPage)) {
+        return 1;
+      }
+
+      return parsedPage;
+    }),
   limit: z
     .string()
     .optional()
