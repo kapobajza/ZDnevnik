@@ -1,11 +1,13 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
+  ClassroomModel,
   UserClasroomModel,
   UserModel,
   UserRole,
-  clasroomStudentsSelect,
+  teacherStudentsSelect,
   paginationQueryParamSchema,
+  type ClasroomStudentsDTO,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
@@ -46,6 +48,14 @@ export default function clasrooms(
       const teacherClasroom = await userClasroomModel
         .select({
           clasroomId: UserClasroomModel.fields.ClassroomId,
+          clasroomName: ClassroomModel.fields.Name,
+        })
+        .join({
+          on: {
+            field: UserClasroomModel.fields.ClassroomId,
+            other: ClassroomModel.fields.Id,
+          },
+          table: ClassroomModel,
         })
         .where({
           field: UserClasroomModel.fields.UserId,
@@ -63,7 +73,7 @@ export default function clasrooms(
       }
 
       const students = await userModel
-        .select(clasroomStudentsSelect)
+        .select(teacherStudentsSelect)
         .join({
           table: UserClasroomModel,
           on: {
@@ -85,7 +95,13 @@ export default function clasrooms(
         .offset((request.query.page - 1) * request.query.limit)
         .execute();
 
-      return reply.send(students);
+      return reply.send({
+        classroom: {
+          name: teacherClasroom.clasroomName,
+          id: teacherClasroom.clasroomId,
+        },
+        students,
+      } satisfies ClasroomStudentsDTO);
     },
   );
 

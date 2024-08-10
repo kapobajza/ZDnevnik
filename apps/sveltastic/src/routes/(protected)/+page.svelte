@@ -23,6 +23,7 @@
 <Container
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
+  class="zd-pt-4"
 >
   {#snippet empty()}
     <div
@@ -44,6 +45,11 @@
       {/if}
     </div>
   {/snippet}
+  {#if $studentsQuery.extraData?.name}
+    <Typography variant="h3" class="zd-mb-6">
+      {$studentsQuery.extraData.name}
+    </Typography>
+  {/if}
   <List
     data={$studentsQuery.data}
     onEndReached={$studentsQuery.fetchNextPage}
@@ -52,7 +58,7 @@
   >
     {#snippet renderItem(item)}
       <div
-        class="zd-border zd-border-primary-foreground zd-w-full zd-rounded-sm zd-mb-4 zd-p-4 first:zd-mt-6"
+        class="zd-border zd-border-primary-foreground zd-w-full zd-rounded-sm zd-mb-4 zd-p-4"
       >
         <Typography variant="h3" class="zd-mb-3">
           {item.firstName}

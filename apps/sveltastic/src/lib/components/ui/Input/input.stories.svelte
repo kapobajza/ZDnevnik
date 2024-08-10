@@ -1,22 +1,19 @@
 <script context="module" lang="ts">
   import Input from "./input.svelte";
-  import { type Meta } from "@storybook/svelte";
 
-  export const meta: Meta<Input> = {
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+
+  const { Story } = defineMeta({
     title: "Components/Input",
     component: Input,
     tags: ["autodocs"],
-  };
+  });
 </script>
 
-<script>
-  import { Story } from "@storybook/addon-svelte-csf";
-</script>
-
-<Story name="Input" id="InputStory">
+<Story name="Default">
   <Input placeholder="Enter some text..." />
 </Story>
 
-<Story name="Input with error" id="InputWithError">
+<Story name="Input with error">
   <Input placeholder="Enter some text..." error="Error message" />
 </Story>

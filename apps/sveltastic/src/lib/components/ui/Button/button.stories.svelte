@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
   import Button from "./button.svelte";
-  import { type Meta } from "@storybook/svelte";
 
-  export const meta: Meta<Button> = {
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+
+  const { Story } = defineMeta({
     title: "Components/Button",
     component: Button,
     tags: ["autodocs"],
-  };
-</script>
-
-<script>
-  import { Story } from "@storybook/addon-svelte-csf";
+  });
 </script>
 
 <Story name="Primary">

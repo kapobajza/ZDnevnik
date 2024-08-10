@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
   import Alert from "./alert.svelte";
-  import { type Meta } from "@storybook/svelte";
 
-  export const meta: Meta<Alert> = {
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+
+  const { Story } = defineMeta({
     title: "Components/Alert",
     component: Alert,
     tags: ["autodocs"],
-  };
-</script>
-
-<script>
-  import { Story } from "@storybook/addon-svelte-csf";
+  });
 </script>
 
 <Story name="Default">

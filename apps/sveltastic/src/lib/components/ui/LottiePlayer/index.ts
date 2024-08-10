@@ -1,1 +1,1 @@
-export { default as LottiePlayer } from "./lottiePlayer.svelte";
+export { default as LottiePlayer } from "./lottie_player.svelte";

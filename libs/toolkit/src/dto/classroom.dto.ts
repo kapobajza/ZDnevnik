@@ -4,7 +4,7 @@ import type {
   InferColumnOptionsResult,
 } from "~/toolkit/models/types";
 
-export const clasroomStudentsSelect = {
+export const teacherStudentsSelect = {
   id: UserModel.fields.Id,
   firstName: UserModel.fields.FirstName,
   lastName: UserModel.fields.LastName,
@@ -13,6 +13,14 @@ export const clasroomStudentsSelect = {
   averageGrade: UserModel.fields.AverageGrade,
 } as const satisfies ColumnOptionsMap;
 
-export type ClasroomStudentsDTO = InferColumnOptionsResult<
-  typeof clasroomStudentsSelect
+export type TeacherStudentsDTO = InferColumnOptionsResult<
+  typeof teacherStudentsSelect
 >;
+
+export type ClasroomStudentsDTO = {
+  students: TeacherStudentsDTO[];
+  classroom: {
+    id: string;
+    name: string;
+  };
+};

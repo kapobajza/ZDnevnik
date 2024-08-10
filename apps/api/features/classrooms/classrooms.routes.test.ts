@@ -172,15 +172,21 @@ describe("clasrooms routes", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual([
-      {
-        id: student.id,
-        firstName: student.first_name,
-        lastName: student.last_name,
-        avatar: student.avatar,
-        ordinalNumber: student.ordinal_number,
-        averageGrade: student.average_grade,
+    expect(response.json()).toEqual({
+      classroom: {
+        id: "1",
+        name: "classroom",
       },
-    ]);
+      students: [
+        {
+          avatar: null,
+          averageGrade: 0,
+          firstName: "Student",
+          id: "2",
+          lastName: "Last",
+          ordinalNumber: 1,
+        },
+      ],
+    });
   });
 });

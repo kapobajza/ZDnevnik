@@ -1,15 +1,17 @@
 <script context="module" lang="ts">
-  import Loader from "./loader.svelte";
+  import Card from "./card.svelte";
 
   import { defineMeta } from "@storybook/addon-svelte-csf";
 
   const { Story } = defineMeta({
-    title: "Components/Loader",
-    component: Loader,
+    title: "Components/Card",
+    component: Card,
     tags: ["autodocs"],
   });
 </script>
 
 <Story name="Default">
-  <Loader />
+  <Card>
+    <p>Card content</p>
+  </Card>
 </Story>

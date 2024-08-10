@@ -23,7 +23,7 @@
 </script>
 
 <div
-  class={cn("zd-px-8 zd-w-full lg:zd-max-w-[1024px] lg:zd-m-auto", className)}
+  class={cn("zd-px-4 zd-w-full lg:zd-max-w-[1024px] lg:zd-m-auto", className)}
   {...otherProps}
 >
   {#if isPending}

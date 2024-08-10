@@ -1,16 +1,13 @@
 <script context="module" lang="ts">
   import Typography from "./typography.svelte";
-  import { type Meta } from "@storybook/svelte";
 
-  export const meta: Meta<Typography> = {
+  import { defineMeta } from "@storybook/addon-svelte-csf";
+
+  const { Story } = defineMeta({
     title: "Components/Typography",
     component: Typography,
     tags: ["autodocs"],
-  };
-</script>
-
-<script>
-  import { Story } from "@storybook/addon-svelte-csf";
+  });
 </script>
 
 <Story name="Typography elements">

@@ -13,12 +13,20 @@ import { derived, type Readable } from "svelte/store";
 
 import type { AdditionalQueryResult } from "./types";
 
-export type InfiniteQueryObserverResult<TData, TError> =
-  TSQInfiniteQueryObserverResult<TData, TError> & AdditionalQueryResult;
+export type InfiniteQueryObserverResult<
+  TData,
+  TError,
+  TExtraData extends Record<string, unknown> | undefined,
+> = TSQInfiniteQueryObserverResult<TData, TError> &
+  AdditionalQueryResult & {
+    extraData?: TExtraData;
+  };
 
-export type CreateInfiniteQueryResult<TData, TError> = Readable<
-  InfiniteQueryObserverResult<TData, TError>
->;
+export type CreateInfiniteQueryResult<
+  TData,
+  TError,
+  TExtraData extends Record<string, unknown> | undefined,
+> = Readable<InfiniteQueryObserverResult<TData, TError, TExtraData>>;
 
 export type InfiniteQueryFunctionContext<
   TQueryKey extends QueryKey = QueryKey,
@@ -28,12 +36,23 @@ export type InfiniteQueryFunctionContext<
   limit: number;
 };
 
-export type InfiniteQueryFunction<TQueryData = unknown> = (
+export type InfiniteQueryFnData<
+  TData extends Array<unknown> = Array<unknown>,
+  TExtraData extends Record<string, unknown> = Record<string, unknown>,
+> = {
+  results: TData;
+  extraData?: TExtraData;
+};
+
+export type InfiniteQueryFunction<TQueryData extends InfiniteQueryFnData> = (
   context: InfiniteQueryFunctionContext,
 ) => Promise<TQueryData>;
 
 export type CreateInfiniteQueryOptions<
-  TQueryFnData = unknown,
+  TQueryFnData extends InfiniteQueryFnData = InfiniteQueryFnData<
+    unknown[],
+    Record<string, unknown>
+  >,
   TError = DefaultError,
   TData = TQueryFnData,
   TQueryData = TQueryFnData,
@@ -54,16 +73,18 @@ export type CreateInfiniteQueryOptions<
   limit?: number;
 };
 
-const isResponseEmpty = <TData extends Array<unknown>>(
+const isResponseEmpty = <
+  TData extends InfiniteQueryFnData<unknown[], Record<string, unknown>>,
+>(
   data: InfiniteData<TData>,
 ) => {
-  return data?.pages?.[0]?.length === 0;
+  return data?.pages?.[0]?.results?.length === 0;
 };
 
 const DEFAULT_LIMIT = 10;
 
 export function createInfiniteQuery<
-  TQueryFnData extends Array<unknown>,
+  TQueryFnData extends InfiniteQueryFnData<unknown[], Record<string, unknown>>,
   TError = DefaultError,
   TData = InfiniteData<TQueryFnData>,
   TQueryKey extends QueryKey = QueryKey,
@@ -79,7 +100,7 @@ export function createInfiniteQuery<
     >
   >,
   queryClient?: QueryClient,
-): CreateInfiniteQueryResult<TData, TError> {
+): CreateInfiniteQueryResult<TData, TError, TQueryFnData["extraData"]> {
   const opts = options as CreateInfiniteQueryOptions<
     TQueryFnData,
     TError,
@@ -101,7 +122,9 @@ export function createInfiniteQuery<
         });
       },
       getNextPageParam(lastPage, _allPages, lastPageParam) {
-        return lastPage?.length >= limit ? lastPageParam + 1 : undefined;
+        return lastPage?.results?.length >= limit
+          ? lastPageParam + 1
+          : undefined;
       },
       ...defaultInfiniteQueryOptions,
     },
@@ -109,11 +132,17 @@ export function createInfiniteQuery<
   );
 
   return derived(response, ($res) => {
-    const isEmpty = isResponseEmpty($res.data as InfiniteData<TQueryFnData>);
+    const data = $res.data as InfiniteData<TQueryFnData>;
+    const isEmpty = isResponseEmpty(data);
+    const { extraData } = data.pages?.[0] as InfiniteQueryFnData<
+      unknown[],
+      Record<string, unknown>
+    >;
 
     return {
       ...$res,
       isEmpty,
+      extraData: extraData as TQueryFnData["extraData"],
     };
   });
 }

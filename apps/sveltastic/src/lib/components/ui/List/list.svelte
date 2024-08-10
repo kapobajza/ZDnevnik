@@ -1,11 +1,14 @@
 <script lang="ts" generics="TData extends { id: string }">
-  import type { InfiniteData } from "@tanstack/svelte-query";
   import { onMount, type Snippet } from "svelte";
   import { Loader } from "$lib/components/ui/Loader";
+  import type { InfiniteQueryFnData } from "$lib/query";
+  import type { InfiniteData } from "@tanstack/svelte-query";
 
   type Props<TData> = {
     class?: string;
-    data: InfiniteData<TData[]> | undefined;
+    data:
+      | InfiniteData<InfiniteQueryFnData<TData[], Record<string, unknown>>>
+      | undefined;
     renderItem: Snippet<[TData]>;
     onEndReached?: () => Promise<unknown>;
     hasNextPage?: boolean;
@@ -58,7 +61,7 @@
 
 <div class={className}>
   {#each data?.pages ?? [] as page (page)}
-    {#each page as singleItem (singleItem.id)}
+    {#each page?.results as singleItem (singleItem.id)}
       {@render renderItem(singleItem)}
     {/each}
   {/each}
