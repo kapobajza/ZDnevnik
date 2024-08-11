@@ -37,6 +37,13 @@ export const TwFontSize = {
       lineHeight: "28px",
     },
   ],
+  h5: [
+    "1.125rem",
+    {
+      fontWeight: "bold",
+      lineHeight: "28px",
+    },
+  ],
   p: [
     "1rem",
     {

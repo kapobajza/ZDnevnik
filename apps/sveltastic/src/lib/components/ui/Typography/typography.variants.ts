@@ -9,6 +9,7 @@ export const typographyVariants = tv({
       h2: "zd-text-h2",
       h3: "zd-text-h3",
       h4: "zd-text-h4",
+      h5: "zd-text-h5",
       p: "zd-text-p",
       p_ui: "zd-text-p_ui",
       body_medium: "zd-text-body_medium",

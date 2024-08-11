@@ -11,7 +11,7 @@
     name: IconName;
   } = $props();
 
-  const selected = iconsMap[name];
+  const selected = $derived(iconsMap[name]);
 </script>
 
 <svelte:component this={selected} class={className} {...otherProps} />
