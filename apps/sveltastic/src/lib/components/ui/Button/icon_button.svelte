@@ -6,7 +6,7 @@
   import { tv } from "tailwind-variants";
 
   const buttonVariants = tv({
-    base: "zd-bg-primary zd-rounded-full zd-flex zd-items-center zd-justify-center hover:zd-bg-[transparent] hover:zd-border-primary hover:zd-border zd-transition-colors [&>svg]:hover:zd-text-primary",
+    base: "zd-flex zd-items-center zd-justify-center zd-rounded-full zd-bg-primary zd-transition-colors hover:zd-border hover:zd-border-primary hover:zd-bg-[transparent] [&>svg]:hover:zd-text-primary",
     variants: {
       size: {
         sm: "zd-size-9 zd-h-9 zd-w-9",
