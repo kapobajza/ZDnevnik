@@ -10,7 +10,7 @@ pre-commit:
         git add {files}
     lint:
       files: git diff --name-only --staged
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: "*.{js,ts,jsx,tsx,svelte}"
       run: |
         set -e
         npx lefthook run lint
