@@ -179,8 +179,11 @@ export class ModelORM<
         case PgTypes.builtins.INT2:
         case PgTypes.builtins.INT4:
         case PgTypes.builtins.INT8:
-        case PgTypes.builtins.NUMERIC:
           finalValue = parseInt(strValue, 10);
+          break;
+
+        case PgTypes.builtins.NUMERIC:
+          finalValue = parseFloat(strValue);
           break;
 
         case PgTypes.builtins.TIMESTAMP:
@@ -333,6 +336,10 @@ export class ModelORM<
         },
         queryValues,
       )) as unknown as QueryArrayResult<TResult[]>;
+
+      console.log("-------res-------");
+      console.log(res);
+      console.log("-------res-------\n");
 
       if (joinOptions) {
         return this.buildJoinSelectColumns(res);

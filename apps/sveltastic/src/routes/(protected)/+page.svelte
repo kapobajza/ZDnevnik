@@ -12,8 +12,7 @@
   import { useContext } from "$lib/util";
   import { UserRole } from "@zdnevnik/toolkit";
   import { List } from "$lib/components/ui/List";
-  import { UserAvatar } from "$lib/components/ui/Avatar";
-  import { Card } from "$lib/components/ui/Card";
+  import { StudentCard } from "$lib/components/routes/Home";
 
   const studentsQuery = createInfiniteQuery(studentsQueryOptions());
   const meQuery = createMeQueryCached();
@@ -59,40 +58,7 @@
     isLoadingMore={$studentsQuery.isFetchingNextPage}
   >
     {#snippet renderItem(item)}
-      <!-- <div
-        class="zd-border zd-border-primary-foreground zd-w-full zd-rounded-sm zd-mb-4 zd-p-4"
-      >
-        <UserAvatar src={item.avatar} />
-        <Typography variant="h3" class="zd-mb-3">
-          {item.firstName}
-          {item.lastName}
-        </Typography>
-        <div
-          class="zd-size-14 zd-border zd-rounded-full zd-border-foreground zd-flex zd-items-center zd-justify-center"
-        >
-          <Typography variant="h2">
-            {item.averageGrade}
-          </Typography>
-        </div>
-      </div> -->
-      <Card class="zd-mb-4 zd-flex">
-        <div
-          class="zd-flex zd-justify-between zd-flex-col zd-items-center zd-mr-4"
-        >
-          <UserAvatar src={item.avatar} size="sm" />
-          <Typography variant="h2" class="zd-underline">
-            {item.ordinalNumber}
-          </Typography>
-        </div>
-        <div>
-          <div>
-            <Typography variant="h5">
-              {item.firstName}
-              {item.lastName}
-            </Typography>
-          </div>
-        </div>
-      </Card>
+      <StudentCard {item} />
     {/snippet}
   </List>
 </Container>

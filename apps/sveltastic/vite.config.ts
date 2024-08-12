@@ -20,5 +20,9 @@ export default defineConfig(() => {
         "~/toolkit": path.resolve("../../libs/toolkit/src"),
       },
     },
+    server: {
+      port: 3000,
+      strictPort: true,
+    },
   };
 });

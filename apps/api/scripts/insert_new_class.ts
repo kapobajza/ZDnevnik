@@ -80,6 +80,7 @@ const main = async () => {
 
     const passwordSalt = generatePasswordSalt();
     const passwordHash = hashPassword("Test1234", passwordSalt);
+    const randomGrade = Math.random() * 5;
 
     try {
       const user = await userTable
@@ -92,6 +93,7 @@ const main = async () => {
           ["LastName", i + 1],
           ["Role", UserRole.Student],
           ["OrdinalNumber", i + 1],
+          ["AverageGrade", randomGrade],
         ])
         .executeOne();
 

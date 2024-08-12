@@ -46,6 +46,15 @@ type RootTranslation = {
 	 */
 	home_title: string
 	/**
+	 * {​g​r​a​d​e​|​{​5​:​ ​O​d​l​i​č​a​n​,​ ​4​:​ ​V​r​l​o​ ​d​o​b​a​r​,​ ​3​:​ ​D​o​b​a​r​,​ ​2​:​ ​D​o​v​o​l​j​a​n​,​ ​1​:​ ​N​e​d​o​v​o​l​j​a​n​,​ ​0​:​ ​N​e​m​a​ ​o​c​j​e​n​e​}​}
+	 * @param {number} grade
+	 */
+	home_student_grade_title: RequiredParams<`grade|{5:${string}, 4:${string}, 3:${string}, 2:${string}, 1:${string}, 0:${string}}`>
+	/**
+	 * P​r​o​s​j​e​k
+	 */
+	home_student_average: string
+	/**
 	 * {​f​i​e​l​d​}​ ​j​e​ ​{​g​e​n​d​e​r​?​|​{​m​:​ ​o​b​a​v​e​z​a​n​,​ ​f​:​ ​o​b​a​v​e​z​n​a​,​ ​*​:​ ​o​b​a​v​e​z​n​o​}​}
 	 * @param {string} field
 	 * @param {'m' | 'f' | string} [gender]
@@ -104,6 +113,14 @@ export type TranslationFunctions = {
 	 * Početna
 	 */
 	home_title: () => LocalizedString
+	/**
+	 * {grade|{5: Odličan, 4: Vrlo dobar, 3: Dobar, 2: Dovoljan, 1: Nedovoljan, 0: Nema ocjene}}
+	 */
+	home_student_grade_title: (arg: { grade: number }) => LocalizedString
+	/**
+	 * Prosjek
+	 */
+	home_student_average: () => LocalizedString
 	/**
 	 * {field} je {gender?|{m: obavezan, f: obavezna, *: obavezno}}
 	 */

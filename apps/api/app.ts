@@ -35,6 +35,9 @@ export async function buildApp(
   },
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
+    console.log("-------error-------");
+    console.log(error);
+    console.log("-------error-------\n");
     if (error instanceof ZodError) {
       const responseError: HttpValidationError = {
         code: HttpErrorCode.ValidationError,
@@ -62,14 +65,27 @@ export async function buildApp(
   if (!opts?.testing) {
     await fastify.register(FastifyCors, {
       origin: (origin, cb) => {
+        console.log("-------origin-------");
+        console.log(origin);
+        console.log("-------origin-------\n");
+
         if (!origin) {
           cb(new Error("Not allowed"), false);
           return;
         }
 
+        console.log("-------opts.appEnv-------");
+        console.log(opts.appEnv);
+        console.log("-------opts.appEnv-------\n");
+
+        if (opts.appEnv === "local") {
+          cb(null, true);
+          return;
+        }
+
         const hostname = new URL(origin).hostname;
 
-        if (hostname !== "localhost" && !hostname.includes("zdnevnik")) {
+        if (!hostname.includes("zdnevnik")) {
           cb(new Error("Not allowed"), false);
           return;
         }

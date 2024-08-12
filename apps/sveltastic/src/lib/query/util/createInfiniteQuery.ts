@@ -134,7 +134,7 @@ export function createInfiniteQuery<
   return derived(response, ($res) => {
     const data = $res.data as InfiniteData<TQueryFnData>;
     const isEmpty = isResponseEmpty(data);
-    const { extraData } = data.pages?.[0] as InfiniteQueryFnData<
+    const { extraData } = (data?.pages?.[0] ?? {}) as InfiniteQueryFnData<
       unknown[],
       Record<string, unknown>
     >;
