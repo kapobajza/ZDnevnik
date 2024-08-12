@@ -47,3 +47,4 @@ lint:
         modified_files=$(node ./scripts/relative_file_paths.js --path $path)
         cd $path
         pnpm run --filter sveltastic lint ${modified_files} --fix
+        git add .
