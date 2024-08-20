@@ -9,7 +9,7 @@
     },
     // Run script: api:test with arguments
     {
-      "command": "pnpm --filter api test -- -t \"access class that they don't teach\"",
+      "command": "pnpm --filter api test",
       "name": "API test",
       "request": "launch",
       "type": "node-terminal"

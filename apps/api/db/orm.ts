@@ -337,10 +337,6 @@ export class ModelORM<
         queryValues,
       )) as unknown as QueryArrayResult<TResult[]>;
 
-      console.log("-------res-------");
-      console.log(res);
-      console.log("-------res-------\n");
-
       if (joinOptions) {
         return this.buildJoinSelectColumns(res);
       }

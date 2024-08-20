@@ -24,6 +24,9 @@ export const envSchema = {
     SESSION_COOKIE_MAX_AGE: {
       type: "integer",
     },
+    PORT: {
+      type: "integer",
+    },
   },
 } as const satisfies JSONSchema;
 

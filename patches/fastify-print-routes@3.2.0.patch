@@ -1,0 +1,13 @@
+diff --git a/dist/index.js b/dist/index.js
+index 86cfcdff0c219b8c2c83f8d86452738d08bb5aed..c3e976f58865f1c7c9ef13d92c82a248912cc413 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -79,7 +79,7 @@ function printRoutes(routes, useColors, compact, filter, showQueryString) {
+                 // Get all properties
+                 const schema = route.schema.querystring;
+                 const requiredProperties = schema.required ?? [];
+-                for (const property of Object.keys(schema.properties) ?? {}){
++                for (const property of Object.keys(schema.properties ?? {}) ?? {}){
+                     const param = `${property}={{yellow}}value{{-}}`;
+                     const separator = querystringComponents.length === 0 ? '?' : '&';
+                     if (requiredProperties.includes(property)) {

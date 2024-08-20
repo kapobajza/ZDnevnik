@@ -1,11 +1,39 @@
 name: zdnevnik
 
 services:
-  web:
+  api:
     build:
-      dockerfile: ./apps/web/Dockerfile
+      dockerfile: ./apps/api/Dockerfile
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    restart: always
+    env_file: ./apps/api/.env.local
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/api
+          target: /app/apps/api
+        - action: rebuild
+          path: ./apps/api/package.json
+          target: /app/apps/api
+
+  postgres_db:
+    image: postgres:15
+    restart: always
+    env_file: ./db/.env.local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 1s
+      timeout: 20s
+      retries: 10
     volumes:
-      - web_dist:/app/apps/web/dist
+      - postgres_data:/var/lib/postgresql/data
 
   caddy:
     build:
@@ -16,12 +44,18 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - web_dist:/var/www/zdnevnik
       - caddy_data:/data
       - caddy_config:/config
-    restart: on-failure:5
+    depends_on:
+      api:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: rebuild
+          path: ./caddy
+    restart: always
 
 volumes:
-  web_dist:
   caddy_data:
   caddy_config:
+  postgres_data:

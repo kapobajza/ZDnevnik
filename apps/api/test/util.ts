@@ -47,6 +47,9 @@ export async function buildTestApp() {
 export async function setupPgTestDatabase() {
   const postgresContainer = await new PostgreSqlContainer().start();
   const connectionString = postgresContainer.getConnectionUri();
+  console.log("-------connectionString-------");
+  console.log(connectionString);
+  console.log("-------connectionString-------\n");
   const postgresClient = new Pool({
     connectionString,
   });

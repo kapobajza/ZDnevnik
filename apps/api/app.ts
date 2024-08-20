@@ -13,7 +13,6 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
-import FastifyCors from "@fastify/cors";
 
 import type { AppEnv } from "./types";
 
@@ -35,9 +34,6 @@ export async function buildApp(
   },
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
-    console.log("-------error-------");
-    console.log(error);
-    console.log("-------error-------\n");
     if (error instanceof ZodError) {
       const responseError: HttpValidationError = {
         code: HttpErrorCode.ValidationError,
@@ -61,40 +57,6 @@ export async function buildApp(
 
   fastify.setValidatorCompiler(zodValidatorCompiler);
   fastify.setSerializerCompiler(zodSerializerCompiler);
-
-  if (!opts?.testing) {
-    await fastify.register(FastifyCors, {
-      origin: (origin, cb) => {
-        console.log("-------origin-------");
-        console.log(origin);
-        console.log("-------origin-------\n");
-
-        if (!origin) {
-          cb(new Error("Not allowed"), false);
-          return;
-        }
-
-        console.log("-------opts.appEnv-------");
-        console.log(opts.appEnv);
-        console.log("-------opts.appEnv-------\n");
-
-        if (opts.appEnv === "local") {
-          cb(null, true);
-          return;
-        }
-
-        const hostname = new URL(origin).hostname;
-
-        if (!hostname.includes("zdnevnik")) {
-          cb(new Error("Not allowed"), false);
-          return;
-        }
-
-        cb(null, true);
-      },
-      credentials: true,
-    });
-  }
 
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "plugins"),

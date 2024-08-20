@@ -1,4 +1,50 @@
-:80 {
-  root * /var/www/zdnevnik
-  file_server
+# CORS Preflight (OPTIONS) + Request (GET, POST, PATCH, PUT, DELETE)
+(cors-api) {
+	@match-cors-api-preflight {
+		not header Origin "{http.request.scheme}://{http.request.host}"
+		header Origin "{http.request.header.origin}"
+		method OPTIONS
+	}
+	handle @match-cors-api-preflight {
+		header {
+			Access-Control-Allow-Origin "{http.request.header.origin}"
+			Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+			Access-Control-Allow-Headers "Authorization, Content-Type, Origin, User-Agent, DNT, Cache-Control, Keep-Alive, X-Requested-With, If-Modified-Since"
+
+			Access-Control-Allow-Credentials "true"
+			Access-Control-Max-Age "3600"
+			defer
+		}
+		respond "" 204
+	}
+
+	@match-cors-api-request {
+		not header Origin "{http.request.scheme}://{http.request.host}"
+		header Origin "{http.request.header.origin}"
+		not method OPTIONS
+	}
+	handle @match-cors-api-request {
+		header {
+			Access-Control-Allow-Origin "{http.request.header.origin}"
+			Access-Control-Allow-Credentials "true"
+			Access-Control-Max-Age "3600"
+			defer
+		}
+	}
+}
+
+http://api.zdnevnik.local {
+	import cors-api
+
+	encode gzip
+
+	handle {
+  	reverse_proxy http://api:5050
+	}
+
+	error "Not found" 404
+
+	handle_errors {
+		respond "{err.status_code} {err.status_text}"
+	}
 }

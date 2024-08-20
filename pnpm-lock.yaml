@@ -21,6 +21,11 @@ overrides:
   zod: 3.23.8
   yargs: 17.7.2
 
+patchedDependencies:
+  fastify-print-routes@3.2.0:
+    hash: x3h7kwtyddd2vnij32jbdjiqjm
+    path: patches/fastify-print-routes@3.2.0.patch
+
 importers:
 
   .:
@@ -111,7 +116,7 @@ importers:
         version: 4.5.1
       fastify-print-routes:
         specifier: 3.2.0
-        version: 3.2.0
+        version: 3.2.0(patch_hash=x3h7kwtyddd2vnij32jbdjiqjm)
       fastify-type-provider-zod:
         specifier: 2.0.0
         version: 2.0.0(fastify@4.28.1)(zod@3.23.8)
@@ -9707,7 +9712,7 @@ snapshots:
 
   fastify-plugin@4.5.1: {}
 
-  fastify-print-routes@3.2.0:
+  fastify-print-routes@3.2.0(patch_hash=x3h7kwtyddd2vnij32jbdjiqjm):
     dependencies:
       acquerello: 2.0.8
       fastify-plugin: 4.5.1

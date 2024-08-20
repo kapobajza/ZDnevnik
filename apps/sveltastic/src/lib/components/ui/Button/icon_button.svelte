@@ -34,8 +34,6 @@
     icon: IconName;
     size?: IconButtonSize;
   } = $props();
-
-  console.log("temp");
 </script>
 
 <button class={cn(buttonVariants({ size, className }))} {...props}>

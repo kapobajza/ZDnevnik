@@ -3,7 +3,6 @@ services:
     build:
       args:
         - ENVIRONMENT=prod
-    environment:
-      - APP_ADDRESS=${APP_ADDRESS}
+    env_file: ./caddy/.env.prod
   web:
     image: kap0bajza/zdnevnik:v1.0.0

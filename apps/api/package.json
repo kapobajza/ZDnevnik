@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "tsx watch start.ts",
+    "start": "tsx start.ts",
     "migrate": "node-pg-migrate",
     "tsc": "tsc",
     "test": "vitest",

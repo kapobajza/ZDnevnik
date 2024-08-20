@@ -54,14 +54,17 @@ async function main() {
     await pool.end();
   });
 
-  app.listen({ port: 5000 }, function (err, address) {
-    if (err) {
-      app.log.error(err);
-      process.exit(1);
-    }
+  app.listen(
+    { port: envs.PORT ?? 5050, host: "0.0.0.0" },
+    function (err, address) {
+      if (err) {
+        app.log.error(err);
+        process.exit(1);
+      }
 
-    console.log(`server listening on ${address}`);
-  });
+      console.log(`server listening on ${address}`);
+    },
+  );
 }
 
 void main();
