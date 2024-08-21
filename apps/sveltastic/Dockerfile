@@ -1,0 +1,20 @@
+FROM node:20.10.0
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+WORKDIR /app
+
+RUN corepack enable
+
+COPY . .
+
+RUN --mount=type=cache,target=${PNPM_HOME} pnpm install --frozen-lockfile
+
+
+COPY ./apps/sveltastic/scripts/update_local_hosts.sh /usr/local/bin/update_local_hosts.sh
+RUN chmod +x /usr/local/bin/update_local_hosts.sh
+
+# Set the entrypoint to run the script
+ENTRYPOINT ["/usr/local/bin/update_local_hosts.sh"]
+
+CMD ["pnpm", "run", "sv:dev"]

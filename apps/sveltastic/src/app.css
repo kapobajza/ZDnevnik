@@ -41,6 +41,7 @@
 
     --radius: 0.5rem;
     --nav-bar-height: 100px;
+    --nav-bar-offset: 1.5rem;
   }
 
   .dark {

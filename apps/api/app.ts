@@ -77,6 +77,7 @@ export async function buildApp(
       path: "/",
       domain: opts.env.SESSION_COOKIE_DOMAIN,
       secure: opts.appEnv !== "local",
+      sameSite: opts.appEnv === "local" ? "none" : "lax",
     },
   });
 

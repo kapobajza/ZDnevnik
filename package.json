@@ -6,8 +6,6 @@
   "scripts": {
     "generate_project_name_types": "pnpm --filter toolkit generate_project_name_types",
     "postinstall": "lefthook install",
-    "web:tsc": "pnpm --filter web tsc",
-    "web:dev": "pnpm --filter web dev",
     "api:tsc": "pnpm --filter api tsc",
     "api:migrate": "pnpm --filter api migrate",
     "api:dev": "pnpm --filter api dev",

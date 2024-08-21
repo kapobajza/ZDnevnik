@@ -8,6 +8,7 @@ import {
   teacherStudentsSelect,
   paginationQueryParamSchema,
   type ClasroomStudentsDTO,
+  classroomStudentsDTOSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
@@ -34,6 +35,9 @@ export default function clasrooms(
     {
       schema: {
         querystring: paginationQueryParamSchema,
+        response: {
+          200: classroomStudentsDTOSchema,
+        },
       },
       preHandler: fastify.auth(
         [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],
@@ -69,7 +73,10 @@ export default function clasrooms(
         .executeOne();
 
       if (!teacherClasroom) {
-        return reply.send([]);
+        return reply.send({
+          students: [],
+          classroom: {},
+        });
       }
 
       const students = await userModel

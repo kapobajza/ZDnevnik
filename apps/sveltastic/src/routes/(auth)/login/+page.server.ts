@@ -43,10 +43,24 @@ export const actions: Actions = {
         return setError(form, locals.LL.error_unknown());
       }
 
+      type CookieOptions = Parameters<typeof cookies.set>[2];
+
+      const cookieOpts = Object.keys(parsedCookie).reduce((acc, key) => {
+        if (key === SESSION_COOKIE_NAME) {
+          return acc;
+        }
+
+        const val = parsedCookie[key];
+        const cookieKey =
+          key.toLowerCase() as keyof cookie.CookieSerializeOptions;
+
+        acc[cookieKey] = val as never;
+        return acc;
+      }, {} as CookieOptions);
+
       cookies.set(SESSION_COOKIE_NAME, value, {
-        path: "/",
+        ...cookieOpts,
         secure: false,
-        sameSite: false,
       });
     } catch (e) {
       let message = locals.LL.error_unknown();

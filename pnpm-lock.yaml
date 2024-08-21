@@ -325,6 +325,10 @@ importers:
         version: 3.23.8
 
   libs/toolkit:
+    dependencies:
+      tozod:
+        specifier: 3.0.0
+        version: 3.0.0(zod@3.23.8)
     devDependencies:
       '@types/node':
         specifier: 20.14.7
@@ -5606,6 +5610,11 @@ packages:
   tough-cookie@4.1.4:
     resolution: {integrity: sha512-Loo5UUvLD9ScZ6jh8beX1T6sO1w2/MpCRpEP7V280GKMVUQ0Jzar2U3UJPsrdbziLEMMhu3Ujnq//rhiFuIeag==}
     engines: {node: '>=6'}
+
+  tozod@3.0.0:
+    resolution: {integrity: sha512-R03/moNPEGgWKoTdCsEJuyEoP6NtXyhWg9L9lJhF2XyCR2Ce9XE+yXaswaVmqyBpHsRPC2Pk38mK8Ex7iHaXcg==}
+    peerDependencies:
+      zod: 3.23.8
 
   tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
@@ -12062,6 +12071,10 @@ snapshots:
       punycode: 2.3.1
       universalify: 0.2.0
       url-parse: 1.5.10
+
+  tozod@3.0.0(zod@3.23.8):
+    dependencies:
+      zod: 3.23.8
 
   tr46@0.0.3: {}
 

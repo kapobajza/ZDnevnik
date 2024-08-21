@@ -9,11 +9,6 @@ services:
         condition: service_healthy
     restart: always
     env_file: ./apps/api/.env.local
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
     develop:
       watch:
         - action: sync
@@ -47,13 +42,26 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     develop:
       watch:
         - action: rebuild
           path: ./caddy
     restart: always
+
+  web:
+    build:
+      dockerfile: ./apps/sveltastic/Dockerfile
+    depends_on:
+      - api
+      - caddy
+    restart: always
+    env_file: ./apps/sveltastic/.env.local
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/sveltastic
+          target: /app/apps/sveltastic
 
 volumes:
   caddy_data:

@@ -1,3 +1,6 @@
+import type { toZod } from "tozod";
+import { z } from "zod";
+
 import { UserModel } from "~/toolkit/models/user";
 import type {
   ColumnOptionsMap,
@@ -17,10 +20,21 @@ export type TeacherStudentsDTO = InferColumnOptionsResult<
   typeof teacherStudentsSelect
 >;
 
-export type ClasroomStudentsDTO = {
-  students: TeacherStudentsDTO[];
-  classroom: {
-    id: string;
-    name: string;
-  };
-};
+const teacherStudentSelectSchema: toZod<TeacherStudentsDTO> = z.object({
+  avatar: z.string(),
+  firstName: z.string(),
+  id: z.string(),
+  lastName: z.string(),
+  ordinalNumber: z.number(),
+  averageGrade: z.number(),
+});
+
+export const classroomStudentsDTOSchema = z.object({
+  students: z.array(teacherStudentSelectSchema),
+  classroom: z.object({
+    id: z.string().optional(),
+    name: z.string().optional(),
+  }),
+});
+
+export type ClasroomStudentsDTO = z.infer<typeof classroomStudentsDTOSchema>;

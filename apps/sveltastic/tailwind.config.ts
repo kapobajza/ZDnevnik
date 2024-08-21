@@ -72,9 +72,13 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      padding: {
+        "nav-bar": "var(--nav-bar-offset)",
+      },
       height: {
         "nav-bar": "var(--nav-bar-height)",
-        "screen-w-nav-bar": "calc(100vh - var(--nav-bar-height))",
+        "screen-w-nav-bar":
+          "calc(100vh - var(--nav-bar-height) - var(--nav-bar-offset))",
       },
       keyframes: {
         loader: {

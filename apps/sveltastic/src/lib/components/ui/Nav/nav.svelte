@@ -14,7 +14,7 @@
 
 <nav
   class={cn(
-    "zd-h-nav-bar zd-bg-primary zd-px-4 zd-pb-6 zd-flex zd-items-end",
+    "zd-flex zd-h-nav-bar zd-items-end zd-bg-primary zd-px-4 zd-pb-nav-bar",
     className,
   )}
   {...otherProps}
