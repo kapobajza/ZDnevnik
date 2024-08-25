@@ -1,8 +1,15 @@
 services:
   caddy:
     build:
-      args:
-        - ENVIRONMENT=prod
+      target: prod
     env_file: ./caddy/.env.prod
-  web:
-    image: kap0bajza/zdnevnik:v1.0.0
+  postgres_db: !reset null
+  api:
+    build:
+      target: prod
+    depends_on:
+      postgres_db: !reset null
+    env_file: ./apps/api/.env.prod
+
+volumes:
+  postgres_data: !reset null

@@ -1,7 +1,11 @@
 import path from "path";
 
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
-import Fastify, { type FastifyInstance, type InjectOptions } from "fastify";
+import Fastify, {
+  type FastifyInstance,
+  type InjectOptions,
+  type LightMyRequestResponse,
+} from "fastify";
 import fp from "fastify-plugin";
 import { Pool } from "pg";
 import { runner as migrate } from "node-pg-migrate";
@@ -105,7 +109,7 @@ export const doAuthenticatedRequest = async (
     username: string;
     password: string;
   },
-) => {
+): Promise<LightMyRequestResponse> => {
   const { username, password, ...injectOpts } = opts;
 
   const authResponse = await app.inject({

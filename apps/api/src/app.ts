@@ -13,6 +13,7 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
+import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
 
 import type { AppEnv } from "./types";
 
@@ -70,7 +71,9 @@ export async function buildApp(
   }
 
   await fastify.register(SecureSession, {
-    key: fs.readFileSync(path.join(__dirname, "session_key")),
+    key: fs.readFileSync(
+      path.join(getRelativeMonoRepoPath("api"), "session_key"),
+    ),
     cookieName: opts.env.SESSION_COOKIE_NAME,
     cookie: {
       httpOnly: true,
@@ -86,10 +89,7 @@ export async function buildApp(
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "features"),
     matchFilter: (path) => {
-      return path.endsWith(".routes.ts");
-    },
-    ignoreFilter(path) {
-      return path.endsWith("test.routes.ts");
+      return /\.routes\.(t|j)s$/.test(path);
     },
     maxDepth: 2,
   });

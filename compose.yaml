@@ -4,6 +4,7 @@ services:
   api:
     build:
       dockerfile: ./apps/api/Dockerfile
+      target: local
     depends_on:
       postgres_db:
         condition: service_healthy
@@ -33,8 +34,7 @@ services:
   caddy:
     build:
       dockerfile: ./caddy/Dockerfile
-      args:
-        - ENVIRONMENT=local
+      target: local
     ports:
       - 80:80
       - 443:443

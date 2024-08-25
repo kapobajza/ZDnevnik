@@ -3,12 +3,12 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "~/api/*": ["./*"],
+      "~/api/*": ["./src/*"],
       "@zdnevnik/toolkit": ["../../libs/toolkit/src"],
       "@zdnevnik/scripting": ["../../libs/toolkit/scripting"],
       "~/toolkit/*": ["../../libs/toolkit/src/*"],
       "~/scripting/*": ["../../libs/toolkit/scripting/*"]
     }
   },
-  "include": ["**/*.ts", "./.eslintrc.js", "migrations/*"]
+  "include": ["**/*.ts", "./.eslintrc.js", "migrations/*", "build.ts"]
 }

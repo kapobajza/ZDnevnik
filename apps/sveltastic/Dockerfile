@@ -8,7 +8,7 @@ RUN corepack enable
 
 COPY . .
 
-RUN --mount=type=cache,target=${PNPM_HOME} pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=${PNPM_HOME}/store pnpm install --frozen-lockfile
 
 
 COPY ./apps/sveltastic/scripts/update_local_hosts.sh /usr/local/bin/update_local_hosts.sh

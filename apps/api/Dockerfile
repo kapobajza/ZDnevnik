@@ -1,4 +1,4 @@
-FROM node:20.10.0
+FROM node:20.10.0 AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
@@ -8,6 +8,10 @@ RUN corepack enable
 
 COPY . .
 
-RUN --mount=type=cache,target=${PNPM_HOME} pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=${PNPM_HOME}/store pnpm install --frozen-lockfile
 
+FROM base AS local
 CMD ["sh", "-c", "pnpm run api:migrate up && pnpm run api:dev"]
+
+FROM base AS prod
+CMD ["sh", "-c", "pnpm run api:migrate up && pnpm run api:start:prod"]

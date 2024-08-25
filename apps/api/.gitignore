@@ -3,3 +3,4 @@ session_key
 .env
 .env.*
 !.env.example
+dist
