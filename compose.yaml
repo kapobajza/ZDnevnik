@@ -18,6 +18,8 @@ services:
         - action: rebuild
           path: ./apps/api/package.json
           target: /app/apps/api
+    labels:
+      - "promtail=true"
 
   postgres_db:
     image: postgres:15
@@ -30,6 +32,8 @@ services:
       retries: 10
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    labels:
+      - "promtail=true"
 
   caddy:
     build:
@@ -48,6 +52,8 @@ services:
         - action: rebuild
           path: ./caddy
     restart: always
+    labels:
+      - "promtail=true"
 
   web:
     build:
@@ -62,6 +68,8 @@ services:
         - action: sync
           path: ./apps/sveltastic
           target: /app/apps/sveltastic
+    labels:
+      - "promtail=true"
 
 volumes:
   caddy_data:
