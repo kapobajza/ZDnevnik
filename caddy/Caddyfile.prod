@@ -1,8 +1,30 @@
-zdnevnik {
-  root * /var/www/zdnevnik
-  file_server
-	respond /health "OK"
-	encode gzip
+import sites-enabled/*
+
+(cors) {
+	@origin header Origin {args[0]}
+	header @origin Access-Control-Allow-Origin "{args[0]}"
+	header @origin Access-Control-Allow-Methods "OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE"
+	header Access-Control-Allow-Credentials "true"
+  header Access-Control-Allow-Headers "Content-Type"
+  header Access-Control-Max-Age "3600"
 }
 
-import sites-enabled/*
+https://api.zdnevnik.com {
+	import cors https://zdnevnik.com
+
+	encode gzip
+
+	handle {
+  	reverse_proxy http://api:5050
+	}
+
+	error "Not found" 404
+
+	handle_errors {
+		respond "{err.status_code} {err.status_text}"
+	}
+}
+
+https://zdnevnik.com {
+	reverse_proxy http://web:3000
+}

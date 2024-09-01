@@ -3,13 +3,20 @@ services:
     build:
       target: prod
     env_file: ./caddy/.env.prod
+
   postgres_db: !reset null
+
   api:
     build:
       target: prod
     depends_on:
       postgres_db: !reset null
     env_file: ./apps/api/.env.prod
+
+  web:
+    build:
+      target: prod
+    env_file: ./apps/sveltastic/.env.prod
 
 volumes:
   postgres_data: !reset null

@@ -16,6 +16,7 @@
     "ds:build": "pnpm --filter design-system build",
     "sv:storybook": "pnpm --filter sveltastic storybook",
     "sv:check": "pnpm --filter sveltastic check",
+    "sv:build": "pnpm --filter sveltastic build",
     "sv:dev": "pnpm --filter sveltastic vite",
     "sv:dev:translations": "pnpm --filter sveltastic dev:translations",
     "sv:test": "pnpm --filter sveltastic test",

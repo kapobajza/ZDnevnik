@@ -58,6 +58,7 @@ services:
   web:
     build:
       dockerfile: ./apps/sveltastic/Dockerfile
+      target: local
     depends_on:
       - api
       - caddy
