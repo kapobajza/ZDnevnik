@@ -6,6 +6,7 @@
     "dev:translations": "npm-run-all --parallel vite typesafe-i18n",
     "vite": "vite dev --host",
     "build": "vite build",
+    "start:prod": "vite build && node build",
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
