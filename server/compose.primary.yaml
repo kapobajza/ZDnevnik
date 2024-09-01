@@ -23,9 +23,11 @@ services:
   postgres:
     image: postgres:15
     restart: always    
-    env_file: ./postgres/.env
+    env_file: ./db/.env.prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
     labels:
       - "promtail=true"
 
