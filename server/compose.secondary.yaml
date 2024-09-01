@@ -1,0 +1,8 @@
+services:
+  loki: !reset null
+  grafana: !reset null
+  promtail:
+    env_file: ./server/.env.prod
+
+volumes:
+  grafana_data: !reset null

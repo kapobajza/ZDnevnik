@@ -1,4 +1,4 @@
-name: zdnevnik
+name: zdnevnik_logging
 
 services:
   loki:
@@ -6,29 +6,26 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./logging/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./server/loki-config.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - loki
     restart: always
 
   promtail:
+    env_file: ./server/.env.local
     image: grafana/promtail:2.9.2
     volumes:
       - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./logging/promtail-config.yaml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - loki
+      - ./server/promtail-config.yaml:/etc/promtail/config.yml
+      - ./server/promtail_entry.sh:/promtail_entry.sh
+    entrypoint: ["/bin/sh", "-c", "chmod +x /promtail_entry.sh && /promtail_entry.sh"]
     restart: always
 
   grafana:
+    env_file: ./server/.env.local
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=Test1234
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_AUTH_ANONYMOUS_ENABLED=false
       - GF_SERVER_HTTP_PORT=3200
@@ -55,14 +52,9 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3200:3200"
-    networks:
-      - loki
     volumes:
       - grafana-data:/var/lib/grafana
     restart: always
 
 volumes:
   grafana-data:
-
-networks:
-  loki:

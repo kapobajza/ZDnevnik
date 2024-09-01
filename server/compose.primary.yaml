@@ -1,0 +1,35 @@
+services:
+  promtail:
+    env_file: ./server/.env.prod
+    environment:
+      - LOKI_URL=http://loki:3100
+
+  grafana:
+    env_file: ./server/.env.prod
+
+  caddy:
+    image: caddy:2.8.4
+    ports:
+        - "80:80"
+        - "443:443"
+    volumes:
+      - $PWD/caddy/Caddyfile.logging:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - $PWD/certs/zdnevnik.pem:/etc/ssl/certs/zdnevnik.pem
+      - $PWD/certs/zdnevnik.key:/etc/ssl/certs/zdnevnik.key
+    restart: always
+
+  postgres:
+    image: postgres:15
+    restart: always    
+    env_file: ./postgres/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    labels:
+      - "promtail=true"
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
