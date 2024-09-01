@@ -30,6 +30,8 @@ services:
       - $PWD/db/postgresql.conf:/etc/postgresql/postgresql.conf
     labels:
       - "promtail=true"
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf",
+               "-c", "hba_file=/etc/postgresql/pg_hba.conf",]
 
 volumes:
   caddy_data:
