@@ -21,4 +21,4 @@ ENTRYPOINT ["/usr/local/bin/update_local_hosts.sh"]
 CMD ["pnpm", "run", "sv:dev"]
 
 FROM base AS prod
-CMD ["pnpm", "run", "sv:run:prod"]
+CMD ["pnpm", "run", "sv:start:prod"]
