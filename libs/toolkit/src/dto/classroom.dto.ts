@@ -21,7 +21,7 @@ export type TeacherStudentsDTO = InferColumnOptionsResult<
 >;
 
 const teacherStudentSelectSchema: toZod<TeacherStudentsDTO> = z.object({
-  avatar: z.string(),
+  avatar: z.string().nullable() as never,
   firstName: z.string(),
   id: z.string(),
   lastName: z.string(),
