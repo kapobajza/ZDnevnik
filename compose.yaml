@@ -18,8 +18,6 @@ services:
         - action: rebuild
           path: ./apps/api/package.json
           target: /app/apps/api
-    labels:
-      - "promtail=true"
 
   postgres_db:
     image: postgres:15
@@ -69,8 +67,6 @@ services:
         - action: sync
           path: ./apps/sveltastic
           target: /app/apps/sveltastic
-    labels:
-      - "promtail=true"
 
 volumes:
   caddy_data:

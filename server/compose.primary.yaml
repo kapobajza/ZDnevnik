@@ -1,11 +1,11 @@
 services:
   promtail:
-    env_file: $PWD/server/.env.prod
+    env_file: ./server/.env.prod
     environment:
       - LOKI_URL=http://loki:3100
 
   grafana:
-    env_file: $PWD/server/.env.prod
+    env_file: ./server/.env.prod
 
   caddy:
     image: caddy:2.8.4
@@ -13,21 +13,21 @@ services:
         - "80:80"
         - "443:443"
     volumes:
-      - $PWD/caddy/Caddyfile.logging:/etc/caddy/Caddyfile
+      - ./caddy/Caddyfile.logging:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
-      - $PWD/certs/zdnevnik.pem:/etc/ssl/certs/zdnevnik.pem
-      - $PWD/certs/zdnevnik.key:/etc/ssl/certs/zdnevnik.key
+      - ./certs/zdnevnik.pem:/etc/ssl/certs/zdnevnik.pem
+      - ./certs/zdnevnik.key:/etc/ssl/certs/zdnevnik.key
     restart: always
 
   postgres:
     image: postgres:15
     restart: always    
-    env_file: $PWD/db/.env.prod
+    env_file: ./db/.env.prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - $PWD/db/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - $PWD/db/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
     labels:
       - "promtail=true"
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf",

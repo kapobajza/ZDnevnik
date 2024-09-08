@@ -4,6 +4,7 @@ RUN mkdir -p /etc/caddy/sites-available
 RUN mkdir -p /etc/caddy/sites-enabled
 
 COPY ./caddy/sites-available /etc/caddy/sites-available
+COPY ./caddy/rules /etc/caddy/rules
 
 RUN ln -s /etc/caddy/sites-available/* /etc/caddy/sites-enabled
 

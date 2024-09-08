@@ -7,16 +7,21 @@ services:
   postgres_db: !reset null
 
   api:
-    build:
-      target: prod
+    image: ghcr.io/kapobajza/zdnevnik_api:prod
     depends_on:
       postgres_db: !reset null
     env_file: ./apps/api/.env.prod
+    deploy:
+      mode: replicated
+      replicas: 3
+    labels:
+      - "promtail=true"
 
   web:
-    build:
-      target: prod
+    image: ghcr.io/kapobajza/zdnevnik_web:prod
     env_file: ./apps/sveltastic/.env.prod
+    labels:
+      - "promtail=true"
 
 volumes:
   postgres_data: !reset null
