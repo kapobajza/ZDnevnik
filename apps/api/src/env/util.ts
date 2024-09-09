@@ -27,6 +27,9 @@ export const envSchema = {
     PORT: {
       type: "integer",
     },
+    SESSION_KEY_FILE: {
+      type: "string",
+    },
   },
 } as const satisfies JSONSchema;
 

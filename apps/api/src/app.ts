@@ -72,7 +72,10 @@ export async function buildApp(
 
   await fastify.register(SecureSession, {
     key: fs.readFileSync(
-      path.join(getRelativeMonoRepoPath("api"), "session_key"),
+      path.join(
+        getRelativeMonoRepoPath("api"),
+        opts.env.SESSION_KEY_FILE ?? "session_key",
+      ),
     ),
     cookieName: opts.env.SESSION_COOKIE_NAME,
     cookie: {
