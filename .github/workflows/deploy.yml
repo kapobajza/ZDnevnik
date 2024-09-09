@@ -101,4 +101,5 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             cd ~/${{ secrets.VPS_FOLDER }}
+            git pull
             ./scripts/deploy.sh ${{ inputs.service }}
