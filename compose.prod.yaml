@@ -14,6 +14,14 @@ services:
     deploy:
       mode: replicated
       replicas: 3
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        order: stop-first
     labels:
       - "promtail=true"
 
@@ -22,6 +30,17 @@ services:
     env_file: ./apps/sveltastic/.env.prod
     labels:
       - "promtail=true"
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        order: stop-first
+        failure_action: rollback
+        delay: 10s
+      rollback_config:
+        parallelism: 1
+        order: stop-first
 
 volumes:
   postgres_data: !reset null

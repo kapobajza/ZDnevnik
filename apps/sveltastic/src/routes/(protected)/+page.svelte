@@ -24,20 +24,20 @@
 <Container
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
-  class="zd-pt-4"
+  class="zd-pt-4 zd-text-[inherit]"
 >
   {#snippet empty()}
     <div
-      class="zd-h-screen-w-nav-bar zd-m-auto zd-flex zd-flex-col zd-justify-center zd-items-center zd-max-w-[400px]"
+      class="zd-m-auto zd-flex zd-h-screen-w-nav-bar zd-max-w-[400px] zd-flex-col zd-items-center zd-justify-center"
     >
       {#if $meQuery.data?.role === UserRole.Teacher}
         <LottiePlayer
           src={"/lottie/empty_results.json"}
-          class="zd-w-full zd-max-h-9"
+          class="zd-max-h-9 zd-w-full"
           autoplay
           loop
         />
-        <Typography variant="h4" class="zd-text-center zd-mb-8">
+        <Typography variant="h4" class="zd-mb-8 zd-text-center">
           {$LL.home_no_students_found()}
         </Typography>
         <Button class="zd-w-full">

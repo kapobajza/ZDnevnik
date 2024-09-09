@@ -7,7 +7,8 @@ export default function health(
 ) {
   fastify.get("", async (_request, reply) => {
     return reply.status(200).send({
-      message: "ZDnevnik API is up and running. Thank you for checking on me.",
+      message:
+        "ZDnevnik API is up and running! Thank you for checking on me. :D",
     });
   });
 
