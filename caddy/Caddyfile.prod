@@ -12,6 +12,8 @@ https://api.zdnevnik.com {
 		    lb_policy round_robin
 		    health_path /health
 		    health_interval 10s
+        health_timeout 5s
+        health_status 200
 		}
 	}
 
@@ -23,5 +25,12 @@ https://api.zdnevnik.com {
 }
 
 https://zdnevnik.com {
-	reverse_proxy http://web:3000
+	reverse_proxy {
+		to http://web:3000
+		lb_policy round_robin
+		health_path /
+		health_interval 10s
+    health_timeout 5s
+    health_status 200
+	}
 }

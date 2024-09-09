@@ -12,16 +12,7 @@ services:
       postgres_db: !reset null
     env_file: ./apps/api/.env.prod
     deploy:
-      mode: replicated
       replicas: 3
-      update_config:
-        parallelism: 1
-        order: stop-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 1
-        order: stop-first
     labels:
       - "promtail=true"
 
@@ -31,16 +22,7 @@ services:
     labels:
       - "promtail=true"
     deploy:
-      mode: replicated
-      replicas: 2
-      update_config:
-        parallelism: 1
-        order: stop-first
-        failure_action: rollback
-        delay: 10s
-      rollback_config:
-        parallelism: 1
-        order: stop-first
+      replicas: 3
 
 volumes:
   postgres_data: !reset null
