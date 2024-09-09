@@ -13,7 +13,6 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
-import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
 
 import type { AppEnv } from "./types";
 
@@ -71,12 +70,7 @@ export async function buildApp(
   }
 
   await fastify.register(SecureSession, {
-    key: fs.readFileSync(
-      path.resolve(
-        getRelativeMonoRepoPath("api"),
-        opts.env.SESSION_KEY_FILE ?? "session_key",
-      ),
-    ),
+    key: fs.readFileSync(opts.env.SESSION_KEY_FILE ?? "session_key"),
     cookieName: opts.env.SESSION_COOKIE_NAME,
     cookie: {
       httpOnly: true,
