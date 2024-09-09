@@ -20,11 +20,13 @@
   const LL = useContext("LL");
 </script>
 
+<!-- Hello world -->
+
 <NavBar title={$LL.home_title()} />
 <Container
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
-  class="zd-pt-4 zd-text-[inherit]"
+  class="zd-pt-4"
 >
   {#snippet empty()}
     <div
