@@ -13,7 +13,7 @@ jobs:
       dockerfile_dir: apps/api
     secrets:
       GH_CR_USERNAME: ${{ secrets.GH_CR_USERNAME }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_CR_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
       VPS_KEY: ${{ secrets.VPS_KEY }}
