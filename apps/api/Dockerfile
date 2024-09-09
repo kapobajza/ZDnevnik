@@ -8,7 +8,7 @@ RUN corepack enable
 
 COPY . .
 
-RUN --mount=type=cache,id=pnpm-store,target=${PNPM_HOME}/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm-store,target=${PNPM_HOME}/store pnpm install --ignore-scripts --frozen-lockfile
 
 FROM base AS local
 CMD ["sh", "-c", "pnpm run api:migrate up && pnpm run api:dev"]
