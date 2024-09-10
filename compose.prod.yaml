@@ -8,6 +8,8 @@ services:
 
   api:
     image: ghcr.io/kapobajza/zdnevnik_api:prod
+    build:
+      target: prod
     depends_on:
       postgres_db: !reset null
     env_file: ./apps/api/.env.prod
@@ -18,6 +20,8 @@ services:
 
   web:
     image: ghcr.io/kapobajza/zdnevnik_web:prod
+    build:
+      target: prod
     env_file: ./apps/sveltastic/.env.prod
     labels:
       - "promtail=true"
