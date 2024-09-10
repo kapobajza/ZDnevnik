@@ -10,6 +10,7 @@ export const envSchema = {
     "SESSION_COOKIE_NAME",
     "SESSION_COOKIE_DOMAIN",
     "SESSION_COOKIE_MAX_AGE",
+    "SESSION_SECRET",
   ],
   properties: {
     DATABASE_URL: {
@@ -27,7 +28,7 @@ export const envSchema = {
     PORT: {
       type: "integer",
     },
-    SESSION_KEY_FILE: {
+    SESSION_SECRET: {
       type: "string",
     },
   },

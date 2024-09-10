@@ -70,7 +70,7 @@ function main() {
     const { stderr } = spawnSync("scp", [`${from}`, `${to}`]);
 
     if (stderr.length > 0) {
-      console.error(stderr);
+      console.error(stderr.toString("utf8").trim());
     } else {
       console.log("Done!");
     }

@@ -21,7 +21,8 @@
     "sv:dev": "pnpm --filter sveltastic vite",
     "sv:dev:translations": "pnpm --filter sveltastic dev:translations",
     "sv:test": "pnpm --filter sveltastic test",
-    "sv:test:ui": "pnpm --filter sveltastic test:ui"
+    "sv:test:ui": "pnpm --filter sveltastic test:ui",
+    "update_env": "ZDNEVNIK_SSH_CONNECTION=$ZDNEVNIK_SSH_CONNECTION ZDNEVNIK_DESTINATION_DIR=$ZDNEVNIK_DESTINATION_DIR node ./scripts/update_env.js"
   },
   "keywords": [],
   "author": "",
