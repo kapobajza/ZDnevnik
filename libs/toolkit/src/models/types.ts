@@ -76,7 +76,9 @@ export type InferColumnOptionsResult<TColumnOptions> = {
       ? string
       : TColumnOptions[key]["type"] extends "number"
         ? number
-        : never
+        : TColumnOptions[key]["type"] extends "boolean"
+          ? boolean
+          : never
     : InferColumnOptionsResult<TColumnOptions[key]>;
 };
 

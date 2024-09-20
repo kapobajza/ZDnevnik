@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "generate_project_name_types": "tsx scripts/generate_project_name_types.ts",
-    "lint": "eslint"
+    "lint": "eslint",
+    "tsc": "tsc"
   },
   "author": "",
   "license": "ISC",

@@ -27,6 +27,7 @@ export async function buildTestApp() {
     SESSION_COOKIE_MAX_AGE: 60 * 60 * 1000,
     SESSION_COOKIE_NAME: "test",
     SESSION_COOKIE_DOMAIN: "test",
+    SESSION_SECRET: "test",
   };
 
   await registerEnvPlugin(app, {
@@ -51,9 +52,6 @@ export async function buildTestApp() {
 export async function setupPgTestDatabase() {
   const postgresContainer = await new PostgreSqlContainer().start();
   const connectionString = postgresContainer.getConnectionUri();
-  console.log("-------connectionString-------");
-  console.log(connectionString);
-  console.log("-------connectionString-------\n");
   const postgresClient = new Pool({
     connectionString,
   });

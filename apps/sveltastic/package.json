@@ -18,7 +18,8 @@
     "build-storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "typesafe-i18n": "pnpm dlx typesafe-i18n"
+    "typesafe-i18n": "pnpm dlx typesafe-i18n",
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",

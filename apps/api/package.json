@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch ./src/start.ts",
     "start": "tsx ./src/start.ts",
-    "start:prod": "tsx build.ts && cp session_key_prod dist/session_key && node ./dist/start.js",
+    "start:prod": "tsx build.ts && node ./dist/start.js",
     "migrate": "node-pg-migrate",
     "tsc": "tsc",
     "test": "vitest",
