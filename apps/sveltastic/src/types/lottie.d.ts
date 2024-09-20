@@ -18,6 +18,7 @@ declare module "@lottiefiles/svelte-lottie-player" {
     speed?: number;
     src: string;
     style?: string;
+    class?: string;
     width?: number;
   };
 

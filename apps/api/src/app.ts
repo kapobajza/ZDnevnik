@@ -68,15 +68,7 @@ export async function buildApp(
     await fastify.register(PrintRoutes);
   }
 
-  console.log("-------opts.env.SESSION_SECRET-------");
-  console.log(opts.env.SESSION_SECRET);
-  console.log("-------opts.env.SESSION_SECRET-------\n");
-
   const sessionSecret = Buffer.from(opts.env.SESSION_SECRET, "hex");
-
-  console.log("-------sessionSecret-------");
-  console.log(sessionSecret);
-  console.log("-------sessionSecret-------\n");
 
   await fastify.register(SecureSession, {
     key: sessionSecret,
@@ -87,6 +79,7 @@ export async function buildApp(
       domain: opts.env.SESSION_COOKIE_DOMAIN,
       secure: opts.appEnv !== "local",
       sameSite: opts.appEnv === "local" ? "none" : "lax",
+      maxAge: opts.env.SESSION_COOKIE_MAX_AGE,
     },
   });
 

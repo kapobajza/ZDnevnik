@@ -1,7 +1,7 @@
 import { fontFamily } from "tailwindcss/defaultTheme";
 import type { Config } from "tailwindcss";
 
-import { TwFontSize } from "./tw/const";
+import { TwFontSize, TwScreenConfig } from "./src/tw/const";
 
 const config: Config = {
   darkMode: ["class"],
@@ -98,6 +98,7 @@ const config: Config = {
         loader: "loader 1.3s infinite",
       },
     },
+    screens: TwScreenConfig,
   },
 };
 

@@ -1,3 +1,5 @@
+import type { ScreensConfig } from "tailwindcss/types/config";
+
 import type { TypographyVariant } from "$lib/components/types";
 
 type TWFontSizeConfig = [
@@ -126,3 +128,11 @@ export const TwFontSize = {
     },
   ],
 } as const satisfies Record<TypographyVariant, TWFontSizeConfig>;
+
+export const TwScreenConfig = {
+  sm: "640px",
+  md: "768px",
+  lg: "1024px",
+  xl: "1280px",
+  "2xl": "1536px",
+} as const satisfies ScreensConfig;

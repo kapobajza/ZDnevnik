@@ -24,7 +24,7 @@
     "./vite.config.ts",
     "./src/**/*.js",
     "./src/**/*.ts",
-    "./tw/**/*.ts",
+    "src/tw/**/*.ts",
     "./src/**/*.svelte",
     "./tests/**/*.js",
     "./tests/**/*.ts",

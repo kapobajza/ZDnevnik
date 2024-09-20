@@ -199,6 +199,9 @@ importers:
       cookie:
         specifier: 0.6.0
         version: 0.6.0
+      lucide-svelte:
+        specifier: ^0.441.0
+        version: 0.441.0(svelte@5.0.0-next.210)
       tailwind-merge:
         specifier: ^2.4.0
         version: 2.4.0
@@ -4424,6 +4427,11 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lucide-svelte@0.441.0:
+    resolution: {integrity: sha512-lwckKpu4KNth7EBPWUdx7dvRaBrFC173JSdioN2WILol7nwFAPfvbGLeez8ZlnT31boj7pNT7hjvBz3ZJfmUbQ==}
+    peerDependencies:
+      svelte: ^3 || ^4 || ^5.0.0-next.42
 
   lz-string@1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}
@@ -11025,6 +11033,10 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  lucide-svelte@0.441.0(svelte@5.0.0-next.210):
+    dependencies:
+      svelte: 5.0.0-next.210
 
   lz-string@1.5.0: {}
 
