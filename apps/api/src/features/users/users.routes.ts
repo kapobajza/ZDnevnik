@@ -1,4 +1,4 @@
-import { UserModel, usersMeSelect } from "@zdnevnik/toolkit";
+import { UserModel, usersDefaultSelect } from "@zdnevnik/toolkit";
 import type { FastifyInstance } from "fastify";
 import invariant from "tiny-invariant";
 
@@ -19,13 +19,13 @@ export default function users(
   fastify.get(
     "/me",
     {
-      preHandler: fastify.auth([fastify.verifyUserFromSession]),
+      preHandler: fastify.verifyUserFromSession,
     },
     async (request, reply) => {
       invariant(request.session.user, "User not found in session");
 
       const user = await userModel
-        .select(usersMeSelect)
+        .select(usersDefaultSelect)
         .where({
           field: UserModel.fields.Id,
           operator: "=",

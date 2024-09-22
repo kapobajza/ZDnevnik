@@ -39,7 +39,7 @@ export default function images(
       schema: {
         params: imageGetParamsSchema,
       },
-      preHandler: fastify.auth([fastify.verifyUserFromSession]),
+      preHandler: fastify.verifyUserFromSession,
     },
     async (request, reply) => {
       try {
@@ -65,12 +65,7 @@ export default function images(
   fastify.withTypeProvider<ZodTypeProvider>().post(
     "/upload",
     {
-      preHandler: fastify.auth(
-        [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],
-        {
-          relation: "and",
-        },
-      ),
+      preHandler: fastify.verifyTeacherFromSession,
       schema: {
         response: {
           200: imageUploadResponseSchema,

@@ -9,10 +9,16 @@ import {
   paginationQueryParamSchema,
   type ClasroomStudentsDTO,
   classroomStudentsDTOSchema,
+  addStudentSchema,
+  usersDefaultSelectSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
 import { ModelORM } from "~/api/db/orm";
+import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateUdid } from "~/api/util/udid";
+import { createInternalServerErrorReply } from "~/api/error/replies";
+import { idParamSchema } from "~/api/types/validation.types";
 
 export default function clasrooms(
   fastify: FastifyInstance,
@@ -39,12 +45,7 @@ export default function clasrooms(
           200: classroomStudentsDTOSchema,
         },
       },
-      preHandler: fastify.auth(
-        [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],
-        {
-          relation: "and",
-        },
-      ),
+      preHandler: fastify.verifyTeacherFromSession,
     },
     async (request, reply) => {
       invariant(request.session.user, "User from session not found");
@@ -109,6 +110,71 @@ export default function clasrooms(
         },
         students,
       } satisfies ClasroomStudentsDTO);
+    },
+  );
+
+  fastify.withTypeProvider<ZodTypeProvider>().post(
+    "/:id/students",
+    {
+      schema: {
+        body: addStudentSchema,
+        params: idParamSchema,
+        response: {
+          200: usersDefaultSelectSchema,
+        },
+      },
+      preHandler: fastify.verifyTeacherHasAccessToClass,
+    },
+    async (request, reply) => {
+      const { firstName, lastName, ordinalNumber, avatarUrl } = request.body;
+      const env = fastify.getEnvs();
+
+      const passwordSalt = generatePasswordSalt();
+      const passwordHash = hashPassword(
+        env.DEFAULT_USER_PASSWORD,
+        passwordSalt,
+      );
+      const username = `${firstName.toLowerCase()}.${lastName.slice(0, 1).toLowerCase()}-${Math.floor(Math.random() * 1000)}`;
+
+      const user = await userModel
+        .insert([
+          ["FirstName", firstName],
+          ["LastName", lastName],
+          ["OrdinalNumber", ordinalNumber],
+          ["Role", UserRole.Student],
+          ["AverageGrade", 0.0],
+          ["Avatar", avatarUrl],
+          ["PasswordHash", passwordHash],
+          ["PasswordSalt", passwordSalt],
+          ["Id", generateUdid()],
+          ["Username", username],
+        ])
+        .executeOne();
+
+      if (!user) {
+        console.error("User not created");
+        return createInternalServerErrorReply(reply);
+      }
+
+      await userClasroomModel
+        .insert([
+          ["ClassroomId", request.params.id],
+          ["UserId", user.id],
+          ["Id", generateUdid()],
+          ["IsTeacher", false],
+        ])
+        .executeOne();
+
+      return reply.send({
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        ordinalNumber: user.ordinal_number,
+        role: user.role,
+        username: user.username,
+        avatar: user.avatar,
+        averageGrade: user.average_grade,
+      });
     },
   );
 

@@ -15,6 +15,7 @@ export const envSchema = {
     "AWS_ACCESS_KEY_ID",
     "AWS_REGION",
     "AWS_S3_IMAGES_BUCKET",
+    "DEFAULT_USER_PASSWORD",
   ],
   properties: {
     DATABASE_URL: {
@@ -45,6 +46,9 @@ export const envSchema = {
       type: "string",
     },
     AWS_S3_IMAGES_BUCKET: {
+      type: "string",
+    },
+    DEFAULT_USER_PASSWORD: {
       type: "string",
     },
   },

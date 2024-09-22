@@ -27,11 +27,13 @@ export async function buildTestApp() {
     SESSION_COOKIE_MAX_AGE: 60 * 60 * 1000,
     SESSION_COOKIE_NAME: "test",
     SESSION_COOKIE_DOMAIN: "test",
-    SESSION_SECRET: "test",
+    SESSION_SECRET:
+      "1111111111111111111111111111111111111111111111111111111111111111",
     AWS_SECRET_ACCESS_KEY: "test",
     AWS_ACCESS_KEY_ID: "test",
     AWS_REGION: "test",
     AWS_S3_IMAGES_BUCKET: "test",
+    DEFAULT_USER_PASSWORD: "testtesttest",
   };
 
   await registerEnvPlugin(app, {

@@ -2,11 +2,10 @@ import { Pool } from "pg";
 import yargs from "yargs";
 import { UserModel, UserRole } from "@zdnevnik/toolkit";
 
-import { generateUdid } from "./util";
-
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateUdid } from "~/api/util/udid";
 
 const args = process.argv.slice(2);
 

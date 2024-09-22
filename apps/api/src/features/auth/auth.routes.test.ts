@@ -32,7 +32,7 @@ describe("auth routes", () => {
     fastify.get(
       protectedRoute,
       {
-        preHandler: [fastify.verifyUserFromSession],
+        preHandler: fastify.verifyUserFromSession,
       },
       (_request, reply) => {
         return reply.send({ ok: true });
