@@ -21,6 +21,8 @@ export const HttpErrorCode = {
   ValidationError: "validation_error",
   Unathorized: "unauthorized",
   Forbidden: "forbidden",
+  NotFound: "not_found",
+  InternalServerError: "internal_server_error",
 } as const;
 
 export type HttpError = {

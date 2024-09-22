@@ -12,7 +12,7 @@ services:
     env_file: ./apps/api/.env.local
     develop:
       watch:
-        - action: sync
+        - action: sync+restart
           path: ./apps/api
           target: /app/apps/api
         - action: rebuild

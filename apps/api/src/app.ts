@@ -12,16 +12,12 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
+import FastifyMultipart from "@fastify/multipart";
 
 import type { AppEnv } from "./types";
 
-import {
-  HttpErrorCode,
-  HttpErrorStatus,
-  type HttpValidationError,
-  type ValidationError,
-} from "~/api/error/types";
 import { type EnvRecord } from "~/api/env/util";
+import { createValidationErrorReply } from "~/api/error/replies";
 
 export async function buildApp(
   fastify: FastifyInstance,
@@ -34,17 +30,7 @@ export async function buildApp(
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {
-      const responseError: HttpValidationError = {
-        code: HttpErrorCode.ValidationError,
-        message: "An error occured during validation",
-        validationErrors: error.issues.map<ValidationError>((issue) => ({
-          code: issue.code,
-          message: issue.message,
-          path: issue.path,
-        })),
-        statusCode: HttpErrorStatus.UnprocessableEntity,
-      };
-      return reply.status(responseError.statusCode).send(responseError);
+      return createValidationErrorReply(reply, error.issues);
     }
 
     return reply.status(500).send(error);
@@ -53,6 +39,8 @@ export async function buildApp(
   await fastify.register(Postgres, {
     connectionString: opts.env.DATABASE_URL,
   });
+
+  await fastify.register(FastifyMultipart);
 
   fastify.setValidatorCompiler(zodValidatorCompiler);
   fastify.setSerializerCompiler(zodSerializerCompiler);
