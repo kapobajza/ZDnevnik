@@ -13,14 +13,13 @@
   import { UserRole } from "@zdnevnik/toolkit";
   import { List } from "$lib/components/ui/List";
   import { StudentCard } from "$lib/components/routes/Home";
+  import { Dialog } from "$lib/components/ui/Dialog";
 
   const studentsQuery = createInfiniteQuery(studentsQueryOptions());
   const meQuery = createMeQueryCached();
 
   const LL = useContext("LL");
 </script>
-
-<!-- Hello world -->
 
 <NavBar title={$LL.home_title()} />
 <Container
@@ -42,9 +41,17 @@
         <Typography variant="h4" class="zd-mb-8 zd-text-center">
           {$LL.home_no_students_found()}
         </Typography>
-        <Button class="zd-w-full">
-          {$LL.home_add_student()}
-        </Button>
+        <Dialog>
+          {#snippet trigger(openModal)}
+            <Button class="zd-w-full" onclick={openModal}>
+              {$LL.home_add_student()}
+            </Button>
+          {/snippet}
+
+          {#snippet content()}
+            <p>Content</p>
+          {/snippet}
+        </Dialog>
       {/if}
     </div>
   {/snippet}

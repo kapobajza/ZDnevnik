@@ -43,7 +43,9 @@ export const actions: Actions = {
         return setError(form, locals.LL.error_unknown());
       }
 
-      type CookieOptions = Parameters<typeof cookies.set>[2];
+      type CookieOptions = Parameters<typeof cookies.set>[2] & {
+        "max-age": number;
+      };
 
       const cookieOpts = Object.keys(parsedCookie).reduce((acc, key) => {
         if (key === SESSION_COOKIE_NAME) {
@@ -61,6 +63,7 @@ export const actions: Actions = {
       cookies.set(SESSION_COOKIE_NAME, value, {
         ...cookieOpts,
         secure: false,
+        maxAge: cookieOpts["max-age"],
       });
     } catch (e) {
       let message = locals.LL.error_unknown();

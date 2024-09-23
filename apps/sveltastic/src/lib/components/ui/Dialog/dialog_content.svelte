@@ -15,6 +15,7 @@
     fitContent = false,
     title,
     description,
+    onDismiss,
     ...otherProps
   }: Omit<DialogPrimitive.ContentProps, "transition" | "transitionConfig"> & {
     children: Snippet;
@@ -22,6 +23,7 @@
     fitContent?: boolean;
     title?: string;
     description?: string;
+    onDismiss?: () => void;
   } = $props();
 
   const mobileMedia = createMediaQuery(`(max-width: ${TwScreenConfig.md})`);
@@ -51,6 +53,13 @@
       !fitContent && "max-md:zd-top-[100px]",
     )}
     transition:transition={transitionConfig}
+    onoutroend={() => {
+      if (onDismiss) {
+        onDismiss();
+      } else {
+        open = false;
+      }
+    }}
   >
     <DialogPrimitive.Content class="zd-h-full zd-w-full zd-p-6" {...otherProps}>
       <DialogPrimitive.Close class="zd-absolute zd-right-4 zd-top-4">
@@ -78,5 +87,3 @@
     </DialogPrimitive.Content>
   </div>
 {/if}
-
-<!-- <svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} /> -->

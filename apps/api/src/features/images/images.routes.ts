@@ -1,3 +1,5 @@
+import { Readable } from "stream";
+
 import type { FastifyInstance } from "fastify";
 import {
   GetObjectCommand,
@@ -6,11 +8,17 @@ import {
 } from "@aws-sdk/client-s3";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
-  fileRequestSchema,
   imageGetParamsSchema,
   imageUploadResponseSchema,
 } from "@zdnevnik/toolkit";
 import sharp from "sharp";
+import { z } from "zod";
+
+const fileRequestSchema = z.object({
+  filename: z.string(),
+  file: z.instanceof(Readable),
+  mimetype: z.union([z.literal("image/jpeg"), z.literal("image/png")]),
+});
 
 import {
   createInternalServerErrorReply,

@@ -4,20 +4,22 @@
   import DialogContent from "./dialog_content.svelte";
   import DialogOverlay from "./dialog_overlay.svelte";
 
-  const {
+  let {
     content,
-    trigger,
     title,
     description,
+    onDismiss,
+    trigger,
+    open = $bindable(false),
     ...otherProps
   }: DialogPrimitive.Props & {
     content: Snippet;
     trigger: Snippet<[() => void]>;
     title?: string;
     description?: string;
+    onDismiss?: () => void;
+    open?: boolean;
   } = $props();
-
-  let open = $state(false);
 </script>
 
 <DialogPrimitive.Root
@@ -30,7 +32,7 @@
   </DialogPrimitive.Trigger>
   <DialogPrimitive.Portal>
     <DialogOverlay />
-    <DialogContent {title} {description} bind:open>
+    <DialogContent {title} {description} {onDismiss} bind:open>
       {@render content()}
     </DialogContent>
   </DialogPrimitive.Portal>
