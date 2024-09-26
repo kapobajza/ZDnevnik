@@ -11,7 +11,7 @@
   const { Story } = defineMeta<{ avatarSize: AvatarSize }>({
     title: "Components/Avatar",
     component: UserAvatar,
-    tags: ["autodocs"],
+
     argTypes: {
       avatarSize: {
         control: "select",

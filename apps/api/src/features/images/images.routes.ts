@@ -8,6 +8,7 @@ import {
 } from "@aws-sdk/client-s3";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
+  MAX_IMAGE_SIZE,
   imageGetParamsSchema,
   imageUploadResponseSchema,
 } from "@zdnevnik/toolkit";
@@ -84,7 +85,7 @@ export default function images(
       try {
         const file = await request.file({
           limits: {
-            fileSize: 10 * 1024 * 1024,
+            fileSize: MAX_IMAGE_SIZE,
           },
         });
         const fileValidationRes = fileRequestSchema.safeParse(file);

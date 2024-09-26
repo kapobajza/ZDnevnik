@@ -10,6 +10,7 @@
     h2: "h2",
     h3: "h3",
     h4: "h4",
+    h5: "h5",
     blockquote: "p",
     body_medium: "p",
     large: "p",
@@ -25,7 +26,7 @@
     subtle: "span",
   } satisfies Record<
     TypographyVariant,
-    "p" | "span" | "h1" | "h2" | "h3" | "h4"
+    "p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5"
   >;
 
   const {

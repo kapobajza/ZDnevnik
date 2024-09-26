@@ -1,53 +1,104 @@
+import type { ZodCustomIssue } from "@zdnevnik/toolkit";
 import {
   errorResponseSchema,
   type ErrorResponseLiteral,
   type LoginBody,
+  type AddStudentBody,
+  type AddStudentWithFileBody,
+  MAX_IMAGE_SIZE,
 } from "@zdnevnik/toolkit";
+import type { ZodTooBigIssue, ZodTooSmallIssue } from "zod";
+import type { ZodIssueCode } from "zod";
 import { z } from "zod";
+import { get } from "svelte/store";
 
-import type { TranslationFunctions } from "$src/i18n/i18n-types";
+import LL from "$src/i18n/i18n-svelte";
 
-type ValidationFieldRequiredParam = Parameters<
-  TranslationFunctions["validation_field_required"]
->[0];
+type RequiredValidationField =
+  | keyof Pick<LoginBody, "username" | "password">
+  | keyof Omit<AddStudentWithFileBody, "avatar" | "ordinalNumber">;
 
-type ValidationFieldKey = keyof LoginBody;
+type MinMaxNumberField = Record<
+  keyof Pick<AddStudentBody, "ordinalNumber">,
+  string
+>;
 
-const pathToFieldMapping: Record<
-  ValidationFieldKey,
-  ValidationFieldRequiredParam
-> = {
-  username: {
-    field: "Korisničko ime",
-  },
-  password: {
-    field: "Lozinka",
-    gender: "f",
-  },
-};
+type IssueMap = Record<
+  `${typeof ZodIssueCode.too_small}_number`,
+  MinMaxNumberField
+> &
+  Record<`${typeof ZodIssueCode.too_big}_number`, MinMaxNumberField> &
+  Record<
+    `${typeof ZodIssueCode.too_small}_string`,
+    Record<RequiredValidationField, string>
+  > &
+  Record<typeof ZodIssueCode.invalid_type, MinMaxNumberField> &
+  Record<
+    typeof ZodCustomIssue.FileTooBig,
+    Record<keyof Pick<AddStudentWithFileBody, "avatar">, string>
+  >;
 
-export const initZodErrorMap = (LL: TranslationFunctions) => {
+export const initZodErrorMap = () => {
   z.setErrorMap((issue) => {
-    let message = issue.message ?? "";
+    const message = issue.message ?? "";
+    const t = get(LL);
 
-    switch (issue.code) {
-      case "too_small":
-        const path = (issue.path?.[0] ?? "") as ValidationFieldKey;
-        const mappedPath = pathToFieldMapping[path];
+    const issueMap = {
+      too_small_string: {
+        username: t.validation_field_required({
+          field: t.login.username_placeholder(),
+        }),
+        firstName: t.validation_field_required({
+          field: t.home.add_student_first_name_placeholder(),
+        }),
+        lastName: t.validation_field_required({
+          field: t.home.add_student_last_name_placeholder(),
+        }),
+        password: t.validation_field_required({
+          field: t.login.password_placeholder(),
+          gender: "f",
+        }),
+      },
+      too_small_number: {
+        ordinalNumber: t.validation_field_number_too_small({
+          field: t.home.add_student_ordinal_number_placeholder(),
+          min: (issue as ZodTooSmallIssue).minimum as number,
+          gender: "m",
+        }),
+      },
+      too_big_number: {
+        ordinalNumber: t.validation_field_number_too_big({
+          field: t.home.add_student_ordinal_number_placeholder(),
+          max: (issue as ZodTooBigIssue).maximum as number,
+          gender: "m",
+        }),
+      },
+      invalid_type: {
+        ordinalNumber: t.validation_field_invalid_type({
+          field: t.home.add_student_ordinal_number_placeholder(),
+        }),
+      },
+      file_too_big: {
+        avatar: t.validation_file_too_big({
+          max: MAX_IMAGE_SIZE / 1024 / 1024,
+        }),
+      },
+    } as const satisfies IssueMap;
 
-        if (!mappedPath) {
-          return { message };
-        }
+    const issueWithType = issue as ZodTooBigIssue;
 
-        if (issue.minimum === 1) {
-          message = LL.validation_field_required(mappedPath);
-        } else {
-          message = LL.validation_field_too_short(mappedPath);
-        }
-        break;
-    }
+    const path = (issue.path?.[0] ?? "") as RequiredValidationField;
+    const issueCode = (
+      issue.code === "custom" ? issue.params?.code : issue.code
+    ) as string;
+    const localizedIssue =
+      issueMap[
+        `${issueCode}${issueWithType.type ? `_${issueWithType.type}` : ""}` as keyof typeof issueMap
+      ];
+    const localizedMessage =
+      localizedIssue[path as keyof typeof localizedIssue] ?? message;
 
-    return { message };
+    return { message: localizedMessage };
   });
 };
 

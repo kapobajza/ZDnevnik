@@ -3,12 +3,14 @@ import { zod } from "sveltekit-superforms/adapters";
 import { loginBodySchema, ErrorResponseCode } from "@zdnevnik/toolkit";
 import { fail, type Actions, redirect } from "@sveltejs/kit";
 import cookie from "cookie";
+import { get } from "svelte/store";
 
 import type { PageServerLoad } from "./$types";
 
 import { isResponseCode } from "$lib/util";
 import { api } from "$lib/api";
 import { SESSION_COOKIE_NAME } from "$env/static/private";
+import LL from "$src/i18n/i18n-svelte";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(loginBodySchema));
@@ -17,8 +19,9 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, locals, fetch, cookies }) => {
+  default: async ({ request, fetch, cookies }) => {
     const form = await superValidate(request, zod(loginBodySchema));
+    const t = get(LL);
 
     if (!form.valid) {
       return fail(422, { form });
@@ -33,14 +36,14 @@ export const actions: Actions = {
       const setCookie = response.headers?.getSetCookie?.()?.[0];
 
       if (!setCookie) {
-        return setError(form, locals.LL.error_unknown());
+        return setError(form, t.error_unknown());
       }
 
       const parsedCookie = cookie.parse(setCookie);
       const value = parsedCookie[SESSION_COOKIE_NAME];
 
       if (!value) {
-        return setError(form, locals.LL.error_unknown());
+        return setError(form, t.error_unknown());
       }
 
       type CookieOptions = Parameters<typeof cookies.set>[2] & {
@@ -66,10 +69,10 @@ export const actions: Actions = {
         maxAge: cookieOpts["max-age"],
       });
     } catch (e) {
-      let message = locals.LL.error_unknown();
+      let message = t.error_unknown();
 
       if (isResponseCode(e, ErrorResponseCode.INVALID_CREDENTIALS)) {
-        message = locals.LL.login_error_invalid_credentials();
+        message = t.login.error_invalid_credentials();
       }
 
       return setError(form, message);

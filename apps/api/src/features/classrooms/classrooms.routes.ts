@@ -9,7 +9,7 @@ import {
   paginationQueryParamSchema,
   type ClasroomStudentsDTO,
   classroomStudentsDTOSchema,
-  addStudentSchema,
+  addStudentBodySchema,
   usersDefaultSelectSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
@@ -117,7 +117,7 @@ export default function clasrooms(
     "/:id/students",
     {
       schema: {
-        body: addStudentSchema,
+        body: addStudentBodySchema,
         params: idParamSchema,
         response: {
           200: usersDefaultSelectSchema,

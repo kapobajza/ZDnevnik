@@ -13,7 +13,7 @@
   }>({
     title: "Components/Button",
     component: Button,
-    tags: ["autodocs"],
+
     argTypes: {
       iconName: {
         control: "select",

@@ -7,7 +7,6 @@
   const { Story } = defineMeta({
     title: "Components/Dialog",
     component: Dialog,
-    tags: ["autodocs"],
   });
 </script>
 

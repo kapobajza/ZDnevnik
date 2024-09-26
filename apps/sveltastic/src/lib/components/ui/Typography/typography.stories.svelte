@@ -6,7 +6,6 @@
   const { Story } = defineMeta({
     title: "Components/Typography",
     component: Typography,
-    tags: ["autodocs"],
   });
 </script>
 

@@ -67,6 +67,10 @@ services:
         - action: sync
           path: ./apps/sveltastic
           target: /app/apps/sveltastic
+          ignore:
+            - ./apps/sveltastic/node_modules/
+            - ./apps/sveltastic/build/
+            - ./apps/sveltastic/.svelte-kit/
 
 volumes:
   caddy_data:

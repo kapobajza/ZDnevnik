@@ -62,7 +62,7 @@ describe("Login page", () => {
     const form = await superValidate(request, zod(loginBodySchema));
     const formError = setError(
       form,
-      get(MockLL).login_error_invalid_credentials(),
+      get(MockLL).login.error_invalid_credentials(),
     );
 
     renderWithContext(LoginPage, {

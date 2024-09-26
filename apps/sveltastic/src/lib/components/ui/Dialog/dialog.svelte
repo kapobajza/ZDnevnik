@@ -11,6 +11,7 @@
     onDismiss,
     trigger,
     open = $bindable(false),
+    contentClass,
     ...otherProps
   }: DialogPrimitive.Props & {
     content: Snippet;
@@ -19,6 +20,7 @@
     description?: string;
     onDismiss?: () => void;
     open?: boolean;
+    contentClass?: string;
   } = $props();
 </script>
 
@@ -32,7 +34,13 @@
   </DialogPrimitive.Trigger>
   <DialogPrimitive.Portal>
     <DialogOverlay />
-    <DialogContent {title} {description} {onDismiss} bind:open>
+    <DialogContent
+      {title}
+      {description}
+      {onDismiss}
+      class={contentClass}
+      bind:open
+    >
       {@render content()}
     </DialogContent>
   </DialogPrimitive.Portal>
