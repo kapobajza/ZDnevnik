@@ -8,6 +8,10 @@
   import type { SuperForm } from "sveltekit-superforms";
   import { fileProxy } from "sveltekit-superforms";
   import DefaultAvatar from "$lib/assets/default_avatar.png?enhanced";
+  import { clasroomQueryKey, createInfiniteQuery } from "$lib/query";
+  import { api } from "$lib/api";
+  import { SelectListInfinite } from "$lib/components/ui/Select";
+  import type { SelectListItem } from "$lib/components/ui/Select";
 
   const LL = useContext("LL");
 
@@ -16,7 +20,7 @@
   }: {
     form: SuperForm<AddStudentWithFileBody>;
   } = $props();
-  const { submitting, reset, errors } = form;
+  const { submitting, reset, errors, form: sf } = form;
   const file = fileProxy(form, "avatar");
 
   let imagePreview = $derived.by(() => {
@@ -27,6 +31,27 @@
     }
 
     return undefined;
+  });
+
+  const classroomsQuery = createInfiniteQuery({
+    queryFn: ({ limit, page }) => api().clasroom.all({ page, limit }),
+    queryKey: clasroomQueryKey.teacherClassrooms,
+    select(data) {
+      return {
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          results: page.results.map(
+            (classroom) =>
+              ({
+                id: classroom.id,
+                label: classroom.name,
+                value: classroom.id,
+              }) satisfies SelectListItem,
+          ),
+        })),
+      };
+    },
   });
 </script>
 
@@ -103,6 +128,26 @@
             placeholder={$LL.home.add_student_ordinal_number_placeholder()}
             type="number"
           />
+          <SuperFormInput name="classroomId" {form} let:props asChild>
+            <SelectListInfinite
+              selected={{
+                value: $sf.classroomId,
+              }}
+              items={$classroomsQuery.data}
+              placeholder={$LL.home.add_student_classroom_placeholder()}
+              onSelectedChange={(selected) => {
+                if (selected) {
+                  $sf.classroomId = selected.value as string;
+                }
+              }}
+            >
+              {#snippet renderItem(item)}
+                <div>{item.label}</div>
+              {/snippet}
+            </SelectListInfinite>
+            <InputError error={$errors.classroomId?.[0]} />
+            <input type="hidden" name={props.name} value={$sf.classroomId} />
+          </SuperFormInput>
         </div>
       </div>
       <Button type="submit" disabled={$submitting} class="zd-w-full">

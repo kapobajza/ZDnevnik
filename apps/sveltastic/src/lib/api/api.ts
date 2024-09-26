@@ -21,7 +21,7 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
     quryParams: Record<string, string | number | boolean> = {},
   ) => {
     const url = new URL(
-      `${PUBLIC_API_URL}${routePrefix ? `/${routePrefix}` : ""}/${route}`,
+      `${PUBLIC_API_URL}${routePrefix ? `/${routePrefix}` : ""}${route ? `/${route}` : ""}`,
     );
 
     for (const [key, value] of Object.entries(quryParams)) {

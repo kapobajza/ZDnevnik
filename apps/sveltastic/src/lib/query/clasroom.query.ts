@@ -9,6 +9,7 @@ const CLASROOM_PREFIX = "clasroom";
 
 export const clasroomQueryKey = {
   teacherStudents: [CLASROOM_PREFIX, "teacher", "students"],
+  teacherClassrooms: [CLASROOM_PREFIX, "teacher", "classrooms"],
 } as const;
 
 export const studentsQueryOptions = (fetchFn: typeof fetch = fetch) =>

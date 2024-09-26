@@ -1,3 +1,4 @@
+import type { GetTeacherClasroomsDTO } from "@zdnevnik/toolkit";
 import {
   type ClasroomStudentsDTO,
   type PaginationQueryParam,
@@ -30,6 +31,17 @@ export const createClassroomApi = (fetchFn: typeof fetch) => {
       return {
         results: data.students,
         extraData: data.classroom,
+      };
+    },
+    all: async (
+      params: PaginationQueryParam,
+    ): Promise<InfiniteQueryFnData<GetTeacherClasroomsDTO>> => {
+      const { data } = await classroomApi.get<GetTeacherClasroomsDTO>("", {
+        queryParams: params,
+      });
+
+      return {
+        results: data,
       };
     },
   };

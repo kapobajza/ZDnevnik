@@ -11,6 +11,7 @@ import {
   classroomStudentsDTOSchema,
   addStudentBodySchema,
   usersDefaultSelectSchema,
+  getTeacherClasroomsDTOSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
@@ -34,6 +35,49 @@ export default function clasrooms(
     UserClasroomModel,
     fastify.dbPool,
     fastify.mappedTable,
+  );
+
+  fastify.withTypeProvider<ZodTypeProvider>().get(
+    "",
+    {
+      schema: {
+        querystring: paginationQueryParamSchema,
+        response: {
+          200: getTeacherClasroomsDTOSchema,
+        },
+      },
+      preHandler: fastify.verifyTeacherFromSession,
+    },
+    async (request, reply) => {
+      invariant(request.session.user, "User from session not found");
+
+      const res = await userClasroomModel
+        .select({
+          id: ClassroomModel.fields.Id,
+          name: ClassroomModel.fields.Name,
+        })
+        .join({
+          on: {
+            field: UserClasroomModel.fields.ClassroomId,
+            other: ClassroomModel.fields.Id,
+          },
+          table: ClassroomModel,
+        })
+        .where({
+          field: UserClasroomModel.fields.UserId,
+          operator: "=",
+          value: request.session.user.id,
+        })
+        .sort({
+          by: [UserClasroomModel.fields.CreatedAt],
+          order: "DESC",
+        })
+        .limit(request.query.limit)
+        .offset((request.query.page - 1) * request.query.limit)
+        .execute();
+
+      return reply.send(res);
+    },
   );
 
   fastify.withTypeProvider<ZodTypeProvider>().get(

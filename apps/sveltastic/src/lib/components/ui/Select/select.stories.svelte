@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  import Select from "./select.svelte";
+  import Select from "./select_list.svelte";
 
   import { defineMeta } from "@storybook/addon-svelte-csf";
 
@@ -45,29 +45,9 @@
 </Story>
 
 <Story name="Disabled">
-  <Select
-    items={[
-      {
-        id: "1",
-        label: "Option 1",
-        value: "1",
-      },
-      {
-        id: "2",
-        label: "Option 2",
-        value: "2",
-      },
-      {
-        id: "3",
-        label: "Option 3",
-        value: "3",
-      },
-    ]}
-    placeholder="Select an option"
-    disabled
-  >
-    {#snippet renderItem(item)}
-      <span>{item.label}</span>
+  <Select>
+    {#snippet content()}
+      <span>Content</span>
     {/snippet}
   </Select>
 </Story>

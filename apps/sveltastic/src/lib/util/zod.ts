@@ -58,6 +58,10 @@ export const initZodErrorMap = () => {
           field: t.login.password_placeholder(),
           gender: "f",
         }),
+        classroomId: t.validation_field_required({
+          field: t.home.add_student_classroom_placeholder(),
+          gender: "m",
+        }),
       },
       too_small_number: {
         ordinalNumber: t.validation_field_number_too_small({

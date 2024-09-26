@@ -2,7 +2,8 @@ import type { FastifyInstance } from "fastify";
 import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
 import invariant from "tiny-invariant";
 import type {
-  AddStudentDTO,
+  AddStudentBody,
+  GetTeacherClasroomsDTO,
   InferModelFields,
   UsersDefaultDTO,
 } from "@zdnevnik/toolkit";
@@ -228,7 +229,8 @@ describe("clasrooms routes", () => {
         firstName: "test",
         lastName: "test",
         ordinalNumber: 1,
-      } satisfies AddStudentDTO,
+        classroomId: "1",
+      } satisfies AddStudentBody,
     });
 
     const res: UsersDefaultDTO = response.json();
@@ -242,6 +244,35 @@ describe("clasrooms routes", () => {
       .executeOne();
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual(addedStudent);
+    expect(res).toEqual(addedStudent);
+  });
+
+  it("should return all classrooms for a teacher", async () => {
+    const classroom = await insertClassroom();
+    const teacher = await insertTeacher();
+
+    await userClassroomModel
+      .insert([
+        ["ClassroomId", classroom.id],
+        ["UserId", teacher.id],
+        ["Id", "1"],
+        ["IsTeacher", true],
+      ])
+      .execute();
+
+    const response = await doAuthenticatedRequest(fastify, {
+      method: "GET",
+      url: "/classrooms",
+      username: teacher.username,
+      password: VALID_PASSWORD,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual([
+      {
+        id: classroom.id,
+        name: classroom.name,
+      },
+    ] satisfies GetTeacherClasroomsDTO);
   });
 });

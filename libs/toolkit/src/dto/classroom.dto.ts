@@ -38,3 +38,14 @@ export const classroomStudentsDTOSchema = z.object({
 });
 
 export type ClasroomStudentsDTO = z.infer<typeof classroomStudentsDTOSchema>;
+
+export const getTeacherClasroomsDTOSchema = z.array(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
+);
+
+export type GetTeacherClasroomsDTO = z.infer<
+  typeof getTeacherClasroomsDTOSchema
+>;

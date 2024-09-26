@@ -11,6 +11,7 @@ const baHome = {
   add_student_first_name_placeholder: "Ime",
   add_student_last_name_placeholder: "Prezime",
   add_student_ordinal_number_placeholder: "Redni broj",
+  add_student_classroom_placeholder: "Razred",
 } satisfies BaseTranslation;
 
 export default baHome;

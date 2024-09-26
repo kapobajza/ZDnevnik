@@ -23,11 +23,7 @@ export const paginationQueryParamSchema = z.object({
         return 10;
       }
 
-      if (parsedLimit > 100) {
-        return 100;
-      }
-
-      return parsedLimit;
+      return Math.min(parsedLimit, 100);
     }),
 });
 
