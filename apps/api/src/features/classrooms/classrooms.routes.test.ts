@@ -229,7 +229,6 @@ describe("clasrooms routes", () => {
         firstName: "test",
         lastName: "test",
         ordinalNumber: 1,
-        classroomId: "1",
       } satisfies AddStudentBody,
     });
 

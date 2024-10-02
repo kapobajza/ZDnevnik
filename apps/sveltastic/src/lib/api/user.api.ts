@@ -1,10 +1,11 @@
 import type { UsersDefaultDTO } from "@zdnevnik/toolkit";
 
+import type { CreateInstanceOptions } from "./api";
 import { createApi } from "./api";
 
-export const createUserApi = (fetchFn: typeof fetch) => {
+export const createUserApi = (options: CreateInstanceOptions) => {
   const userApi = createApi({
-    fetchFn,
+    ...options,
     routePrefix: "users",
   });
 

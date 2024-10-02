@@ -8,9 +8,9 @@ import { get } from "svelte/store";
 import type { PageServerLoad } from "./$types";
 
 import { isResponseCode } from "$lib/util";
-import { api } from "$lib/api";
 import { SESSION_COOKIE_NAME } from "$env/static/private";
 import LL from "$src/i18n/i18n-svelte";
+import { serverApi } from "$lib/api/instance.server";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(loginBodySchema));
@@ -28,7 +28,7 @@ export const actions: Actions = {
     }
 
     try {
-      const { response } = await api(fetch).auth.login(
+      const { response } = await serverApi({ fetch }).auth.login(
         form.data.username,
         form.data.password,
       );

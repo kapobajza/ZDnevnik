@@ -11,6 +11,8 @@
     class: className,
     label,
     selected,
+    trigger,
+    contentProps,
     ...restProps
   }: SelectListProps<TItem> = $props();
 </script>
@@ -20,10 +22,14 @@
   {selected}
   {...restProps}
 >
-  <SelectTrigger>
-    <SelectPrimitive.Value {placeholder} />
-  </SelectTrigger>
-  <SelectContent class={className}>
+  {#if trigger}
+    {@render trigger()}
+  {:else}
+    <SelectTrigger>
+      <SelectPrimitive.Value {placeholder} />
+    </SelectTrigger>
+  {/if}
+  <SelectContent class={className} {...contentProps}>
     <SelectPrimitive.Group>
       {#if label}
         <SelectLabel>{label}</SelectLabel>

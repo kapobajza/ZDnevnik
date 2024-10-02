@@ -2,7 +2,7 @@
   import { Select as SelectPrimitive } from "bits-ui";
   import { scale } from "svelte/transition";
   import { cn, flyAndScale } from "$lib/utils.js";
-  import type { Snippet } from "svelte";
+  import type { SelectContentProps } from "./select.types";
 
   const {
     children,
@@ -13,9 +13,7 @@
     outTransitionConfig = { start: 0.95, opacity: 0, duration: 50 },
     class: className,
     ...otherProps
-  }: Omit<SelectPrimitive.ContentProps, "children"> & {
-    children: Snippet;
-  } = $props();
+  }: SelectContentProps = $props();
 </script>
 
 <SelectPrimitive.Content

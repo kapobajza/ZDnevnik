@@ -7,7 +7,6 @@ export const addStudentBodySchemaCommon = z.object({
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
   ordinalNumber: z.number().min(1).max(50),
-  classroomId: z.string().min(1),
 });
 
 export const addStudentBodySchema = addStudentBodySchemaCommon.extend({
@@ -42,6 +41,7 @@ export const addStudentWithFileBodySchema = addStudentBodySchemaCommon.extend({
     })
     .optional()
     .nullable(),
+  classroomId: z.string().min(1),
 });
 
 export type AddStudentWithFileBody = z.infer<

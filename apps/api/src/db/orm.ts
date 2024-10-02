@@ -328,6 +328,11 @@ export class ModelORM<
       const query = this.build();
       const queryValues = this.getQueryValues();
 
+      if (process.env.NODE_ENV !== "test") {
+        console.log("query", query);
+        console.log("queryValues", queryValues);
+      }
+
       const res = (await this.pool.query<TResult>(
         {
           text: query,

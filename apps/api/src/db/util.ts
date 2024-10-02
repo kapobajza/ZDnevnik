@@ -1,7 +1,9 @@
 import type { Pool } from "pg";
 import type { ModelFieldStartingOptions } from "@zdnevnik/toolkit";
+import type { FastifyInstance } from "fastify";
 
 import type { ModelSchema } from "./types";
+import { ModelORM } from "./orm";
 
 import type { MappedTable } from "~/api/types";
 
@@ -46,3 +48,10 @@ export const mapTables = async (client: Pool) => {
     return acc;
   }, {});
 };
+
+export function createModelORM<TModel extends ModelSchema>(
+  model: TModel,
+  fastify: FastifyInstance,
+) {
+  return new ModelORM(model, fastify.dbPool, fastify.mappedTable);
+}

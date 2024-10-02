@@ -5,9 +5,7 @@ import {
   UserClasroomModel,
   UserModel,
   UserRole,
-  teacherStudentsSelect,
   paginationQueryParamSchema,
-  type ClasroomStudentsDTO,
   classroomStudentsDTOSchema,
   addStudentBodySchema,
   usersDefaultSelectSchema,
@@ -15,28 +13,17 @@ import {
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
-import { ModelORM } from "~/api/db/orm";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
 import { generateUdid } from "~/api/util/udid";
 import { createInternalServerErrorReply } from "~/api/error/replies";
 import { idParamSchema } from "~/api/types/validation.types";
+import { createModelORM } from "~/api/db/util";
 
 export default function clasrooms(
   fastify: FastifyInstance,
   _opts: unknown,
   done: () => void,
 ) {
-  const userModel = new ModelORM(
-    UserModel,
-    fastify.dbPool,
-    fastify.mappedTable,
-  );
-  const userClasroomModel = new ModelORM(
-    UserClasroomModel,
-    fastify.dbPool,
-    fastify.mappedTable,
-  );
-
   fastify.withTypeProvider<ZodTypeProvider>().get(
     "",
     {
@@ -50,6 +37,7 @@ export default function clasrooms(
     },
     async (request, reply) => {
       invariant(request.session.user, "User from session not found");
+      const userClasroomModel = createModelORM(UserClasroomModel, fastify);
 
       const res = await userClasroomModel
         .select({
@@ -93,67 +81,37 @@ export default function clasrooms(
     },
     async (request, reply) => {
       invariant(request.session.user, "User from session not found");
+      const response = await fastify.service.classroom.getStudents(
+        request.session.user.id,
+        undefined,
+        request.query,
+      );
 
-      const teacherClasroom = await userClasroomModel
-        .select({
-          clasroomId: UserClasroomModel.fields.ClassroomId,
-          clasroomName: ClassroomModel.fields.Name,
-        })
-        .join({
-          on: {
-            field: UserClasroomModel.fields.ClassroomId,
-            other: ClassroomModel.fields.Id,
-          },
-          table: ClassroomModel,
-        })
-        .where({
-          field: UserClasroomModel.fields.UserId,
-          operator: "=",
-          value: request.session.user.id,
-        })
-        .sort({
-          by: [UserClasroomModel.fields.CreatedAt],
-          order: "DESC",
-        })
-        .executeOne();
+      return reply.send(response);
+    },
+  );
 
-      if (!teacherClasroom) {
-        return reply.send({
-          students: [],
-          classroom: {},
-        });
-      }
-
-      const students = await userModel
-        .select(teacherStudentsSelect)
-        .join({
-          table: UserClasroomModel,
-          on: {
-            field: UserModel.fields.Id,
-            other: UserClasroomModel.fields.UserId,
-          },
-        })
-        .where({
-          field: UserClasroomModel.fields.ClassroomId,
-          operator: "=",
-          value: teacherClasroom?.clasroomId,
-        })
-        .and({
-          field: UserModel.fields.Role,
-          operator: "=",
-          value: UserRole.Student,
-        })
-        .limit(request.query.limit)
-        .offset((request.query.page - 1) * request.query.limit)
-        .execute();
-
-      return reply.send({
-        classroom: {
-          name: teacherClasroom.clasroomName,
-          id: teacherClasroom.clasroomId,
+  fastify.withTypeProvider<ZodTypeProvider>().get(
+    "/:id/students",
+    {
+      schema: {
+        querystring: paginationQueryParamSchema,
+        params: idParamSchema,
+        response: {
+          200: classroomStudentsDTOSchema,
         },
-        students,
-      } satisfies ClasroomStudentsDTO);
+      },
+      preHandler: fastify.verifyTeacherHasAccessToClass,
+    },
+    async (request, reply) => {
+      invariant(request.session.user, "User from session not found");
+      const response = await fastify.service.classroom.getStudents(
+        request.session.user.id,
+        request.params.id,
+        request.query,
+      );
+
+      return reply.send(response);
     },
   );
 
@@ -172,6 +130,8 @@ export default function clasrooms(
     async (request, reply) => {
       const { firstName, lastName, ordinalNumber, avatarUrl } = request.body;
       const env = fastify.getEnvs();
+      const userClasroomModel = createModelORM(UserClasroomModel, fastify);
+      const userModel = createModelORM(UserModel, fastify);
 
       const passwordSalt = generatePasswordSalt();
       const passwordHash = hashPassword(

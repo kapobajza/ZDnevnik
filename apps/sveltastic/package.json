@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:translations": "npm-run-all --parallel vite typesafe-i18n",
-    "vite": "vite dev --host",
+    "vite": "vite dev",
     "build": "vite build",
     "start:prod": "vite build && node build",
     "preview": "vite preview",

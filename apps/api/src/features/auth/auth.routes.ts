@@ -11,19 +11,13 @@ import { hashPassword } from "./util";
 import { LoginSelectedUserDTO } from "./types";
 import { getCookieExpiry } from "./util/session";
 
-import { ModelORM } from "~/api/db/orm";
+import { createModelORM } from "~/api/db/util";
 
 export default function auth(
   fastify: FastifyInstance,
   _opts: unknown,
   done: () => void,
 ) {
-  const usersModel = new ModelORM(
-    UserModel,
-    fastify.dbPool,
-    fastify.mappedTable,
-  );
-
   fastify.withTypeProvider<ZodTypeProvider>().post(
     "/login",
     {
@@ -36,6 +30,8 @@ export default function auth(
       },
     },
     async (request, reply) => {
+      const usersModel = createModelORM(UserModel, fastify);
+
       const user = await usersModel
         .select(LoginSelectedUserDTO)
         .where({

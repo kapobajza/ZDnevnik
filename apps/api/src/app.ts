@@ -13,6 +13,7 @@ import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
 import FastifyMultipart from "@fastify/multipart";
+import FastifyCors from "@fastify/cors";
 
 import type { AppEnv } from "./types";
 
@@ -45,6 +46,8 @@ export async function buildApp(
   fastify.setValidatorCompiler(zodValidatorCompiler);
   fastify.setSerializerCompiler(zodSerializerCompiler);
 
+  await fastify.register(FastifyAuth);
+
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "plugins"),
     options: {
@@ -54,6 +57,14 @@ export async function buildApp(
 
   if (!opts?.testing) {
     await fastify.register(PrintRoutes);
+  }
+
+  if (opts.appEnv === "local") {
+    await fastify.register(FastifyCors, {
+      origin: true,
+      allowedHeaders: ["Origin", "Content-Type"],
+      credentials: true,
+    });
   }
 
   const sessionSecret = Buffer.from(opts.env.SESSION_SECRET, "hex");
@@ -71,7 +82,13 @@ export async function buildApp(
     },
   });
 
-  await fastify.register(FastifyAuth);
+  await fastify.register(AutoLoad, {
+    dir: path.join(__dirname, "features"),
+    matchFilter: (path) => {
+      return /\.service\.(t|j)s$/.test(path);
+    },
+    maxDepth: 2,
+  });
 
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "features"),

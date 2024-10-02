@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "tsx watch ./src/start.ts",
+    "debug": "tsx --inspect-brk ./src/start.ts",
     "start": "tsx ./src/start.ts",
     "start:prod": "tsx build.ts && node ./dist/start.js",
     "migrate": "node-pg-migrate",

@@ -1,8 +1,9 @@
+import type { CreateInstanceOptions } from "./api";
 import { createApi } from "./api";
 
-export const createAuthApi = (fetchFn: typeof fetch) => {
+export const createAuthApi = (options: CreateInstanceOptions) => {
   const authApi = createApi({
-    fetchFn,
+    ...options,
     routePrefix: "auth",
   });
 

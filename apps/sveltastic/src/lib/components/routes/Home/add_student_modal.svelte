@@ -8,10 +8,8 @@
   import type { SuperForm } from "sveltekit-superforms";
   import { fileProxy } from "sveltekit-superforms";
   import DefaultAvatar from "$lib/assets/default_avatar.png?enhanced";
-  import { clasroomQueryKey, createInfiniteQuery } from "$lib/query";
-  import { api } from "$lib/api";
+  import { createClassroomSelectInfiniteQuery } from "$lib/query";
   import { SelectListInfinite } from "$lib/components/ui/Select";
-  import type { SelectListItem } from "$lib/components/ui/Select";
 
   const LL = useContext("LL");
 
@@ -33,26 +31,7 @@
     return undefined;
   });
 
-  const classroomsQuery = createInfiniteQuery({
-    queryFn: ({ limit, page }) => api().clasroom.all({ page, limit }),
-    queryKey: clasroomQueryKey.teacherClassrooms,
-    select(data) {
-      return {
-        ...data,
-        pages: data.pages.map((page) => ({
-          ...page,
-          results: page.results.map(
-            (classroom) =>
-              ({
-                id: classroom.id,
-                label: classroom.name,
-                value: classroom.id,
-              }) satisfies SelectListItem,
-          ),
-        })),
-      };
-    },
-  });
+  const classroomsQuery = createClassroomSelectInfiniteQuery();
 </script>
 
 <Dialog

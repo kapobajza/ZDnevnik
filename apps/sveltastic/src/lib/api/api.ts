@@ -12,10 +12,17 @@ export type ApiMethodOptions = Omit<RequestInit, "method" | "body"> &
 
 export type CreateApiOptions = {
   routePrefix?: string;
-  fetchFn: typeof fetch;
+  fetch: typeof fetch;
+  sessionCookie?: string;
 };
 
-export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
+export type CreateInstanceOptions = Omit<CreateApiOptions, "routePrefix">;
+
+export const createApi = ({
+  routePrefix,
+  fetch: fetchFn,
+  sessionCookie,
+}: CreateApiOptions) => {
   const constructRoute = (
     route: string,
     quryParams: Record<string, string | number | boolean> = {},
@@ -35,9 +42,22 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
     route: string,
     options?: RequestInit & ApiMethodAdditionalOptions,
   ) => {
+    let { body } = options ?? {};
+    const headers = (options?.headers ?? {}) as Record<string, string>;
+
+    if (headers?.["Content-Type"] === "application/json" && body) {
+      body = JSON.stringify(body);
+    }
+
+    if (sessionCookie) {
+      headers["Cookie"] = sessionCookie;
+    }
+
     const res = await fetchFn(constructRoute(route, options?.queryParams), {
       credentials: "include",
       ...options,
+      body,
+      headers,
     });
 
     if (!res.ok) {
@@ -72,33 +92,33 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
         method: "GET",
       });
     },
-    post: async <TResponse = unknown, TPostBody = unknown>(
+    post: async <TResponse = unknown, TBody = unknown>(
       route: string,
-      data: TPostBody,
+      data: TBody,
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
         method: "POST",
-        body: JSON.stringify(data),
+        body: data as BodyInit,
         headers: {
-          ...options?.headers,
           "Content-Type": "application/json",
+          ...options?.headers,
         },
       });
     },
-    put: async <TResponse = unknown, TPutBody = unknown>(
+    put: async <TResponse = unknown, TBody = unknown>(
       route: string,
-      data: TPutBody,
+      data: TBody,
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
         method: "PUT",
-        body: JSON.stringify(data),
+        body: data as BodyInit,
         headers: {
-          ...options?.headers,
           "Content-Type": "application/json",
+          ...options?.headers,
         },
       });
     },

@@ -1,24 +1,6 @@
 name: zdnevnik
 
 services:
-  api:
-    build:
-      dockerfile: ./apps/api/Dockerfile
-      target: local
-    depends_on:
-      postgres_db:
-        condition: service_healthy
-    restart: always
-    env_file: ./apps/api/.env.local
-    develop:
-      watch:
-        - action: sync+restart
-          path: ./apps/api
-          target: /app/apps/api
-        - action: rebuild
-          path: ./apps/api/package.json
-          target: /app/apps/api
-
   postgres_db:
     image: postgres:15
     restart: always
@@ -32,45 +14,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     labels:
       - "promtail=true"
-
-  caddy:
-    build:
-      dockerfile: ./caddy/Dockerfile
-      target: local
     ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - api
-    develop:
-      watch:
-        - action: rebuild
-          path: ./caddy
-    restart: always
-    labels:
-      - "promtail=true"
-
-  web:
-    build:
-      dockerfile: ./apps/sveltastic/Dockerfile
-      target: local
-    depends_on:
-      - api
-      - caddy
-    restart: always
-    env_file: ./apps/sveltastic/.env.local
-    develop:
-      watch:
-        - action: sync
-          path: ./apps/sveltastic
-          target: /app/apps/sveltastic
-          ignore:
-            - ./apps/sveltastic/node_modules/
-            - ./apps/sveltastic/build/
-            - ./apps/sveltastic/.svelte-kit/
+      - 5435:5432
 
 volumes:
   caddy_data:
