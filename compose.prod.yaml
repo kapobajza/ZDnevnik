@@ -1,6 +1,7 @@
 services:
   caddy:
     build:
+      dockerfile: ./caddy/Dockerfile
       target: prod
     env_file: ./caddy/.env.prod
 
