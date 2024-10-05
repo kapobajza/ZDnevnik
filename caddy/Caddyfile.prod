@@ -1,9 +1,5 @@
-{
-	auto_https disable_redirects
-	import rules/cors
-}
-
 import sites-enabled/*
+import rules/cors
 
 https://api.zdnevnik.com {
 	import cors https://zdnevnik.com
@@ -37,4 +33,8 @@ https://zdnevnik.com {
     health_timeout 5s
     health_status 200
 	}
+}
+
+:443 {
+	tls internal
 }
