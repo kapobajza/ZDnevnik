@@ -1,9 +1,9 @@
 {
 	auto_https disable_redirects
+	import rules/cors
 }
 
 import sites-enabled/*
-import rules/cors
 
 https://api.zdnevnik.com {
 	import cors https://zdnevnik.com
