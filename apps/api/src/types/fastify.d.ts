@@ -4,6 +4,7 @@ import type { Pool } from "pg";
 import type { FastifyCustomProp, MappedTable } from "./app.types";
 
 import type { EnvRecord } from "~/api/env/util";
+import type { ClassroomService } from "~/api/features/classrooms/classrooms.service";
 
 declare module "fastify" {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -14,5 +15,8 @@ declare module "fastify" {
     [FastifyCustomProp.VerifyTeacherFromSession]: FastifyAuthFunction;
     [FastifyCustomProp.VerifyTeacherHasAccessToClass]: FastifyAuthFunction;
     [FastifyCustomProp.MappedTable]: MappedTable;
+    [FastifyCustomProp.Service]: {
+      classroom: ClassroomService;
+    };
   }
 }

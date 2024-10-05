@@ -5,54 +5,44 @@ import {
   UserClasroomModel,
   UserModel,
   UserRole,
-  teacherStudentsSelect,
   paginationQueryParamSchema,
-  type ClasroomStudentsDTO,
   classroomStudentsDTOSchema,
+  addStudentBodySchema,
+  usersDefaultSelectSchema,
+  getTeacherClasroomsDTOSchema,
 } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
-import { ModelORM } from "~/api/db/orm";
+import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateUdid } from "~/api/util/udid";
+import { createInternalServerErrorReply } from "~/api/error/replies";
+import { idParamSchema } from "~/api/types/validation.types";
+import { createModelORM } from "~/api/db/util";
 
 export default function clasrooms(
   fastify: FastifyInstance,
   _opts: unknown,
   done: () => void,
 ) {
-  const userModel = new ModelORM(
-    UserModel,
-    fastify.dbPool,
-    fastify.mappedTable,
-  );
-  const userClasroomModel = new ModelORM(
-    UserClasroomModel,
-    fastify.dbPool,
-    fastify.mappedTable,
-  );
-
   fastify.withTypeProvider<ZodTypeProvider>().get(
-    "/students",
+    "",
     {
       schema: {
         querystring: paginationQueryParamSchema,
         response: {
-          200: classroomStudentsDTOSchema,
+          200: getTeacherClasroomsDTOSchema,
         },
       },
-      preHandler: fastify.auth(
-        [fastify.verifyUserFromSession, fastify.verifyTeacherFromSession],
-        {
-          relation: "and",
-        },
-      ),
+      preHandler: fastify.verifyTeacherFromSession,
     },
     async (request, reply) => {
       invariant(request.session.user, "User from session not found");
+      const userClasroomModel = createModelORM(UserClasroomModel, fastify);
 
-      const teacherClasroom = await userClasroomModel
+      const res = await userClasroomModel
         .select({
-          clasroomId: UserClasroomModel.fields.ClassroomId,
-          clasroomName: ClassroomModel.fields.Name,
+          id: ClassroomModel.fields.Id,
+          name: ClassroomModel.fields.Name,
         })
         .join({
           on: {
@@ -70,45 +60,153 @@ export default function clasrooms(
           by: [UserClasroomModel.fields.CreatedAt],
           order: "DESC",
         })
-        .executeOne();
+        .limit(request.query.limit)
+        .offset((request.query.page - 1) * request.query.limit)
+        .execute();
 
-      if (!teacherClasroom) {
-        return reply.send({
-          students: [],
-          classroom: {},
-        });
-      }
+      return reply.send(res);
+    },
+  );
 
-      const students = await userModel
-        .select(teacherStudentsSelect)
+  fastify.withTypeProvider<ZodTypeProvider>().get(
+    "/students",
+    {
+      schema: {
+        querystring: paginationQueryParamSchema,
+        response: {
+          200: classroomStudentsDTOSchema,
+        },
+      },
+      preHandler: fastify.verifyTeacherFromSession,
+    },
+    async (request, reply) => {
+      invariant(request.session.user, "User from session not found");
+      const response = await fastify.service.classroom.getStudents(
+        request.session.user.id,
+        undefined,
+        request.query,
+      );
+
+      return reply.send(response);
+    },
+  );
+
+  fastify.withTypeProvider<ZodTypeProvider>().get(
+    "/:id/students",
+    {
+      schema: {
+        querystring: paginationQueryParamSchema,
+        params: idParamSchema,
+        response: {
+          200: classroomStudentsDTOSchema,
+        },
+      },
+      preHandler: fastify.verifyTeacherHasAccessToClass,
+    },
+    async (request, reply) => {
+      invariant(request.session.user, "User from session not found");
+      const response = await fastify.service.classroom.getStudents(
+        request.session.user.id,
+        request.params.id,
+        request.query,
+      );
+
+      return reply.send(response);
+    },
+  );
+
+  fastify.withTypeProvider<ZodTypeProvider>().post(
+    "/:id/students",
+    {
+      schema: {
+        body: addStudentBodySchema,
+        params: idParamSchema,
+        response: {
+          200: usersDefaultSelectSchema,
+        },
+      },
+      preHandler: fastify.verifyTeacherHasAccessToClass,
+    },
+    async (request, reply) => {
+      const { firstName, lastName, avatarUrl } = request.body;
+      const env = fastify.getEnvs();
+      const userClasroomModel = createModelORM(UserClasroomModel, fastify);
+      const userModel = createModelORM(UserModel, fastify);
+
+      const passwordSalt = generatePasswordSalt();
+      const passwordHash = hashPassword(
+        env.DEFAULT_USER_PASSWORD,
+        passwordSalt,
+      );
+      const username = `${firstName.toLowerCase()}.${lastName.slice(0, 1).toLowerCase()}-${Math.floor(Math.random() * 1000)}`;
+      const latestStudent = await userModel
+        .select({
+          ordinalNumber: UserModel.fields.OrdinalNumber,
+        })
         .join({
-          table: UserClasroomModel,
           on: {
             field: UserModel.fields.Id,
             other: UserClasroomModel.fields.UserId,
           },
+          table: UserClasroomModel,
         })
         .where({
           field: UserClasroomModel.fields.ClassroomId,
           operator: "=",
-          value: teacherClasroom?.clasroomId,
+          value: request.params.id,
         })
         .and({
           field: UserModel.fields.Role,
           operator: "=",
           value: UserRole.Student,
         })
-        .limit(request.query.limit)
-        .offset((request.query.page - 1) * request.query.limit)
-        .execute();
+        .sort({
+          by: [UserModel.fields.OrdinalNumber],
+          order: "DESC",
+        })
+        .executeOne();
+
+      const { ordinalNumber = 0 } = latestStudent ?? {};
+
+      const user = await userModel
+        .insert([
+          ["FirstName", firstName],
+          ["LastName", lastName],
+          ["OrdinalNumber", ordinalNumber + 1],
+          ["Role", UserRole.Student],
+          ["AverageGrade", 0.0],
+          ["Avatar", avatarUrl],
+          ["PasswordHash", passwordHash],
+          ["PasswordSalt", passwordSalt],
+          ["Id", generateUdid()],
+          ["Username", username],
+        ])
+        .executeOne();
+
+      if (!user) {
+        console.error("User not created");
+        return createInternalServerErrorReply(reply);
+      }
+
+      await userClasroomModel
+        .insert([
+          ["ClassroomId", request.params.id],
+          ["UserId", user.id],
+          ["Id", generateUdid()],
+          ["IsTeacher", false],
+        ])
+        .executeOne();
 
       return reply.send({
-        classroom: {
-          name: teacherClasroom.clasroomName,
-          id: teacherClasroom.clasroomId,
-        },
-        students,
-      } satisfies ClasroomStudentsDTO);
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        ordinalNumber: user.ordinal_number,
+        role: user.role,
+        username: user.username,
+        avatar: user.avatar,
+        averageGrade: user.average_grade,
+      });
     },
   );
 

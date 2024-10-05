@@ -11,6 +11,11 @@ export const envSchema = {
     "SESSION_COOKIE_DOMAIN",
     "SESSION_COOKIE_MAX_AGE",
     "SESSION_SECRET",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_REGION",
+    "AWS_S3_IMAGES_BUCKET",
+    "DEFAULT_USER_PASSWORD",
   ],
   properties: {
     DATABASE_URL: {
@@ -29,6 +34,21 @@ export const envSchema = {
       type: "integer",
     },
     SESSION_SECRET: {
+      type: "string",
+    },
+    AWS_SECRET_ACCESS_KEY: {
+      type: "string",
+    },
+    AWS_ACCESS_KEY_ID: {
+      type: "string",
+    },
+    AWS_REGION: {
+      type: "string",
+    },
+    AWS_S3_IMAGES_BUCKET: {
+      type: "string",
+    },
+    DEFAULT_USER_PASSWORD: {
       type: "string",
     },
   },

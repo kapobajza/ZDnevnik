@@ -5,7 +5,7 @@
   const { Story } = defineMeta({
     title: "Components/ProgressBar",
     component: ProgressBar,
-    tags: ["autodocs"],
+
     args: {
       value: 10,
       max: 100,

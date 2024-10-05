@@ -15,6 +15,7 @@
     fitContent = false,
     title,
     description,
+    onDismiss,
     ...otherProps
   }: Omit<DialogPrimitive.ContentProps, "transition" | "transitionConfig"> & {
     children: Snippet;
@@ -22,6 +23,7 @@
     fitContent?: boolean;
     title?: string;
     description?: string;
+    onDismiss?: () => void;
   } = $props();
 
   const mobileMedia = createMediaQuery(`(max-width: ${TwScreenConfig.md})`);
@@ -47,12 +49,21 @@
   <div
     class={cn(
       "zd-fixed zd-z-[90] zd-w-full zd-bg-background zd-shadow-foreground zd-drop-shadow-lg max-md:zd-bottom-0 max-md:zd-left-0 max-md:zd-rounded-t-md md:zd-left-[50%] md:zd-top-[50%] md:zd-max-w-lg md:zd-translate-x-[-50%] md:zd-translate-y-[-50%] md:zd-rounded-lg",
-      className,
-      !fitContent && "max-md:zd-top-[100px]",
+      !fitContent && "max-md:zd-top-[50px]",
     )}
     transition:transition={transitionConfig}
+    onoutroend={() => {
+      if (onDismiss) {
+        onDismiss();
+      }
+
+      open = false;
+    }}
   >
-    <DialogPrimitive.Content class="zd-h-full zd-w-full zd-p-6" {...otherProps}>
+    <DialogPrimitive.Content
+      class={cn("zd-h-full zd-w-full max-md:zd-p-4 md:zd-p-6", className)}
+      {...otherProps}
+    >
       <DialogPrimitive.Close class="zd-absolute zd-right-4 zd-top-4">
         <Icon
           name="X"
@@ -60,23 +71,22 @@
         />
         <span class="zd-sr-only">Close</span>
       </DialogPrimitive.Close>
-      <div class="zd-grid zd-gap-4">
-        {#if title}
-          <DialogPrimitive.Title class="zd-text-h3">
-            {title}
-          </DialogPrimitive.Title>
-        {/if}
-        {#if description}
-          <DialogPrimitive.Description asChild>
-            <Typography class="zd-text-foreground/70" variant="body_medium">
-              {description}
-            </Typography>
-          </DialogPrimitive.Description>
-        {/if}
-        {@render children()}
-      </div>
+      {#if title}
+        <DialogPrimitive.Title class="zd-mb-4 zd-text-h3">
+          {title}
+        </DialogPrimitive.Title>
+      {/if}
+      {#if description}
+        <DialogPrimitive.Description asChild>
+          <Typography
+            class="zd-mb-4 zd-text-foreground/70"
+            variant="body_medium"
+          >
+            {description}
+          </Typography>
+        </DialogPrimitive.Description>
+      {/if}
+      {@render children()}
     </DialogPrimitive.Content>
   </div>
 {/if}
-
-<!-- <svelte:window onmousemove={onMouseMove} onmouseup={onMouseUp} /> -->

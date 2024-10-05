@@ -1,19 +1,7 @@
 <script lang="ts" generics="TData extends { id: string }">
-  import { onMount, type Snippet } from "svelte";
+  import { onMount } from "svelte";
   import { Loader } from "$lib/components/ui/Loader";
-  import type { InfiniteQueryFnData } from "$lib/query";
-  import type { InfiniteData } from "@tanstack/svelte-query";
-
-  type Props<TData> = {
-    class?: string;
-    data:
-      | InfiniteData<InfiniteQueryFnData<TData[], Record<string, unknown>>>
-      | undefined;
-    renderItem: Snippet<[TData]>;
-    onEndReached?: () => Promise<unknown>;
-    hasNextPage?: boolean;
-    isLoadingMore?: boolean;
-  };
+  import type { ListProps } from "./list.types";
 
   const {
     class: className,
@@ -22,7 +10,7 @@
     onEndReached,
     hasNextPage,
     isLoadingMore,
-  }: Props<TData> = $props();
+  }: ListProps<TData> = $props();
 
   let lastElement: HTMLDivElement;
   let onEndReachedPromise: Promise<unknown> | null = null;

@@ -1,70 +1,109 @@
 import fp from "fastify-plugin";
-import type { FastifyReply, FastifyRequest } from "fastify";
+import type {
+  FastifyReply,
+  FastifyRequest,
+  HookHandlerDoneFunction,
+} from "fastify";
 import { UserClasroomModel, UserModel, UserRole } from "@zdnevnik/toolkit";
 
+import { createModelORM } from "../db/util";
+
 import { FastifyCustomProp } from "~/api/types";
-import { ModelORM } from "~/api/db/orm";
 import type { IdParam } from "~/api/types/validation.types";
 import {
   createForbiddenReply,
+  createNotFoundReply,
   createUnauthorizedReply,
 } from "~/api/error/replies";
 
 export default fp((fastify, _opts, done) => {
-  fastify.decorate(
-    FastifyCustomProp.VerifyUserFromSession,
-    (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
-      const sessionOptions = request.session.get("options");
+  type FastifyAuthParams = Parameters<typeof fastify.auth>;
 
-      if (!request.session?.user || !sessionOptions) {
-        return createUnauthorizedReply(reply);
-      }
+  const fastifyAuth = () => {
+    return fastify.auth.bind(fastify) as (...args: FastifyAuthParams) => {
+      (
+        request: FastifyRequest,
+        reply: FastifyReply,
+        done: HookHandlerDoneFunction,
+      ): void;
+    };
+  };
 
-      const now = Date.now();
-      const { sessionCookieMaxAge } = sessionOptions;
+  const isUserAuthenticated = (request: FastifyRequest) => {
+    const sessionOptions = request.session.get("options");
+    const user = request.session.get("user");
 
-      if (!(now > sessionCookieMaxAge)) {
-        return done();
-      }
+    if (!user || !sessionOptions) {
+      return false;
+    }
 
-      request.session.delete();
-      return createUnauthorizedReply(reply);
-    },
-  );
+    const now = Date.now();
+    const { sessionCookieMaxAge } = sessionOptions;
 
-  fastify.decorate(
-    FastifyCustomProp.VerifyTeacherFromSession,
-    (request: FastifyRequest, reply: FastifyReply, done: () => void) => {
-      const { user } = request.session;
+    if (!(now > sessionCookieMaxAge)) {
+      return true;
+    }
 
-      if (user && user.role !== UserRole.Teacher) {
-        return createForbiddenReply(reply);
-      }
+    return false;
+  };
 
+  const isUserTeacher = (request: FastifyRequest) => {
+    const { user } = request.session;
+
+    if (user && user.role !== UserRole.Teacher) {
+      return false;
+    }
+
+    return true;
+  };
+
+  const verifyUserFromSession = (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    done: HookHandlerDoneFunction,
+  ) => {
+    if (isUserAuthenticated(request)) {
       return done();
-    },
-  );
+    }
 
-  fastify.decorate(
-    FastifyCustomProp.VerifyTeacherHasAccessToClass,
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { user } = request.session;
-      const userClasroomTable = new ModelORM(
-        UserClasroomModel,
-        fastify.dbPool,
-        fastify.mappedTable,
-      );
+    request.session.delete();
+    return createUnauthorizedReply(reply);
+  };
 
-      if (!user) {
-        return createUnauthorizedReply(reply);
-      }
+  const verifyTeacherFromSession = (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    done: HookHandlerDoneFunction,
+  ) => {
+    if (isUserTeacher(request)) {
+      return done();
+    }
 
-      if (user.role !== UserRole.Teacher) {
-        return createForbiddenReply(reply);
-      }
+    return createForbiddenReply(reply);
+  };
 
-      const params = request.params as IdParam;
+  const verifyTeacherHasAccessToClass = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+  ) => {
+    if (!isUserAuthenticated(request)) {
+      return createUnauthorizedReply(reply);
+    }
 
+    if (!isUserTeacher(request)) {
+      return createForbiddenReply(reply);
+    }
+
+    const { user } = request.session;
+    const userClasroomTable = createModelORM(UserClasroomModel, fastify);
+
+    if (!user) {
+      return createUnauthorizedReply(reply);
+    }
+
+    const params = request.params as IdParam;
+
+    try {
       const result = await userClasroomTable
         .select({
           teacherId: UserClasroomModel.fields.UserId,
@@ -94,8 +133,48 @@ export default fp((fastify, _opts, done) => {
         .executeOne();
 
       if (!result) {
-        return createForbiddenReply(reply);
+        return createNotFoundReply(reply);
       }
+    } catch {
+      return createForbiddenReply(reply);
+    }
+  };
+
+  fastify.decorate(
+    FastifyCustomProp.VerifyUserFromSession,
+    (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      done: HookHandlerDoneFunction,
+    ) => {
+      const auth = fastifyAuth();
+      return auth([verifyUserFromSession])(request, reply, done);
+    },
+  );
+
+  fastify.decorate(
+    FastifyCustomProp.VerifyTeacherFromSession,
+    (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      done: HookHandlerDoneFunction,
+    ) => {
+      const auth = fastifyAuth();
+      return auth([verifyUserFromSession, verifyTeacherFromSession], {
+        relation: "and",
+      })(request, reply, done);
+    },
+  );
+
+  fastify.decorate(
+    FastifyCustomProp.VerifyTeacherHasAccessToClass,
+    (
+      request: FastifyRequest,
+      reply: FastifyReply,
+      done: HookHandlerDoneFunction,
+    ) => {
+      const auth = fastifyAuth();
+      return auth([verifyTeacherHasAccessToClass])(request, reply, done);
     },
   );
 

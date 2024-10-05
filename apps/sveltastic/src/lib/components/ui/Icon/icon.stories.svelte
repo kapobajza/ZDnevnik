@@ -7,7 +7,7 @@
   const { Story } = defineMeta<{ iconColor: string }>({
     title: "Components/Icon",
     component: Icon,
-    tags: ["autodocs"],
+
     argTypes: {
       iconName: {
         control: "select",

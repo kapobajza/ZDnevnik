@@ -1,54 +1,80 @@
+import type { ZodCustomIssue } from "@zdnevnik/toolkit";
 import {
   errorResponseSchema,
   type ErrorResponseLiteral,
   type LoginBody,
+  type AddStudentWithFileBody,
+  MAX_IMAGE_SIZE,
 } from "@zdnevnik/toolkit";
+import type { ZodTooBigIssue } from "zod";
+import type { ZodIssueCode } from "zod";
 import { z } from "zod";
+import { get } from "svelte/store";
 
-import type { TranslationFunctions } from "$src/i18n/i18n-types";
+import LL from "$src/i18n/i18n-svelte";
 
-type ValidationFieldRequiredParam = Parameters<
-  TranslationFunctions["validation_field_required"]
->[0];
+type RequiredValidationField =
+  | keyof Pick<LoginBody, "username" | "password">
+  | keyof Omit<AddStudentWithFileBody, "avatar" | "ordinalNumber">;
 
-type ValidationFieldKey = keyof LoginBody;
+type IssueMap = Record<
+  `${typeof ZodIssueCode.too_small}_string`,
+  Record<RequiredValidationField, string>
+> &
+  Record<
+    typeof ZodCustomIssue.FileTooBig,
+    Record<keyof Pick<AddStudentWithFileBody, "avatar">, string>
+  >;
 
-const pathToFieldMapping: Record<
-  ValidationFieldKey,
-  ValidationFieldRequiredParam
-> = {
-  username: {
-    field: "Korisničko ime",
-  },
-  password: {
-    field: "Lozinka",
-    gender: "f",
-  },
+export const generateZodErrorMap: z.ZodErrorMap = (issue) => {
+  const message = issue.message ?? "";
+  const t = get(LL);
+
+  const issueMap = {
+    too_small_string: {
+      username: t.validation_field_required({
+        field: t.login.username_placeholder(),
+      }),
+      firstName: t.validation_field_required({
+        field: t.home.add_student_first_name_placeholder(),
+      }),
+      lastName: t.validation_field_required({
+        field: t.home.add_student_last_name_placeholder(),
+      }),
+      password: t.validation_field_required({
+        field: t.login.password_placeholder(),
+        gender: "f",
+      }),
+      classroomId: t.validation_field_required({
+        field: t.home.add_student_classroom_placeholder(),
+        gender: "m",
+      }),
+    },
+    file_too_big: {
+      avatar: t.validation_file_too_big({
+        max: MAX_IMAGE_SIZE / 1024 / 1024,
+      }),
+    },
+  } as const satisfies IssueMap;
+
+  const issueWithType = issue as ZodTooBigIssue;
+
+  const path = (issue.path?.[0] ?? "") as RequiredValidationField;
+  const issueCode = (
+    issue.code === "custom" ? issue.params?.code : issue.code
+  ) as string;
+  const localizedIssue =
+    issueMap[
+      `${issueCode}${issueWithType.type ? `_${issueWithType.type}` : ""}` as keyof typeof issueMap
+    ];
+  const localizedMessage =
+    localizedIssue?.[path as keyof typeof localizedIssue] ?? message;
+
+  return { message: localizedMessage };
 };
 
-export const initZodErrorMap = (LL: TranslationFunctions) => {
-  z.setErrorMap((issue) => {
-    let message = issue.message ?? "";
-
-    switch (issue.code) {
-      case "too_small":
-        const path = (issue.path?.[0] ?? "") as ValidationFieldKey;
-        const mappedPath = pathToFieldMapping[path];
-
-        if (!mappedPath) {
-          return { message };
-        }
-
-        if (issue.minimum === 1) {
-          message = LL.validation_field_required(mappedPath);
-        } else {
-          message = LL.validation_field_too_short(mappedPath);
-        }
-        break;
-    }
-
-    return { message };
-  });
+export const initZodErrorMap = () => {
+  z.setErrorMap(generateZodErrorMap);
 };
 
 export const isResponseCode = (error: unknown, code: ErrorResponseLiteral) => {

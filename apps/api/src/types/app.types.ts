@@ -6,6 +6,7 @@ export const FastifyCustomProp = {
   VerifyTeacherFromSession: "verifyTeacherFromSession",
   VerifyTeacherHasAccessToClass: "verifyTeacherHasAccessToClass",
   MappedTable: "mappedTable",
+  Service: "service",
 } as const;
 
 export type MappedTable = Record<string, number>;

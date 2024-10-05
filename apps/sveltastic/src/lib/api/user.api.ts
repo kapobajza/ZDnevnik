@@ -1,16 +1,17 @@
-import type { UsersMeDTO } from "@zdnevnik/toolkit";
+import type { UsersDefaultDTO } from "@zdnevnik/toolkit";
 
+import type { CreateInstanceOptions } from "./api";
 import { createApi } from "./api";
 
-export const createUserApi = (fetchFn: typeof fetch) => {
+export const createUserApi = (options: CreateInstanceOptions) => {
   const userApi = createApi({
-    fetchFn,
+    ...options,
     routePrefix: "users",
   });
 
   return {
     me: async () => {
-      const { data } = await userApi.get<{ user: UsersMeDTO }>("me");
+      const { data } = await userApi.get<{ user: UsersDefaultDTO }>("me");
       return data.user;
     },
   };

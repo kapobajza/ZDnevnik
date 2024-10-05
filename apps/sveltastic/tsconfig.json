@@ -14,7 +14,8 @@
     },
     "baseUrl": ".",
     "rootDirs": [".", "./.svelte-kit/types"],
-    "types": ["@testing-library/jest-dom"]
+    "types": ["@testing-library/jest-dom"],
+    "verbatimModuleSyntax": false
   },
   "include": [
     "./.svelte-kit/ambient.d.ts",

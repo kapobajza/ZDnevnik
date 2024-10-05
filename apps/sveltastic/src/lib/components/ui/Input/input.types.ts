@@ -1,3 +1,5 @@
+import type { HTMLInputAttributes } from "svelte/elements";
+
 export type FormInputEvent<T extends Event = Event> = T & {
   currentTarget: EventTarget & HTMLInputElement;
 };
@@ -19,4 +21,11 @@ export type InputEvents = {
   paste: FormInputEvent<ClipboardEvent>;
   input: FormInputEvent<InputEvent>;
   wheel: FormInputEvent<WheelEvent>;
+};
+
+export type InputProps = HTMLInputAttributes & {
+  error?: string | undefined;
+  containerClass?: string;
+  label?: string;
+  files?: FileList;
 };

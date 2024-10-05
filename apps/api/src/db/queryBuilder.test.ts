@@ -124,6 +124,26 @@ describe("ORM query builder part", () => {
     ).toBe(
       "INSERT INTO users(id, role, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING id, role",
     );
+    expect(
+      userQueryBuilder
+        .insert([
+          ["FirstName", "test"],
+          ["LastName", "test2"],
+          ["OrdinalNumber", 1],
+          ["Role", UserRole.Student],
+          ["AverageGrade", 0.0],
+          ["Avatar", "test"],
+          ["PasswordHash", "test"],
+          ["PasswordSalt", "test"],
+          ["Id", "1"],
+          ["Username", "test"],
+        ])
+        .build(),
+    ).toBe(
+      formatSql(
+        "INSERT INTO users(first_name, last_name, ordinal_number, role, average_grade, avatar, password_hash, password_salt, id, username, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *",
+      ),
+    );
   });
 
   it("should have different statements when build is used multiple times", () => {

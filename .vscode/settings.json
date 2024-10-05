@@ -23,7 +23,8 @@
     "ngClass",
     "class:list",
     "containerClassName",
-    "containerClass"
+    "containerClass",
+    "contentClass"
   ],
   "[tailwindcss]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"

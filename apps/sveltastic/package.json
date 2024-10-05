@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev:translations": "npm-run-all --parallel vite typesafe-i18n",
-    "vite": "vite dev --host",
+    "vite": "vite dev",
     "build": "vite build",
     "start:prod": "vite build && node build",
     "preview": "vite preview",
@@ -18,7 +18,8 @@
     "build-storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "typesafe-i18n": "pnpm dlx typesafe-i18n"
+    "typesafe-i18n": "typesafe-i18n",
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",
@@ -70,6 +71,8 @@
     "bits-ui": "^0.21.12",
     "clsx": "^2.1.1",
     "cookie": "0.6.0",
+    "form-data-encoder": "^4.0.2",
+    "formdata-node": "^6.0.3",
     "lucide-svelte": "^0.441.0",
     "tailwind-merge": "^2.4.0",
     "tailwind-variants": "^0.2.1",

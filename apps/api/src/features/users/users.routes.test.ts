@@ -1,4 +1,4 @@
-import { UserModel, type UsersMeDTO } from "@zdnevnik/toolkit";
+import { UserModel, type UsersDefaultDTO } from "@zdnevnik/toolkit";
 import type { FastifyInstance } from "fastify";
 import { beforeAll, describe, expect, test } from "vitest";
 
@@ -28,7 +28,7 @@ describe("users routes", () => {
       password: user.plainPassword,
     });
 
-    const expectetResponse: UsersMeDTO = {
+    const expectedResponse: UsersDefaultDTO = {
       id: user.id,
       username: user.username,
       role: user.role,
@@ -41,7 +41,7 @@ describe("users routes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
-      user: expectetResponse,
+      user: expectedResponse,
     });
   });
 });

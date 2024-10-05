@@ -12,16 +12,13 @@ import { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { ZodError } from "zod";
 import FastifyAuth from "@fastify/auth";
+import FastifyMultipart from "@fastify/multipart";
+import FastifyCors from "@fastify/cors";
 
 import type { AppEnv } from "./types";
 
-import {
-  HttpErrorCode,
-  HttpErrorStatus,
-  type HttpValidationError,
-  type ValidationError,
-} from "~/api/error/types";
 import { type EnvRecord } from "~/api/env/util";
+import { createValidationErrorReply } from "~/api/error/replies";
 
 export async function buildApp(
   fastify: FastifyInstance,
@@ -34,17 +31,7 @@ export async function buildApp(
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
     if (error instanceof ZodError) {
-      const responseError: HttpValidationError = {
-        code: HttpErrorCode.ValidationError,
-        message: "An error occured during validation",
-        validationErrors: error.issues.map<ValidationError>((issue) => ({
-          code: issue.code,
-          message: issue.message,
-          path: issue.path,
-        })),
-        statusCode: HttpErrorStatus.UnprocessableEntity,
-      };
-      return reply.status(responseError.statusCode).send(responseError);
+      return createValidationErrorReply(reply, error.issues);
     }
 
     return reply.status(500).send(error);
@@ -54,8 +41,12 @@ export async function buildApp(
     connectionString: opts.env.DATABASE_URL,
   });
 
+  await fastify.register(FastifyMultipart);
+
   fastify.setValidatorCompiler(zodValidatorCompiler);
   fastify.setSerializerCompiler(zodSerializerCompiler);
+
+  await fastify.register(FastifyAuth);
 
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "plugins"),
@@ -66,6 +57,14 @@ export async function buildApp(
 
   if (!opts?.testing) {
     await fastify.register(PrintRoutes);
+  }
+
+  if (opts.appEnv === "local") {
+    await fastify.register(FastifyCors, {
+      origin: true,
+      allowedHeaders: ["Origin", "Content-Type"],
+      credentials: true,
+    });
   }
 
   const sessionSecret = Buffer.from(opts.env.SESSION_SECRET, "hex");
@@ -83,7 +82,13 @@ export async function buildApp(
     },
   });
 
-  await fastify.register(FastifyAuth);
+  await fastify.register(AutoLoad, {
+    dir: path.join(__dirname, "features"),
+    matchFilter: (path) => {
+      return /\.service\.(t|j)s$/.test(path);
+    },
+    maxDepth: 2,
+  });
 
   await fastify.register(AutoLoad, {
     dir: path.join(__dirname, "features"),

@@ -6,6 +6,7 @@ import {
   UserClasroomModel,
   UserModel,
   ClassroomModel,
+  UserRole,
 } from "@zdnevnik/toolkit";
 
 import { ModelORM } from "./orm";
@@ -377,6 +378,21 @@ describe("ORM tests", () => {
           },
         },
       )
+      .executeOne();
+
+    await usersTable
+      .insert([
+        ["FirstName", "test 3"],
+        ["LastName", "test 3"],
+        ["OrdinalNumber", null],
+        ["Role", UserRole.Student],
+        ["AverageGrade", 0.0],
+        ["Avatar", null],
+        ["PasswordHash", "test"],
+        ["PasswordSalt", "test"],
+        ["Id", "sadsadsa"],
+        ["Username", "sadsdsaxxxx"],
+      ])
       .executeOne();
 
     expect(result).toEqual({

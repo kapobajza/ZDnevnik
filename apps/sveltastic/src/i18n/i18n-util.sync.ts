@@ -7,8 +7,15 @@ import { loadedFormatters, loadedLocales, locales } from './i18n-util'
 
 import ba from './ba'
 
+import ba_home from './ba/home'
+import ba_login from './ba/login'
+
 const localeTranslations = {
-	ba,
+	ba: {
+		...ba,
+		home: ba_home,
+		login: ba_login
+	},
 }
 
 export const loadLocale = (locale: Locales): void => {

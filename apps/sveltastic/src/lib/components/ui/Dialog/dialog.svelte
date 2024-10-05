@@ -4,20 +4,24 @@
   import DialogContent from "./dialog_content.svelte";
   import DialogOverlay from "./dialog_overlay.svelte";
 
-  const {
+  let {
     content,
-    trigger,
     title,
     description,
+    onDismiss,
+    trigger,
+    open = $bindable(false),
+    contentClass,
     ...otherProps
   }: DialogPrimitive.Props & {
     content: Snippet;
-    trigger: Snippet<[() => void]>;
+    trigger?: Snippet<[() => void]>;
     title?: string;
     description?: string;
+    onDismiss?: () => void;
+    open?: boolean;
+    contentClass?: string;
   } = $props();
-
-  let open = $state(false);
 </script>
 
 <DialogPrimitive.Root
@@ -25,12 +29,20 @@
   bind:open
   onOpenChange={(isOpen) => (open = isOpen)}
 >
-  <DialogPrimitive.Trigger asChild>
-    {@render trigger(() => (open = true))}
-  </DialogPrimitive.Trigger>
+  {#if trigger}
+    <DialogPrimitive.Trigger asChild>
+      {@render trigger(() => (open = true))}
+    </DialogPrimitive.Trigger>
+  {/if}
   <DialogPrimitive.Portal>
     <DialogOverlay />
-    <DialogContent {title} {description} bind:open>
+    <DialogContent
+      {title}
+      {description}
+      {onDismiss}
+      class={contentClass}
+      bind:open
+    >
       {@render content()}
     </DialogContent>
   </DialogPrimitive.Portal>

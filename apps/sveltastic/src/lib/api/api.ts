@@ -7,21 +7,37 @@ type ApiMethodAdditionalOptions = {
   queryParams?: Record<string, string | number | boolean>;
 };
 
-export type ApiMethodOptions = Omit<RequestInit, "method" | "body"> &
-  ApiMethodAdditionalOptions;
+export type ApiMethodOptions = Omit<
+  RequestInit,
+  "method" | "body" | "headers"
+> &
+  ApiMethodAdditionalOptions & {
+    headers?: [string, string][] | Record<string, string | undefined | null>;
+    /**
+     * "`half`" is the only valid value and it is for initiating a half-duplex fetch (i.e., the user agent sends the entire request before processing the response). "`full`" is reserved for future use, for initiating a full-duplex fetch (i.e., the user agent can process the response before sending the entire request). This member needs to be set when [body](https://fetch.spec.whatwg.org/#dom-requestinit-body) is a [ReadableStream](https://streams.spec.whatwg.org/#readablestream) object.
+     */
+    duplex?: "half" | "full";
+  };
 
 export type CreateApiOptions = {
   routePrefix?: string;
-  fetchFn: typeof fetch;
+  fetch: typeof fetch;
+  sessionCookie?: string;
 };
 
-export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
+export type CreateInstanceOptions = Omit<CreateApiOptions, "routePrefix">;
+
+export const createApi = ({
+  routePrefix,
+  fetch: fetchFn,
+  sessionCookie,
+}: CreateApiOptions) => {
   const constructRoute = (
     route: string,
     quryParams: Record<string, string | number | boolean> = {},
   ) => {
     const url = new URL(
-      `${PUBLIC_API_URL}${routePrefix ? `/${routePrefix}` : ""}/${route}`,
+      `${PUBLIC_API_URL}${routePrefix ? `/${routePrefix}` : ""}${route ? `/${route}` : ""}`,
     );
 
     for (const [key, value] of Object.entries(quryParams)) {
@@ -35,9 +51,22 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
     route: string,
     options?: RequestInit & ApiMethodAdditionalOptions,
   ) => {
+    let { body } = options ?? {};
+    const headers = (options?.headers ?? {}) as Record<string, string>;
+
+    if (headers?.["Content-Type"] === "application/json" && body) {
+      body = JSON.stringify(body);
+    }
+
+    if (sessionCookie) {
+      headers["Cookie"] = sessionCookie;
+    }
+
     const res = await fetchFn(constructRoute(route, options?.queryParams), {
       credentials: "include",
       ...options,
+      body,
+      headers,
     });
 
     if (!res.ok) {
@@ -70,35 +99,36 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
       return doFetch<TResponse>(route, {
         ...options,
         method: "GET",
+        headers: options?.headers as HeadersInit,
       });
     },
-    post: async <TResponse = unknown, TPostBody = unknown>(
+    post: async <TResponse = unknown, TBody = unknown>(
       route: string,
-      data: TPostBody,
+      data: TBody,
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
         method: "POST",
-        body: JSON.stringify(data),
+        body: data as BodyInit,
         headers: {
-          ...options?.headers,
           "Content-Type": "application/json",
+          ...options?.headers,
         },
       });
     },
-    put: async <TResponse = unknown, TPutBody = unknown>(
+    put: async <TResponse = unknown, TBody = unknown>(
       route: string,
-      data: TPutBody,
+      data: TBody,
       options?: ApiMethodOptions,
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
         method: "PUT",
-        body: JSON.stringify(data),
+        body: data as BodyInit,
         headers: {
-          ...options?.headers,
           "Content-Type": "application/json",
+          ...options?.headers,
         },
       });
     },
@@ -108,6 +138,7 @@ export const createApi = ({ routePrefix, fetchFn }: CreateApiOptions) => {
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
+        headers: options?.headers as HeadersInit,
         method: "DELETE",
       });
     },
