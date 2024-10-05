@@ -12,6 +12,7 @@ import { FastifyCustomProp } from "~/api/types";
 import type { IdParam } from "~/api/types/validation.types";
 import {
   createForbiddenReply,
+  createNotFoundReply,
   createUnauthorizedReply,
 } from "~/api/error/replies";
 
@@ -132,7 +133,7 @@ export default fp((fastify, _opts, done) => {
         .executeOne();
 
       if (!result) {
-        return createForbiddenReply(reply);
+        return createNotFoundReply(reply);
       }
     } catch {
       return createForbiddenReply(reply);

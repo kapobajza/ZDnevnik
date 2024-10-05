@@ -13,7 +13,6 @@
   } from "$lib/query";
   import { useContext } from "$lib/util";
   import { UserRole } from "@zdnevnik/toolkit";
-  import type { ClasroomStudentsDTO } from "@zdnevnik/toolkit";
   import { List } from "$lib/components/ui/List";
   import { AddStudentModal, StudentCard } from "$lib/components/routes/Home";
   import { superForm } from "sveltekit-superforms";
@@ -21,48 +20,67 @@
   import SelectListInfinite from "$lib/components/ui/Select/select_list_infinite.svelte";
   import { api } from "$lib/api";
   import { Icon } from "$lib/components/ui/Icon";
+  import { page } from "$app/stores";
+  import { goto, pushState } from "$app/navigation";
+  import { browser } from "$app/environment";
+  import { onMount } from "svelte";
+  import { Button, IconButton } from "$lib/components/ui/Button";
 
   type $$Props = PageData;
   export let data: $$Props;
 
-  let selectedClassroom: ClasroomStudentsDTO["classroom"] | undefined;
-  let classroom: ClasroomStudentsDTO["classroom"] | undefined;
+  function gotoClassroom(id: string) {
+    const query = new URLSearchParams($page.url.searchParams.toString());
+    query.set("classroomId", id);
+    goto(`?${query.toString()}`);
+  }
+
+  let classroomId: string | undefined;
+  $: classroomId = $page.url.searchParams.get("classroomId") ?? undefined;
 
   $: studentsQuery = createInfiniteQuery({
-    queryKey: clasroomQueryKey.teacherStudents(selectedClassroom?.id),
+    queryKey: clasroomQueryKey.teacherStudents(classroomId),
     queryFn: ({ limit, page }) =>
       api().clasroom.students({
-        classroomId: selectedClassroom?.id,
+        classroomId: classroomId,
         page,
         limit,
       }),
     ...defaultInfiniteQueryOptions,
   });
 
-  $: classroom = selectedClassroom ?? $studentsQuery.extraData;
+  onMount(() => {
+    if (browser && $studentsQuery?.extraData?.id) {
+      gotoClassroom($studentsQuery?.extraData?.id);
+    }
+  });
 
   const meQuery = createMeQueryCached();
   const classroomsQuery = createClassroomSelectInfiniteQuery();
 
   const LL = useContext("LL");
   const form = superForm(data.form);
+
+  function openModal() {
+    pushState("", {
+      showModal: true,
+    });
+  }
 </script>
 
 <NavBar>
   {#snippet content()}
-    {#if classroom?.name}
+    {#if $studentsQuery.extraData?.name}
       <SelectListInfinite
         items={$classroomsQuery.data}
         selected={{
-          value: classroom?.id ?? "",
-          label: classroom?.name ?? "",
+          value: $studentsQuery.extraData?.id ?? "",
+          label: $studentsQuery.extraData?.name ?? "",
         }}
         onSelectedChange={(selected) => {
           if (selected) {
-            selectedClassroom = {
-              id: selected.value as string,
-              name: selected.label ?? "",
-            };
+            const id = `${selected.value}`;
+            gotoClassroom(id);
           }
         }}
         contentProps={{
@@ -72,7 +90,7 @@
         {#snippet trigger()}
           <SelectPrimitive.Trigger class="zd-flex zd-items-center zd-gap-1">
             <Typography variant="h3" class="zd-text-primary-foreground">
-              {classroom?.name}
+              {$studentsQuery.extraData?.name}
             </Typography>
             <Icon name="ChevronDown" class="zd-text-primary-foreground" />
           </SelectPrimitive.Trigger>
@@ -87,6 +105,8 @@
 <Container
   isEmpty={$studentsQuery.isEmpty}
   isPending={$studentsQuery.isPending}
+  isError={$studentsQuery.isError}
+  error={$studentsQuery.error}
   class="zd-pt-4"
 >
   {#snippet empty()}
@@ -103,7 +123,10 @@
         <Typography variant="h4" class="zd-mb-8 zd-text-center">
           {$LL.home.no_students_found()}
         </Typography>
-        <AddStudentModal {form} />
+
+        <Button class="zd-w-full" onclick={openModal}>
+          {$LL.home.add_student()}
+        </Button>
       {/if}
     </div>
   {/snippet}
@@ -117,4 +140,10 @@
       <StudentCard {item} />
     {/snippet}
   </List>
+  <IconButton
+    icon="Plus"
+    class="zd-fixed zd-bottom-4 zd-right-2"
+    onclick={openModal}
+  />
+  <AddStudentModal {form} open={$page.state.showModal} />
 </Container>

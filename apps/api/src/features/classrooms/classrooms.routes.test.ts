@@ -19,6 +19,7 @@ import { ModelORM } from "~/api/db/orm";
 import { HttpErrorCode, type HttpError } from "~/api/error/types";
 import { buildTestApp, doAuthenticatedRequest } from "~/api/test/util";
 import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateUdid } from "~/api/util/udid";
 
 describe("clasrooms routes", () => {
   let fastify: FastifyInstance;
@@ -34,7 +35,7 @@ describe("clasrooms routes", () => {
 
     const teacher = await usersModel
       .insert([
-        ["Id", "1"],
+        ["Id", generateUdid()],
         ["Username", "test"],
         ["PasswordHash", hashedPassword],
         ["PasswordSalt", salt],
@@ -50,7 +51,7 @@ describe("clasrooms routes", () => {
   const insertClassroom = async () => {
     const classroom = await classroomsModel
       .insert([
-        ["Id", "1"],
+        ["Id", generateUdid()],
         ["Name", "classroom"],
       ])
       .executeOne<ClassroomModel>();
@@ -58,6 +59,26 @@ describe("clasrooms routes", () => {
     invariant(classroom, "Classroom not created");
 
     return classroom;
+  };
+
+  const addStudentAsTeacher = async (classroomId: string, username: string) => {
+    const response = await doAuthenticatedRequest(fastify, {
+      method: "POST",
+      url: `/classrooms/${classroomId}/students`,
+      username,
+      password: VALID_PASSWORD,
+      body: {
+        firstName: "test",
+        lastName: "test",
+      } satisfies AddStudentBody,
+    });
+
+    const res: UsersDefaultDTO = response.json();
+
+    return {
+      data: res,
+      response,
+    };
   };
 
   beforeAll(async () => {
@@ -176,7 +197,7 @@ describe("clasrooms routes", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
       classroom: {
-        id: "1",
+        id: classroom.id,
         name: "classroom",
       },
       students: [
@@ -220,30 +241,48 @@ describe("clasrooms routes", () => {
       ])
       .execute();
 
-    const response = await doAuthenticatedRequest(fastify, {
-      method: "POST",
-      url: `/classrooms/${classroom.id}/students`,
-      username: teacher.username,
-      password: VALID_PASSWORD,
-      body: {
-        firstName: "test",
-        lastName: "test",
-        ordinalNumber: 1,
-      } satisfies AddStudentBody,
-    });
-
-    const res: UsersDefaultDTO = response.json();
+    const { data, response } = await addStudentAsTeacher(
+      classroom.id,
+      teacher.username,
+    );
     const addedStudent = await usersModel
       .select(usersDefaultSelect)
       .where({
         field: UserModel.fields.Id,
         operator: "=",
-        value: res.id,
+        value: data.id,
       })
       .executeOne();
 
     expect(response.statusCode).toBe(200);
-    expect(res).toEqual(addedStudent);
+    expect(data).toEqual(addedStudent);
+  });
+
+  it("should increment ordinal_number when adding student automatically", async () => {
+    const classroom = await insertClassroom();
+    const teacher = await insertTeacher();
+
+    await userClassroomModel
+      .insert([
+        ["ClassroomId", classroom.id],
+        ["UserId", teacher.id],
+        ["Id", "1"],
+        ["IsTeacher", true],
+      ])
+      .execute();
+
+    const { data: studentFirst } = await addStudentAsTeacher(
+      classroom.id,
+      teacher.username,
+    );
+
+    const { data: studentSecond } = await addStudentAsTeacher(
+      classroom.id,
+      teacher.username,
+    );
+
+    expect(studentFirst.ordinalNumber).toBe(1);
+    expect(studentSecond.ordinalNumber).toBe(2);
   });
 
   it("should return all classrooms for a teacher", async () => {

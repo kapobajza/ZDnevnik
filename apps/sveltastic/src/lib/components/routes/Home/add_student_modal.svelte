@@ -8,17 +8,25 @@
   import type { SuperForm } from "sveltekit-superforms";
   import { fileProxy } from "sveltekit-superforms";
   import DefaultAvatar from "$lib/assets/default_avatar.png?enhanced";
-  import { createClassroomSelectInfiniteQuery } from "$lib/query";
+  import {
+    clasroomQueryKey,
+    createClassroomSelectInfiniteQuery,
+  } from "$lib/query";
   import { SelectListInfinite } from "$lib/components/ui/Select";
+  import { page } from "$app/stores";
+  import { useQueryClient } from "@tanstack/svelte-query";
+  import { pushState } from "$app/navigation";
 
   const LL = useContext("LL");
 
   const {
     form,
+    open = $bindable(false),
   }: {
     form: SuperForm<AddStudentWithFileBody>;
+    open: boolean;
   } = $props();
-  const { submitting, reset, errors, form: sf } = form;
+  const { submitting, reset, errors, form: sf, posted } = form;
   const file = fileProxy(form, "avatar");
 
   let imagePreview = $derived.by(() => {
@@ -32,6 +40,19 @@
   });
 
   const classroomsQuery = createClassroomSelectInfiniteQuery();
+  const queryClient = useQueryClient();
+
+  $effect(() => {
+    if ($posted && Object.keys($errors ?? {}).length === 0) {
+      const classroomId = $page.form.form.data.classroomId;
+      queryClient.invalidateQueries({
+        queryKey: clasroomQueryKey.teacherStudents(classroomId),
+      });
+      pushState("", {
+        showModal: false,
+      });
+    }
+  });
 </script>
 
 <Dialog
@@ -39,14 +60,12 @@
   contentClass="zd-flex zd-flex-col"
   onDismiss={() => {
     reset();
+    pushState("", {
+      showModal: false,
+    });
   }}
+  {open}
 >
-  {#snippet trigger(openModal)}
-    <Button class="zd-w-full" onclick={openModal}>
-      {$LL.home.add_student()}
-    </Button>
-  {/snippet}
-
   {#snippet content()}
     <form
       method="post"
@@ -100,12 +119,6 @@
             {form}
             name="lastName"
             placeholder={$LL.home.add_student_last_name_placeholder()}
-          />
-          <SuperFormInput
-            {form}
-            name="ordinalNumber"
-            placeholder={$LL.home.add_student_ordinal_number_placeholder()}
-            type="number"
           />
           <SuperFormInput name="classroomId" {form} let:props asChild>
             <SelectListInfinite

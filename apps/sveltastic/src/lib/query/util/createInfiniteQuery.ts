@@ -118,7 +118,7 @@ export function createInfiniteQuery<
         return opts.queryFn({
           ...context,
           limit,
-          page: context.pageParam,
+          page: context.pageParam === 0 ? 1 : context.pageParam,
         });
       },
       getNextPageParam(lastPage, _allPages, lastPageParam) {

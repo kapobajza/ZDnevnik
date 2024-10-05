@@ -7,8 +7,17 @@ type ApiMethodAdditionalOptions = {
   queryParams?: Record<string, string | number | boolean>;
 };
 
-export type ApiMethodOptions = Omit<RequestInit, "method" | "body"> &
-  ApiMethodAdditionalOptions;
+export type ApiMethodOptions = Omit<
+  RequestInit,
+  "method" | "body" | "headers"
+> &
+  ApiMethodAdditionalOptions & {
+    headers?: [string, string][] | Record<string, string | undefined | null>;
+    /**
+     * "`half`" is the only valid value and it is for initiating a half-duplex fetch (i.e., the user agent sends the entire request before processing the response). "`full`" is reserved for future use, for initiating a full-duplex fetch (i.e., the user agent can process the response before sending the entire request). This member needs to be set when [body](https://fetch.spec.whatwg.org/#dom-requestinit-body) is a [ReadableStream](https://streams.spec.whatwg.org/#readablestream) object.
+     */
+    duplex?: "half" | "full";
+  };
 
 export type CreateApiOptions = {
   routePrefix?: string;
@@ -90,6 +99,7 @@ export const createApi = ({
       return doFetch<TResponse>(route, {
         ...options,
         method: "GET",
+        headers: options?.headers as HeadersInit,
       });
     },
     post: async <TResponse = unknown, TBody = unknown>(
@@ -128,6 +138,7 @@ export const createApi = ({
     ) => {
       return doFetch<TResponse>(route, {
         ...options,
+        headers: options?.headers as HeadersInit,
         method: "DELETE",
       });
     },

@@ -18,8 +18,8 @@ export const createClassroomApi = (options: CreateInstanceOptions) => {
 
   return {
     students: async (
-      params: PaginationQueryParam & {
-        classroomId?: string | undefined;
+      params?: Partial<PaginationQueryParam> & {
+        classroomId: string | undefined | null;
       },
     ): Promise<
       InfiniteQueryFnData<
@@ -27,7 +27,7 @@ export const createClassroomApi = (options: CreateInstanceOptions) => {
         ClasroomStudentsDTO["classroom"]
       >
     > => {
-      const { classroomId, ...queryParams } = params;
+      const { classroomId, ...queryParams } = params ?? {};
       const { data } = await classroomApi.get<ClasroomStudentsDTO>(
         `${classroomId ? `${classroomId}/students` : "students"}`,
         {

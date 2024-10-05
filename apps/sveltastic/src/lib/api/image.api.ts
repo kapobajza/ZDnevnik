@@ -1,6 +1,6 @@
 import type { ImageUploadResponseDTO } from "@zdnevnik/toolkit";
 
-import type { CreateInstanceOptions } from "./api";
+import type { ApiMethodOptions, CreateInstanceOptions } from "./api";
 import { createApi } from "./api";
 
 export const createImageApi = (options: CreateInstanceOptions) => {
@@ -10,18 +10,11 @@ export const createImageApi = (options: CreateInstanceOptions) => {
   });
 
   return {
-    async upload(file: File) {
-      const formData = new FormData();
-      formData.append("file", file);
-
+    async upload(body: unknown, options?: ApiMethodOptions) {
       const { data } = await imageApi.post<ImageUploadResponseDTO>(
         "upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        body,
+        options,
       );
 
       return data;

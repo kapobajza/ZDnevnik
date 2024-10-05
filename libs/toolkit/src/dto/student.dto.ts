@@ -6,7 +6,6 @@ import { ZodCustomIssue } from "~/toolkit/util/zod";
 export const addStudentBodySchemaCommon = z.object({
   firstName: z.string().trim().min(1),
   lastName: z.string().trim().min(1),
-  ordinalNumber: z.number().min(1).max(50),
 });
 
 export const addStudentBodySchema = addStudentBodySchemaCommon.extend({

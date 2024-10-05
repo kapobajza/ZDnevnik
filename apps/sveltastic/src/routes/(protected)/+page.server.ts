@@ -1,17 +1,24 @@
-import { fail, superValidate } from "sveltekit-superforms";
+import { Readable } from "stream";
+
+import { fail, setError, superValidate } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { addStudentWithFileBodySchema } from "@zdnevnik/toolkit";
-import { redirect } from "@sveltejs/kit";
+import { get } from "svelte/store";
+import { FormData } from "formdata-node";
+import { FormDataEncoder } from "form-data-encoder";
 
 import type { Actions, PageServerLoad } from "./$types";
 
 import { SESSION_COOKIE_NAME } from "$env/static/private";
 import { serverApi } from "$lib/api/instance.server";
+import LL from "$src/i18n/i18n-svelte";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(addStudentWithFileBodySchema));
 
-  return { form };
+  return {
+    form,
+  };
 };
 
 export const actions: Actions = {
@@ -20,6 +27,7 @@ export const actions: Actions = {
       request,
       zod(addStudentWithFileBodySchema),
     );
+    const t = get(LL);
 
     if (!form.valid) {
       return fail(422, { form });
@@ -31,11 +39,21 @@ export const actions: Actions = {
       const sessionCookie = cookies.get(SESSION_COOKIE_NAME);
 
       if (form.data.avatar) {
+        const formData = new FormData();
+        formData.append("file", form.data.avatar);
+
+        const encoder = new FormDataEncoder(formData);
+        const readable = Readable.from(encoder);
+
         const { url } = await serverApi({
           fetch,
           sessionCookie,
-        }).image.upload(form.data.avatar);
+        }).image.upload(readable, {
+          headers: encoder.headers,
+          duplex: "half",
+        });
         avatarUrl = url;
+        delete form.data.avatar;
       }
 
       await serverApi({
@@ -46,9 +64,9 @@ export const actions: Actions = {
         avatarUrl,
       });
     } catch (error) {
-      return { form };
+      return setError(form, t.error_unknown());
     }
 
-    return redirect(303, "/");
+    return { form };
   },
 };

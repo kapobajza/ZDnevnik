@@ -113,6 +113,9 @@ export default fp((fastify, _opts, done) => {
 
       const students = await studentsQueryBuilder
         .limit(paginationParams.limit)
+        .sort({
+          by: [UserModel.fields.OrdinalNumber],
+        })
         .offset((paginationParams.page - 1) * paginationParams.limit)
         .execute();
 

@@ -22,5 +22,5 @@
 
 <QueryClientProvider client={data.queryClient}>
   {@render children()}
-  <SvelteQueryDevtools />
+  <SvelteQueryDevtools buttonPosition="bottom-left" />
 </QueryClientProvider>

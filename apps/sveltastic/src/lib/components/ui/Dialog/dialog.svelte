@@ -15,7 +15,7 @@
     ...otherProps
   }: DialogPrimitive.Props & {
     content: Snippet;
-    trigger: Snippet<[() => void]>;
+    trigger?: Snippet<[() => void]>;
     title?: string;
     description?: string;
     onDismiss?: () => void;
@@ -29,9 +29,11 @@
   bind:open
   onOpenChange={(isOpen) => (open = isOpen)}
 >
-  <DialogPrimitive.Trigger asChild>
-    {@render trigger(() => (open = true))}
-  </DialogPrimitive.Trigger>
+  {#if trigger}
+    <DialogPrimitive.Trigger asChild>
+      {@render trigger(() => (open = true))}
+    </DialogPrimitive.Trigger>
+  {/if}
   <DialogPrimitive.Portal>
     <DialogOverlay />
     <DialogContent

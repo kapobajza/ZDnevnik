@@ -6,7 +6,7 @@ import type { SelectListItem } from "$lib/components/ui/Select";
 const CLASROOM_PREFIX = "clasroom";
 
 export const clasroomQueryKey = {
-  teacherStudents: (classroomId: string | undefined = undefined) => [
+  teacherStudents: (classroomId: string | undefined | null = undefined) => [
     CLASROOM_PREFIX,
     "teacher",
     "students",

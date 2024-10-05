@@ -128,7 +128,7 @@ export default function clasrooms(
       preHandler: fastify.verifyTeacherHasAccessToClass,
     },
     async (request, reply) => {
-      const { firstName, lastName, ordinalNumber, avatarUrl } = request.body;
+      const { firstName, lastName, avatarUrl } = request.body;
       const env = fastify.getEnvs();
       const userClasroomModel = createModelORM(UserClasroomModel, fastify);
       const userModel = createModelORM(UserModel, fastify);
@@ -139,12 +139,40 @@ export default function clasrooms(
         passwordSalt,
       );
       const username = `${firstName.toLowerCase()}.${lastName.slice(0, 1).toLowerCase()}-${Math.floor(Math.random() * 1000)}`;
+      const latestStudent = await userModel
+        .select({
+          ordinalNumber: UserModel.fields.OrdinalNumber,
+        })
+        .join({
+          on: {
+            field: UserModel.fields.Id,
+            other: UserClasroomModel.fields.UserId,
+          },
+          table: UserClasroomModel,
+        })
+        .where({
+          field: UserClasroomModel.fields.ClassroomId,
+          operator: "=",
+          value: request.params.id,
+        })
+        .and({
+          field: UserModel.fields.Role,
+          operator: "=",
+          value: UserRole.Student,
+        })
+        .sort({
+          by: [UserModel.fields.OrdinalNumber],
+          order: "DESC",
+        })
+        .executeOne();
+
+      const { ordinalNumber = 0 } = latestStudent ?? {};
 
       const user = await userModel
         .insert([
           ["FirstName", firstName],
           ["LastName", lastName],
-          ["OrdinalNumber", ordinalNumber],
+          ["OrdinalNumber", ordinalNumber + 1],
           ["Role", UserRole.Student],
           ["AverageGrade", 0.0],
           ["Avatar", avatarUrl],
