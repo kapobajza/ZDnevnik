@@ -1,9 +1,9 @@
-import sites-enabled/*
-import rules/cors
-
 {
 	auto_https disable_redirects
 }
+
+import sites-enabled/*
+import rules/cors
 
 https://api.zdnevnik.com {
 	import cors https://zdnevnik.com
