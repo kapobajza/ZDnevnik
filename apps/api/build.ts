@@ -9,7 +9,7 @@ void (async () => {
     bundle: true,
     outdir: "dist",
     platform: "node",
-    external: ["sodium-native"],
+    external: ["sodium-native", "sharp"],
     loader: {
       ".node": "file",
     },
