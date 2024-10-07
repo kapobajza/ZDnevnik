@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: /etc/certs/zdnevnik.com.crt
+    - keyFile: /etc/certs/zdnevnik.com.key
