@@ -1,3 +1,0 @@
-{$APP_ADDRESS}:80 www.zdnevnik.com {
-  redir https://zdnevnik.com{uri}
-}

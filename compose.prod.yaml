@@ -9,18 +9,16 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
+      - "--log.level=DEBUG"
       # Dynamic configuration file for certs
       - "--providers.file.filename=/etc/traefik/dynamic/certs-config.yaml"
       # Docker configuration
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=traefik-network"
       - "--providers.docker.endpoint=unix:///var/run/docker.sock"
-      - "--providers.docker.swarmMode=false"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=websecure"
-      - "traefik.http.routers.traefik.service=api@internal"
     ports:
       - "80:80"
       - "443:443"
@@ -42,9 +40,15 @@ services:
       - "promtail=true"
       - "traefik.enable=true"
       - "traefik.http.routers.api.rule=Host(`api.zdnevnik.com`)"
-      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.services.api.loadbalancer.server.port=5050"
+      - "traefik.http.middlewares.testheader.headers.accesscontrolallowmethods=GET,OPTIONS,PUT"
+      - "traefik.http.middlewares.testheader.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist=https://zdnevnik.com"
+      - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
+      - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
     ports:
-      - "5050:5050"
+      - "5050"
 
   web:
     image: ghcr.io/kapobajza/zdnevnik_web:prod
@@ -53,11 +57,19 @@ services:
       - "promtail=true"
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`zdnevnik.com`)"
-      - "traefik.http.routers.web.entrypoints=web"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+      # Redirect www to non-www
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www\\.(.+)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.www-redirect.rule=Host(`www.zdnevnik.com`)"
+      - "traefik.http.routers.www-redirect.entrypoints=websecure"
+      - "traefik.http.routers.www-redirect.middlewares=www-redirect"
+    ports:
+      - "3000"
     deploy:
       replicas: 3
 
 volumes:
-  caddy_data:
-  caddy_config:
   postgres_data: !reset null

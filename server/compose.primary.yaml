@@ -6,19 +6,38 @@ services:
 
   grafana:
     env_file: ./server/.env.prod
-
-  caddy:
-    image: caddy:2.8.4
     ports:
-        - "80:80"
-        - "443:443"
+      - "3200"
+    labels:
+      - "traefik.enable=true"
+
+  reverse_proxy:
+    image: traefik:v3.1
+    restart: unless-stopped
+    command:
+      # HTTP to HTTPS global redirection
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--log.level=DEBUG"
+      # Dynamic configuration file for certs
+      - "--providers.file.filename=/etc/traefik/dynamic/certs-config.yaml"
+      # Docker configuration
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.endpoint=unix:///var/run/docker.sock"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./caddy/Caddyfile.logging:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-      - ./certs/zdnevnik.pem:/etc/ssl/certs/zdnevnik.pem
-      - ./certs/zdnevnik.key:/etc/ssl/certs/zdnevnik.key
-    restart: always
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/certs-config.yaml:/etc/traefik/dynamic/certs-config.yaml:ro
+      - ./traefik/certs:/etc/certs:ro
 
   postgres:
     image: postgres:15
@@ -36,6 +55,4 @@ services:
       - "5432:5432"
 
 volumes:
-  caddy_data:
-  caddy_config:
   postgres_data:

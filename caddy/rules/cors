@@ -1,8 +1,0 @@
-(cors) {
-	@origin header Origin {args[0]}
-	header @origin Access-Control-Allow-Origin "{args[0]}"
-	header @origin Access-Control-Allow-Methods "OPTIONS,HEAD,GET,POST,PUT,PATCH,DELETE"
-	header Access-Control-Allow-Credentials "true"
-  header Access-Control-Allow-Headers "Content-Type"
-  header Access-Control-Max-Age "3600"
-}
