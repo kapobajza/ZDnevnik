@@ -1,6 +1,6 @@
 services:
   promtail:
-    env_file: ./server/.env.prod
+    env_file: ~/ZDnevnik/server/.env.prod
     environment:
       - LOKI_URL=http://loki:3100
 
@@ -36,17 +36,17 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/certs-config.yaml:/etc/traefik/dynamic/certs-config.yaml:ro
-      - ./traefik/certs:/etc/certs:ro
+      - ~/ZDnevnik/traefik/certs-config.yaml:/etc/traefik/dynamic/certs-config.yaml:ro
+      - ~/ZDnevnik/traefik/certs:/etc/certs:ro
 
   postgres:
     image: postgres:15
     restart: always    
-    env_file: ./db/.env.prod
+    env_file: ~/ZDnevnik/db/.env.prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ~/ZDnevnik/db/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - ~/ZDnevnik/db/postgresql.conf:/etc/postgresql/postgresql.conf
     labels:
       - "promtail=true"
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf",
