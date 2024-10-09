@@ -10,6 +10,8 @@ services:
       - "3200"
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.logging.rule=Host(`logging.zdnevnik.com`)"
+      - "traefik.http.routers.logging.entrypoints=websecure"
 
   reverse_proxy:
     image: traefik:v3.1
