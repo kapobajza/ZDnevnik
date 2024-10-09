@@ -6,7 +6,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - loki-config.yaml:/etc/loki/local-config.yaml
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
     command: -config.file=/etc/loki/local-config.yaml
     restart: always
 
@@ -17,8 +17,8 @@ services:
       - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
-      - promtail-config.yaml:/etc/promtail/config.yml
-      - promtail_entry.sh:/promtail_entry.sh
+      - ./promtail-config.yaml:/etc/promtail/config.yml
+      - ./promtail_entry.sh:/promtail_entry.sh
     entrypoint: ["/bin/sh", "-c", "chmod +x /promtail_entry.sh && /promtail_entry.sh"]
     restart: always
 
