@@ -11,19 +11,19 @@ services:
     restart: always
 
   promtail:
-    env_file: .env.local
+    env_file: ./server/.env.local
     image: grafana/promtail:2.9.2
     volumes:
       - /var/log:/var/log
       - /var/lib/docker/containers:/var/lib/docker/containers
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./promtail-config.yaml:/etc/promtail/config.yml
-      - ./promtail_entry.sh:/promtail_entry.sh
+      - ./server/promtail-config.yaml:/etc/promtail/config.yml
+      - ./server/promtail_entry.sh:/promtail_entry.sh
     entrypoint: ["/bin/sh", "-c", "chmod +x /promtail_entry.sh && /promtail_entry.sh"]
     restart: always
 
   grafana:
-    env_file: .env.local
+    env_file: ./server/.env.local
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_USERS_ALLOW_SIGN_UP=false
