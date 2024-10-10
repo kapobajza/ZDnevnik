@@ -4,6 +4,7 @@ import { SESSION_COOKIE_NAME } from "$env/static/private";
 import { initZodErrorMap } from "$lib/util";
 import { base } from "$app/paths";
 import { detectLocale, isLocale } from "$src/i18n/i18n-util";
+import { redirectWithLocale } from "$lib/util/http";
 
 let translationsLoaded = false;
 
@@ -29,11 +30,11 @@ export const handle: Handle = async ({ event, resolve }) => {
   const sessionCookie = event.cookies.get(SESSION_COOKIE_NAME);
 
   if (event.route.id?.includes("protected") && !sessionCookie) {
-    throw redirect(301, "/login");
+    throw redirectWithLocale(lang, 301, "/login");
   }
 
   if (event.route.id?.includes("auth") && sessionCookie) {
-    throw redirect(301, "/");
+    throw redirectWithLocale(lang, 301, "/");
   }
 
   return resolve(event, {

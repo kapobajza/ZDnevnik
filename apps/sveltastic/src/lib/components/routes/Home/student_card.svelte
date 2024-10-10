@@ -31,7 +31,7 @@
         </Typography>
         <Typography variant="small" class="zd-text-foreground-150">
           {$LL.home.student_grade_title({
-            grade: Math.round(item.averageGrade),
+            grade: item.averageGrade === 0 ? 0 : Math.round(item.averageGrade),
           })}
         </Typography>
       </div>

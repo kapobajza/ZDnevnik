@@ -1,7 +1,7 @@
 import { superValidate, setError } from "sveltekit-superforms";
 import { zod } from "sveltekit-superforms/adapters";
 import { loginBodySchema, ErrorResponseCode } from "@zdnevnik/toolkit";
-import { fail, type Actions, redirect } from "@sveltejs/kit";
+import { fail, type Actions } from "@sveltejs/kit";
 import cookie from "cookie";
 import { get } from "svelte/store";
 
@@ -11,6 +11,7 @@ import { isResponseCode } from "$lib/util";
 import { SESSION_COOKIE_NAME } from "$env/static/private";
 import LL from "$src/i18n/i18n-svelte";
 import { serverApi } from "$lib/api/instance.server";
+import { redirectWithLocale } from "$lib/util/http";
 
 export const load: PageServerLoad = async () => {
   const form = await superValidate(zod(loginBodySchema));
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, fetch, cookies }) => {
+  default: async ({ request, fetch, cookies, locals }) => {
     const form = await superValidate(request, zod(loginBodySchema));
     const t = get(LL);
 
@@ -78,6 +79,6 @@ export const actions: Actions = {
       return setError(form, message);
     }
 
-    return redirect(301, "/");
+    return redirectWithLocale(locals.locale, 301, "/");
   },
 };
