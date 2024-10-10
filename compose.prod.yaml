@@ -9,7 +9,6 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
-      - "--log.level=DEBUG"
       # Dynamic configuration file for certs
       - "--providers.file.filename=/etc/traefik/dynamic/certs-config.yaml"
       # Docker configuration

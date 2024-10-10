@@ -6,12 +6,11 @@ services:
 
   grafana:
     env_file: .env.prod
-    ports:
-      - "3200"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.logging.rule=Host(`logging.zdnevnik.com`)"
       - "traefik.http.routers.logging.entrypoints=websecure"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3200"
 
   reverse_proxy:
     image: traefik:v3.1
@@ -23,7 +22,6 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
-      - "--log.level=DEBUG"
       # Dynamic configuration file for certs
       - "--providers.file.filename=/etc/traefik/dynamic/certs-config.yaml"
       # Docker configuration
