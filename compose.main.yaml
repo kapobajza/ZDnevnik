@@ -69,8 +69,6 @@ services:
       - "traefik.http.routers.www-redirect.middlewares=www-redirect"
     ports:
       - "3000"
-    deploy:
-      replicas: 3
 
 volumes:
   postgres_data: !reset null
