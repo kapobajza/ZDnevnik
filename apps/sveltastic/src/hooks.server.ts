@@ -1,14 +1,25 @@
 import { redirect, type Handle, type HandleFetch } from "@sveltejs/kit";
-import { detectLocale } from "typesafe-i18n/detectors";
 
 import { SESSION_COOKIE_NAME } from "$env/static/private";
-import { baseLocale, locales } from "$src/i18n/i18n-util";
 import { initZodErrorMap } from "$lib/util";
+import { base } from "$app/paths";
+import { detectLocale, isLocale } from "$src/i18n/i18n-util";
 
 let translationsLoaded = false;
 
+export const getPathnameWithoutBase = (url: URL) => {
+  return url.pathname.replace(new RegExp(`^${base}`), "");
+};
+
 export const handle: Handle = async ({ event, resolve }) => {
-  const locale = detectLocale(baseLocale, locales);
+  const [, lang] = getPathnameWithoutBase(event.url).split("/");
+
+  if (!lang || !isLocale(lang)) {
+    const locale = detectLocale();
+    throw redirect(307, `${base}/${locale}${event.url.pathname}`);
+  }
+
+  event.locals.locale = lang;
 
   if (!translationsLoaded) {
     initZodErrorMap();
@@ -26,7 +37,7 @@ export const handle: Handle = async ({ event, resolve }) => {
   }
 
   return resolve(event, {
-    transformPageChunk: ({ html }) => html.replace("%lang%", locale),
+    transformPageChunk: ({ html }) => html.replace("%lang%", lang),
   });
 };
 

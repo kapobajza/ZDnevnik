@@ -13,7 +13,7 @@ export const userQueryKey = {
 export const meQueryOptions = (fetchFn: typeof fetch = fetch) =>
   ({
     queryKey: userQueryKey.me,
-    queryFn: () => api(fetchFn).user.me(),
+    queryFn: () => api({ fetch: fetchFn }).user.me(),
   }) satisfies CreateQueryOptions;
 
 export const createMeQueryCached = () =>

@@ -9,7 +9,7 @@ import type {
 export type BaseTranslation = BaseTranslationType & DisallowNamespaces;
 export type BaseLocale = "ba";
 
-export type Locales = "ba";
+export type Locales = "ba" | "en";
 
 export type Translation = RootTranslation & DisallowNamespaces;
 
