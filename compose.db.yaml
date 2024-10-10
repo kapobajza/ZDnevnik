@@ -1,6 +1,6 @@
 services:
   promtail:
-    env_file: .env.prod
+    env_file: ./server/.env.prod
     environment:
       - LOKI_URL=http://loki:3100
 
@@ -42,7 +42,7 @@ services:
   postgres:
     image: postgres:15
     restart: always    
-    env_file: ../db/.env.prod
+    env_file: ./db/.env.prod
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/pg_hba.conf:/etc/postgresql/pg_hba.conf
