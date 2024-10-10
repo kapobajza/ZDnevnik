@@ -1,3 +1,5 @@
+name: zdnevnik-main
+
 services:
   reverse_proxy:
     image: traefik:v3.1

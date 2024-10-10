@@ -1,3 +1,5 @@
+name: zdnevnik-db
+
 services:
   promtail:
     env_file: ./server/.env.prod
