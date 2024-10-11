@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://zdnevnik.com/">
     <img alt="zdnevnik logo" height="150" src="./.github/resources/zdnevnik_logo.png">
-    <h2 align="center">zdnevnik.com</h2>
+    <h1 align="center">ZDnevnik</h1>
   </a>
 </p>
 
