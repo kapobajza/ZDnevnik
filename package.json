@@ -13,8 +13,6 @@
     "api:start": "pnpm --filter api start",
     "api:start:prod": "pnpm --filter api start:prod",
     "api:test": "pnpm --filter api test",
-    "ds:storybook": "pnpm --filter design-system storybook",
-    "ds:build": "pnpm --filter design-system build",
     "sv:storybook": "pnpm --filter sveltastic storybook",
     "sv:check": "pnpm --filter sveltastic check",
     "sv:build": "pnpm --filter sveltastic build",
@@ -58,8 +56,6 @@
       "@typescript-eslint/parser": "7.13.1",
       "date-fns": "3.6.0",
       "eslint": "8.57.0",
-      "react": "18.3.1",
-      "react-dom": "18.3.1",
       "tsx": "4.16.2",
       "typescript": "5.5.2",
       "vite": "5.3.1",
@@ -79,5 +75,6 @@
         "arm64"
       ]
     }
-  }
+  },
+  "packageManager": "pnpm@9.7.0"
 }
