@@ -5,7 +5,11 @@ on:
     branches:
       - main
     paths:
-      - apps/sveltastic/**
+      - 'apps/sveltastic/**/**.ts'
+      - 'apps/sveltastic/**/**.svelte'
+      - 'apps/sveltastic/**/**.css'
+      - 'apps/sveltastic/package.json'
+      - '!apps/sveltastic/README.md'
 
 jobs:
   deploy_web:

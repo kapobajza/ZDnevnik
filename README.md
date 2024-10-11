@@ -51,3 +51,5 @@ To run the app, use the following commands:
 ```sh
 docker compose up -d # This will run the api, db, web and reverse proxy services
 ```
+
+After successfully building and running docker compose, you should be able to access the web app at `http://zdnevnik.local`.

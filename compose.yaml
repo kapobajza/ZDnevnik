@@ -15,8 +15,6 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.zdnevnik.local`)"
       - "traefik.http.routers.api.entrypoints=webproxy"
       - "traefik.http.services.api.loadbalancer.server.port=5050"
-    ports:
-      - "5050:5050"
     develop:
       watch:
         - action: sync+restart

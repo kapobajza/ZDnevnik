@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths:
-      - apps/api/**
+      - 'apps/api/**/**.ts'
+      - 'apps/api/package.json'
+      - '!apps/api/README.md'
 
 jobs:
   deploy_api:

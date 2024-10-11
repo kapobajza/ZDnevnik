@@ -14,7 +14,7 @@ cp .env.example .env.local
 
 ## Getting started
 
-For the prequisites, see the list in the root [README](../../README.md#prerequisites).
+For the prerequisites, see the list in the root [README](../../README.md#prerequisites).
 
 After starting [docker compose](../../README.md#running-the-app), The API will be running on port 5050.
 
