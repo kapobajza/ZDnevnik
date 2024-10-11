@@ -15,6 +15,8 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.zdnevnik.local`)"
       - "traefik.http.routers.api.entrypoints=webproxy"
       - "traefik.http.services.api.loadbalancer.server.port=5050"
+    ports:
+      - "5050"
     develop:
       watch:
         - action: sync+restart
@@ -48,13 +50,19 @@ services:
       - api
     restart: always
     env_file: ./apps/sveltastic/.env.local
+    environment:
+      - HOST=0.0.0.0
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=Host(`zdnevnik.local`)"
       - "traefik.http.routers.web.entrypoints=webproxy"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.www-redirect.redirectregex.regex=^http://www\\.(.+)"
+      - "traefik.http.middlewares.www-redirect.redirectregex.replacement=http://$${1}"
+      - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+      - "traefik.http.routers.www-redirect.middlewares=www-redirect"
     ports:
-      - "3000:3000"
+      - "3000"
     develop:
       watch:
         - action: sync
@@ -69,8 +77,9 @@ services:
     image: traefik:v3.1
     restart: unless-stopped
     command:
-      # HTTP to HTTPS global redirection
       - "--entrypoints.webproxy.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
       # Docker configuration
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
@@ -81,6 +90,7 @@ services:
       - "traefik.http.routers.traefik.entrypoints=webproxy"
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 

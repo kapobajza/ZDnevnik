@@ -21,9 +21,9 @@ export default defineConfig(() => {
       },
     },
     server: {
-      port: process.env.PORT ?? "3000",
+      port: parseInt(process.env.PORT ?? "3000", 10),
       strictPort: true,
-      host: "zdnevnik.local",
+      host: process.env.HOST ?? "zdnevnik.local",
       open: false,
     },
   };

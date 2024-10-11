@@ -49,8 +49,6 @@ services:
       - "traefik.http.middlewares.testheader.headers.accesscontrolalloworiginlist=https://zdnevnik.com"
       - "traefik.http.middlewares.testheader.headers.accesscontrolmaxage=100"
       - "traefik.http.middlewares.testheader.headers.addvaryheader=true"
-    ports:
-      - "5050"
 
   web:
     build: !reset null
@@ -69,8 +67,6 @@ services:
       - "traefik.http.routers.www-redirect.rule=Host(`www.zdnevnik.com`)"
       - "traefik.http.routers.www-redirect.entrypoints=websecure"
       - "traefik.http.routers.www-redirect.middlewares=www-redirect"
-    ports:
-      - "3000"
 
 volumes:
   postgres_data: !reset null
