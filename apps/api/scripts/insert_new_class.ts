@@ -10,12 +10,17 @@ import invariant from "tiny-invariant";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
-import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateSecureString, securelyHashString } from "~/api/util/secure";
 import { generateUdid } from "~/api/util/udid";
 
 const args = process.argv.slice(2);
 
 const argv = yargs(args).option({
+  databaseUrl: {
+    type: "string",
+    alias: "du",
+    demandOption: true,
+  },
   teacher: {
     type: "string",
     alias: "t",
@@ -34,7 +39,7 @@ const argv = yargs(args).option({
 
 const main = async () => {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: argv.databaseUrl,
   });
 
   const mappedTables = await mapTables(pool);
@@ -77,8 +82,8 @@ const main = async () => {
     for (let i = 0; i < 50; i++) {
       const userUdid = generateUdid();
 
-      const passwordSalt = generatePasswordSalt();
-      const passwordHash = hashPassword("Test1234", passwordSalt);
+      const passwordSalt = generateSecureString();
+      const passwordHash = securelyHashString("Test1234", passwordSalt);
       const randomGrade = Math.random() * 5;
 
       try {

@@ -5,13 +5,13 @@ import {
 } from "@zdnevnik/toolkit";
 import { type ZodTypeProvider } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
-import { z } from "zod";
 
-import { hashPassword } from "./util";
 import { LoginSelectedUserDTO } from "./types";
 import { getCookieExpiry } from "./util/session";
 
 import { createModelORM } from "~/api/db/util";
+import { okResponseSchema } from "~/api/types/validation.types";
+import { securelyHashString } from "~/api/util/secure";
 
 export default function auth(
   fastify: FastifyInstance,
@@ -25,7 +25,7 @@ export default function auth(
         body: loginBodySchema,
         response: {
           400: errorResponseSchema,
-          200: z.object({ ok: z.literal(true) }),
+          200: okResponseSchema,
         },
       },
     },
@@ -45,7 +45,7 @@ export default function auth(
         return reply.code(400).send({ code: "invalid_credentials" });
       }
 
-      const dbPasswordHash = hashPassword(
+      const dbPasswordHash = securelyHashString(
         request.body.password,
         user.passwordSalt,
       );

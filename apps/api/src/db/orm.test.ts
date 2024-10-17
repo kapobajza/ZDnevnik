@@ -12,6 +12,7 @@ import {
 import { ModelORM } from "./orm";
 import { mapTables } from "./util";
 
+import { timestampGeneralFormat } from "~/api/util/date_time";
 import { setupPgTestDatabase } from "~/api/test/util";
 
 describe("ORM tests", () => {
@@ -21,7 +22,7 @@ describe("ORM tests", () => {
   let userClasroomTable: ModelORM<typeof UserClasroomModel>;
   let clasroomTable: ModelORM<typeof ClassroomModel>;
   const now = new Date();
-  const createdAtDate = DateFns.format(now, "yyyy-MM-dd HH:mm:ss");
+  const createdAtDate = timestampGeneralFormat(now);
   const createdAtTimestamp = DateFns.parse(
     createdAtDate,
     "yyyy-MM-dd HH:mm:ss",

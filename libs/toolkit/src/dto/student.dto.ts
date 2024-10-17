@@ -8,8 +8,8 @@ export const addStudentBodySchemaCommon = z.object({
   lastName: z.string().trim().min(1),
 });
 
-export const addStudentBodySchema = addStudentBodySchemaCommon.extend({
-  avatarUrl: z.string().optional().nullable(),
+export const addStudentBodySchema = z.object({
+  email: z.string().min(1),
 });
 
 export type AddStudentBody = z.infer<typeof addStudentBodySchema>;

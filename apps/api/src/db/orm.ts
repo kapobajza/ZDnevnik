@@ -4,6 +4,7 @@ import {
   type Pool as PgPool,
   type QueryArrayResult,
   type QueryResultRow,
+  type PoolClient,
 } from "pg";
 import {
   modelFieldOptionsSchema,
@@ -320,8 +321,13 @@ export class ModelORM<
 
   async execute<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
-  >(): Promise<TResult[]> {
-    const client = await this.pool.connect();
+  >(poolClient?: PoolClient): Promise<TResult[]> {
+    let client = poolClient;
+
+    if (!client) {
+      client = await this.pool.connect();
+    }
+
     const { joinOptions } = this.queryBuilder.state;
 
     try {
@@ -333,7 +339,7 @@ export class ModelORM<
         console.log("queryValues", queryValues);
       }
 
-      const res = (await this.pool.query<TResult>(
+      const res = (await client.query<TResult>(
         {
           text: query,
           // @ts-expect-error - Incorrect types provided by pg
@@ -349,7 +355,10 @@ export class ModelORM<
       return this.buildSelectColumns(res);
     } finally {
       this.reset();
-      client?.release();
+
+      if (!poolClient) {
+        client?.release();
+      }
     }
   }
 
@@ -361,12 +370,14 @@ export class ModelORM<
     return results?.[0];
   }
 
-  async transaction(callback: (cb: this) => Promise<void>) {
+  async transaction(
+    callback: (model: this, client: PoolClient) => Promise<void>,
+  ) {
     const client = await this.pool.connect();
 
     try {
       await client.query("BEGIN");
-      await callback(this);
+      await callback(this, client);
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");

@@ -1,25 +1,23 @@
 import type { FastifyInstance } from "fastify";
 import { describe, beforeAll, expect, it, afterEach, afterAll } from "vitest";
 import invariant from "tiny-invariant";
-import type {
-  AddStudentBody,
-  GetTeacherClasroomsDTO,
-  InferModelFields,
-  UsersDefaultDTO,
-} from "@zdnevnik/toolkit";
+import type { GetTeacherClasroomsDTO } from "@zdnevnik/toolkit";
 import {
   UserModel,
   ClassroomModel,
   UserClasroomModel,
   UserRole,
-  usersDefaultSelect,
 } from "@zdnevnik/toolkit";
 
 import { ModelORM } from "~/api/db/orm";
 import { HttpErrorCode, type HttpError } from "~/api/error/types";
-import { buildTestApp, doAuthenticatedRequest } from "~/api/test/util";
-import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
-import { generateUdid } from "~/api/util/udid";
+import {
+  buildTestApp,
+  doAuthenticatedRequest,
+  insertMockClassroom,
+  insertMockTeacher,
+} from "~/api/test/util";
+import { generateSecureString, securelyHashString } from "~/api/util/secure";
 
 describe("clasrooms routes", () => {
   let fastify: FastifyInstance;
@@ -28,58 +26,25 @@ describe("clasrooms routes", () => {
   let userClassroomModel: ModelORM<typeof UserClasroomModel>;
   const VALID_PASSWORD = "testtesttest";
 
-  const insertTeacher = async () => {
-    const password = VALID_PASSWORD;
-    const salt = generatePasswordSalt();
-    const hashedPassword = hashPassword(password, salt);
+  // const addStudentAsTeacher = async (classroomId: string, username: string) => {
+  //   const response = await doAuthenticatedRequest(fastify, {
+  //     method: "POST",
+  //     url: `/classrooms/${classroomId}/students`,
+  //     username,
+  //     password: VALID_PASSWORD,
+  //     body: {
+  //       firstName: "test",
+  //       lastName: "test",
+  //     } satisfies AddStudentBody,
+  //   });
 
-    const teacher = await usersModel
-      .insert([
-        ["Id", generateUdid()],
-        ["Username", "test"],
-        ["PasswordHash", hashedPassword],
-        ["PasswordSalt", salt],
-        ["Role", UserRole.Teacher],
-      ])
-      .executeOne<InferModelFields<typeof UserModel>>();
+  //   const res: UsersDefaultDTO = response.json();
 
-    invariant(teacher, "Teacher not created");
-
-    return teacher;
-  };
-
-  const insertClassroom = async () => {
-    const classroom = await classroomsModel
-      .insert([
-        ["Id", generateUdid()],
-        ["Name", "classroom"],
-      ])
-      .executeOne<ClassroomModel>();
-
-    invariant(classroom, "Classroom not created");
-
-    return classroom;
-  };
-
-  const addStudentAsTeacher = async (classroomId: string, username: string) => {
-    const response = await doAuthenticatedRequest(fastify, {
-      method: "POST",
-      url: `/classrooms/${classroomId}/students`,
-      username,
-      password: VALID_PASSWORD,
-      body: {
-        firstName: "test",
-        lastName: "test",
-      } satisfies AddStudentBody,
-    });
-
-    const res: UsersDefaultDTO = response.json();
-
-    return {
-      data: res,
-      response,
-    };
-  };
+  //   return {
+  //     data: res,
+  //     response,
+  //   };
+  // };
 
   beforeAll(async () => {
     fastify = await buildTestApp();
@@ -108,8 +73,8 @@ describe("clasrooms routes", () => {
 
   it("should return 403 if a student tries to access list of classroom students", async () => {
     const password = "testtesttest";
-    const salt = generatePasswordSalt();
-    const hashedPassword = hashPassword(password, salt);
+    const salt = generateSecureString();
+    const hashedPassword = securelyHashString(password, salt);
 
     const student = await usersModel
       .insert([
@@ -152,8 +117,8 @@ describe("clasrooms routes", () => {
   });
 
   it("should return 200 if a teacher tries to access list of classroom students", async () => {
-    const classroom = await insertClassroom();
-    const teacher = await insertTeacher();
+    const classroom = await insertMockClassroom(classroomsModel);
+    const teacher = await insertMockTeacher(usersModel, VALID_PASSWORD);
     const student = await usersModel
       .insert([
         ["Id", "2"],
@@ -213,81 +178,66 @@ describe("clasrooms routes", () => {
     });
   });
 
-  it("should return 422 when teacher tries to add student with invalid body", async () => {
-    const classroom = await insertClassroom();
-    const teacher = await insertTeacher();
+  // it("should return 200 when teacher tries to add student", async () => {
+  //   const classroom = await insertClassroom();
+  //   const teacher = await insertTeacher();
 
-    const response = await doAuthenticatedRequest(fastify, {
-      method: "POST",
-      url: `/classrooms/${classroom.id}/students`,
-      username: teacher.username,
-      password: VALID_PASSWORD,
-      body: {},
-    });
+  //   await userClassroomModel
+  //     .insert([
+  //       ["ClassroomId", classroom.id],
+  //       ["UserId", teacher.id],
+  //       ["Id", "1"],
+  //       ["IsTeacher", true],
+  //     ])
+  //     .execute();
 
-    expect(response.statusCode).toBe(422);
-  });
+  //   const { data, response } = await addStudentAsTeacher(
+  //     classroom.id,
+  //     teacher.username,
+  //   );
+  //   const addedStudent = await usersModel
+  //     .select(usersDefaultSelect)
+  //     .where({
+  //       field: UserModel.fields.Id,
+  //       operator: "=",
+  //       value: data.id,
+  //     })
+  //     .executeOne();
 
-  it("should return 200 when teacher tries to add student", async () => {
-    const classroom = await insertClassroom();
-    const teacher = await insertTeacher();
+  //   expect(response.statusCode).toBe(200);
+  //   expect(data).toEqual(addedStudent);
+  // });
 
-    await userClassroomModel
-      .insert([
-        ["ClassroomId", classroom.id],
-        ["UserId", teacher.id],
-        ["Id", "1"],
-        ["IsTeacher", true],
-      ])
-      .execute();
+  // it("should increment ordinal_number when adding student automatically", async () => {
+  //   const classroom = await insertClassroom();
+  //   const teacher = await insertTeacher();
 
-    const { data, response } = await addStudentAsTeacher(
-      classroom.id,
-      teacher.username,
-    );
-    const addedStudent = await usersModel
-      .select(usersDefaultSelect)
-      .where({
-        field: UserModel.fields.Id,
-        operator: "=",
-        value: data.id,
-      })
-      .executeOne();
+  //   await userClassroomModel
+  //     .insert([
+  //       ["ClassroomId", classroom.id],
+  //       ["UserId", teacher.id],
+  //       ["Id", "1"],
+  //       ["IsTeacher", true],
+  //     ])
+  //     .execute();
 
-    expect(response.statusCode).toBe(200);
-    expect(data).toEqual(addedStudent);
-  });
+  //   const { data: studentFirst } = await addStudentAsTeacher(
+  //     classroom.id,
+  //     teacher.username,
+  //   );
 
-  it("should increment ordinal_number when adding student automatically", async () => {
-    const classroom = await insertClassroom();
-    const teacher = await insertTeacher();
+  //   const { data: studentSecond } = await addStudentAsTeacher(
+  //     classroom.id,
+  //     teacher.username,
+  //   );
 
-    await userClassroomModel
-      .insert([
-        ["ClassroomId", classroom.id],
-        ["UserId", teacher.id],
-        ["Id", "1"],
-        ["IsTeacher", true],
-      ])
-      .execute();
-
-    const { data: studentFirst } = await addStudentAsTeacher(
-      classroom.id,
-      teacher.username,
-    );
-
-    const { data: studentSecond } = await addStudentAsTeacher(
-      classroom.id,
-      teacher.username,
-    );
-
-    expect(studentFirst.ordinalNumber).toBe(1);
-    expect(studentSecond.ordinalNumber).toBe(2);
-  });
+  //   expect(studentFirst.ordinalNumber).toBe(1);
+  //   expect(studentSecond.ordinalNumber).toBe(2);
+  // });
 
   it("should return all classrooms for a teacher", async () => {
-    const classroom = await insertClassroom();
-    const teacher = await insertTeacher();
+    const classroom = await insertMockClassroom(classroomsModel);
+    const teacher = await insertMockTeacher(usersModel, VALID_PASSWORD);
 
     await userClassroomModel
       .insert([

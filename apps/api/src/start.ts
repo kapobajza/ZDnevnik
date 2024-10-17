@@ -5,6 +5,8 @@ import fp from "fastify-plugin";
 import { Pool } from "pg";
 import yargs from "yargs";
 
+import { createEmailClient } from "./email/client";
+
 import { appEnvArgSchema, type AppEnv } from "~/api/types";
 import { buildApp } from "~/api/app";
 import { registerEnvPlugin } from "~/api/env/util";
@@ -48,6 +50,7 @@ async function main() {
     env: envs,
     pgPool: pool,
     appEnv: argv.env as AppEnv,
+    emailClient: createEmailClient(envs),
   });
 
   app.addHook("onClose", async () => {

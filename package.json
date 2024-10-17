@@ -12,6 +12,7 @@
     "api:debug": "pnpm --filter api debug",
     "api:start": "pnpm --filter api start",
     "api:start:prod": "pnpm --filter api start:prod",
+    "api:start:email": "pnpm --filter api start:email",
     "api:test": "pnpm --filter api test",
     "sv:storybook": "pnpm --filter sveltastic storybook",
     "sv:check": "pnpm --filter sveltastic check",

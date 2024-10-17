@@ -4,7 +4,7 @@ import { UserModel, UserRole } from "@zdnevnik/toolkit";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
-import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateSecureString, securelyHashString } from "~/api/util/secure";
 import { generateUdid } from "~/api/util/udid";
 
 const args = process.argv.slice(2);
@@ -35,8 +35,8 @@ const main = async () => {
   const mappedTables = await mapTables(pool);
   const userTable = new ModelORM(UserModel, pool, mappedTables);
 
-  const passwordSalt = generatePasswordSalt();
-  const passwordHash = hashPassword(argv.password, passwordSalt);
+  const passwordSalt = generateSecureString();
+  const passwordHash = securelyHashString(argv.password, passwordSalt);
 
   const udid = generateUdid();
 

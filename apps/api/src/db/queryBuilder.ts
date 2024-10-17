@@ -3,7 +3,6 @@ import {
   modelFieldOptionsSchema,
   type ColumnOptionsMap,
 } from "@zdnevnik/toolkit";
-import * as DateFns from "date-fns";
 
 import {
   type ConditionalClause,
@@ -15,6 +14,8 @@ import {
   type JoinOptions,
 } from "./types";
 import { CommonModelField } from "./util";
+
+import { timestampGeneralFormat } from "~/api/util/date_time";
 
 export class QueryBuilder<
   TModel extends ModelSchema,
@@ -205,10 +206,7 @@ export class QueryBuilder<
           CommonModelField.CreatedAt.name,
           CommonModelField.UpdatedAt.name,
         );
-        const createdUpdatedDate = DateFns.format(
-          new Date(),
-          "yyyy-MM-dd HH:mm:ss",
-        );
+        const createdUpdatedDate = timestampGeneralFormat(new Date());
         insertValues.push(createdUpdatedDate, createdUpdatedDate);
       }
 

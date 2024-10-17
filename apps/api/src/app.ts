@@ -19,6 +19,7 @@ import type { AppEnv } from "./types";
 
 import { type EnvRecord } from "~/api/env/util";
 import { createValidationErrorReply } from "~/api/error/replies";
+import { type EmailClient } from "~/api/email/client";
 
 export async function buildApp(
   fastify: FastifyInstance,
@@ -27,6 +28,7 @@ export async function buildApp(
     env: EnvRecord;
     pgPool: Pool;
     appEnv: AppEnv;
+    emailClient: EmailClient;
   },
 ) {
   fastify.setErrorHandler((error, _request, reply) => {
@@ -52,6 +54,7 @@ export async function buildApp(
     dir: path.join(__dirname, "plugins"),
     options: {
       pool: opts.pgPool,
+      emailClient: opts.emailClient,
     },
   });
 
