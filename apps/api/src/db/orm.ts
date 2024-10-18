@@ -17,7 +17,7 @@ import {
 import {
   type ConditionalClause,
   type IQueryBuilder,
-  type InsertOptions,
+  type MutationOptions,
   type JoinOptions,
   type ModelSchema,
   type QueryBuilderState,
@@ -99,9 +99,26 @@ export class ModelORM<
 
   insert<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
     def: [keyof TModel["fields"], unknown][],
-    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(def as never, options);
+    return this as unknown as ModelORM<
+      TModel,
+      TColumnOptions extends undefined
+        ? {
+            [Key in keyof PascalToSnakeCaseRecord<
+              TModel["fields"]
+            >]: TModel["fields"][SnakeToPascalCase<Key>];
+          }
+        : TColumnOptions
+    >;
+  }
+
+  update<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
+    def: [keyof TModel["fields"], unknown][],
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
+  ) {
+    this.queryBuilder = this.queryBuilder.update(def as never, options);
     return this as unknown as ModelORM<
       TModel,
       TColumnOptions extends undefined
@@ -144,6 +161,10 @@ export class ModelORM<
 
     if (state.insertValues) {
       return state.insertValues;
+    }
+
+    if (state.updateValues) {
+      return state.updateValues;
     }
 
     if (state.whereClause?.value) {
@@ -353,6 +374,8 @@ export class ModelORM<
       }
 
       return this.buildSelectColumns(res);
+    } catch (e) {
+      throw e;
     } finally {
       this.reset();
 

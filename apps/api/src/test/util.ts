@@ -10,7 +10,11 @@ import fp from "fastify-plugin";
 import { Pool } from "pg";
 import { runner as migrate } from "node-pg-migrate";
 import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
-import type { UserModel, ClassroomModel } from "@zdnevnik/toolkit";
+import type {
+  UserModel,
+  ClassroomModel,
+  UserClasroomModel,
+} from "@zdnevnik/toolkit";
 import { type InferModelFields, UserRole } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
@@ -98,13 +102,18 @@ export async function createMockUser(
   const hashedPassword = securelyHashString(password, salt);
 
   const user = await usersModel
-    .insert([
-      ["Id", "1"],
-      ["Username", username],
-      ["PasswordHash", hashedPassword],
-      ["PasswordSalt", salt],
-      ["Role", role],
-    ])
+    .insert(
+      [
+        ["Id", "1"],
+        ["Username", username],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+        ["Role", role],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
     .executeOne();
 
   invariant(user, "User not created");
@@ -150,13 +159,18 @@ export const insertMockTeacher = async (
   const hashedPassword = securelyHashString(password, salt);
 
   const teacher = await usersModel
-    .insert([
-      ["Id", generateUdid()],
-      ["Username", "test"],
-      ["PasswordHash", hashedPassword],
-      ["PasswordSalt", salt],
-      ["Role", UserRole.Teacher],
-    ])
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Username", "test"],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+        ["Role", UserRole.Teacher],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
     .executeOne<InferModelFields<typeof UserModel>>();
 
   invariant(teacher, "Teacher not created");
@@ -168,13 +182,44 @@ export const insertMockClassroom = async (
   classroomsModel: ModelORM<typeof ClassroomModel>,
 ) => {
   const classroom = await classroomsModel
-    .insert([
-      ["Id", generateUdid()],
-      ["Name", "classroom"],
-    ])
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Name", "classroom"],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
     .executeOne<ClassroomModel>();
 
   invariant(classroom, "Classroom not created");
 
   return classroom;
+};
+
+export const insertMockTeacherIntoClassroom = async ({
+  classroomModel,
+  userModel,
+  userClassroomModel,
+  password,
+}: {
+  classroomModel: ModelORM<typeof ClassroomModel>;
+  userModel: ModelORM<typeof UserModel>;
+  userClassroomModel: ModelORM<typeof UserClasroomModel>;
+  password: string;
+}) => {
+  const classroom = await insertMockClassroom(classroomModel);
+  const teacher = await insertMockTeacher(userModel, password);
+
+  await userClassroomModel
+    .insert([
+      ["ClassroomId", classroom.id],
+      ["UserId", teacher.id],
+      ["Id", "1"],
+      ["IsTeacher", true],
+    ])
+    .execute();
+
+  return { classroom, teacher };
 };

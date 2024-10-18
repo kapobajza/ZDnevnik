@@ -104,7 +104,7 @@ describe("ORM query builder part", () => {
         ])
         .build(),
     ).toBe(
-      "INSERT INTO users(first_name, last_name, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING *",
+      "INSERT INTO users(first_name, last_name, created_at, updated_at) VALUES($1, $2, $3, $4)",
     );
     expect(
       userQueryBuilder
@@ -126,18 +126,23 @@ describe("ORM query builder part", () => {
     );
     expect(
       userQueryBuilder
-        .insert([
-          ["FirstName", "test"],
-          ["LastName", "test2"],
-          ["OrdinalNumber", 1],
-          ["Role", UserRole.Student],
-          ["AverageGrade", 0.0],
-          ["Avatar", "test"],
-          ["PasswordHash", "test"],
-          ["PasswordSalt", "test"],
-          ["Id", "1"],
-          ["Username", "test"],
-        ])
+        .insert(
+          [
+            ["FirstName", "test"],
+            ["LastName", "test2"],
+            ["OrdinalNumber", 1],
+            ["Role", UserRole.Student],
+            ["AverageGrade", 0.0],
+            ["Avatar", "test"],
+            ["PasswordHash", "test"],
+            ["PasswordSalt", "test"],
+            ["Id", "1"],
+            ["Username", "test"],
+          ],
+          {
+            returningFields: "*",
+          },
+        )
         .build(),
     ).toBe(
       formatSql(
@@ -149,10 +154,15 @@ describe("ORM query builder part", () => {
   it("should have different statements when build is used multiple times", () => {
     expect(
       userQueryBuilder
-        .insert([
-          ["Id", "1"],
-          ["Role", "teacher"],
-        ])
+        .insert(
+          [
+            ["Id", "1"],
+            ["Role", "teacher"],
+          ],
+          {
+            returningFields: "*",
+          },
+        )
         .build(),
     ).toBe(
       "INSERT INTO users(id, role, created_at, updated_at) VALUES($1, $2, $3, $4) RETURNING *",

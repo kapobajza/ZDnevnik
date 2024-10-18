@@ -7,7 +7,7 @@ import {
 import {
   type ConditionalClause,
   type IQueryBuilder,
-  type InsertOptions,
+  type MutationOptions,
   type QueryBuilderState,
   type SortingOptions,
   type ModelSchema,
@@ -181,6 +181,20 @@ export class QueryBuilder<
     return this.buildTableColumnsRaw(columns, includeModelName);
   }
 
+  private buildReturningStatement(
+    fields: MutationOptions<TColumnOptions>["returningFields"],
+  ) {
+    if (!fields) {
+      return "";
+    }
+
+    if (typeof fields === "string") {
+      return ` RETURNING ${fields}`;
+    }
+
+    return ` RETURNING ${this.buildTableColumns(fields)}`;
+  }
+
   build() {
     let query: string | undefined;
     const {
@@ -195,6 +209,9 @@ export class QueryBuilder<
       sortOptions,
       limit,
       offset,
+      updateColumns,
+      updateValues,
+      updateOptions,
     } = this.state || {};
 
     if (insertColumns && insertValues) {
@@ -210,16 +227,25 @@ export class QueryBuilder<
         insertValues.push(createdUpdatedDate, createdUpdatedDate);
       }
 
-      return `INSERT INTO ${this.model.name}(${insertColumns.join(", ")}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")}) RETURNING ${this.buildTableColumns(insertOptions?.returningFields)}`;
+      return `INSERT INTO ${this.model.name}(${insertColumns.join(", ")}) VALUES(${insertValues.map((_value, index) => `$${index + 1}`).join(", ")})${this.buildReturningStatement(insertOptions?.returningFields)}`;
     }
 
     query = `SELECT ${this.buildTableColumns(selectColumns as TColumnOptions, true)} FROM ${this.model.name}`;
+
+    if (updateColumns && updateValues) {
+      if (!updateColumns.includes(CommonModelField.UpdatedAt.name)) {
+        updateColumns.push(CommonModelField.UpdatedAt.name);
+        updateValues.push(timestampGeneralFormat(new Date()));
+      }
+
+      query = `UPDATE ${this.model.name} SET ${updateColumns.map((column, index) => `${column} = $${index + 1}`).join(", ")}`;
+    }
 
     if (deleteStatement) {
       query = `DELETE FROM ${this.model.name}`;
     }
 
-    if (!deleteStatement && joinOptions) {
+    if (!deleteStatement && !updateColumns && joinOptions) {
       query += joinOptions
         .map((join) => {
           return ` ${join.type ?? "INNER"} JOIN ${join.table.name} ON ${join.on.field.modelName}.${join.on.field.name} = ${join.on.other.modelName}.${join.on.other.name}`;
@@ -235,7 +261,11 @@ export class QueryBuilder<
       }
     }
 
-    if (deleteStatement) {
+    if (deleteStatement ?? updateColumns) {
+      if (updateColumns) {
+        query += `${this.buildReturningStatement(updateOptions?.returningFields)}`;
+      }
+
       return query;
     }
 
@@ -254,11 +284,10 @@ export class QueryBuilder<
     return query;
   }
 
-  insert(
+  private generateMutationFieldsAndValues(
     def: [keyof TModel["fields"], string | number][],
-    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
   ) {
-    const { values, fields } = def.reduce(
+    return def.reduce(
       (obj, [field, value]) => {
         return {
           fields: [...obj.fields, fromPascalToSnakeCase(field as string)],
@@ -273,11 +302,31 @@ export class QueryBuilder<
         values: (string | number)[];
       },
     );
+  }
+
+  insert(
+    def: [keyof TModel["fields"], string | number][],
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
+  ) {
+    const { values, fields } = this.generateMutationFieldsAndValues(def);
 
     return this.cloneAndUpdate({
       insertColumns: fields,
       insertValues: values,
       insertOptions: options,
+    });
+  }
+
+  update(
+    def: [keyof TModel["fields"], string | number][],
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
+  ) {
+    const { values, fields } = this.generateMutationFieldsAndValues(def);
+
+    return this.cloneAndUpdate({
+      updateColumns: fields,
+      updateValues: values,
+      updateOptions: options,
     });
   }
 

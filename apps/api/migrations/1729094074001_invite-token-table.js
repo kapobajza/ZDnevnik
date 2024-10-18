@@ -24,12 +24,27 @@ exports.up = (pgm) => {
       type: "varchar(255)",
       notNull: true,
     },
+    token_salt: {
+      type: "varchar(255)",
+      notNull: true,
+    },
     expires_at: {
       type: "timestamp",
       notNull: true,
     },
     status: {
       type: "varchar(50)",
+    },
+    classroom_id: {
+      type: "varchar",
+      notNull: true,
+    },
+  });
+
+  pgm.addConstraint("invite_tokens", "fk_invite_tokens_classroom_id", {
+    foreignKeys: {
+      columns: ["classroom_id"],
+      references: "classrooms (id)",
     },
   });
 };

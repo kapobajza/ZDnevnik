@@ -94,7 +94,7 @@ export default function clasrooms(
           200: classroomStudentsDTOSchema,
         },
       },
-      preHandler: fastify.verifyTeacherHasAccessToClass,
+      preHandler: fastify.verifyTeacherHasAccessToClass(),
     },
     async (request, reply) => {
       invariant(request.session.user, "User from session not found");

@@ -14,6 +14,10 @@ const InviteTokenModelField = {
     type: "string",
     name: "token",
   },
+  TokenSalt: {
+    type: "string",
+    name: "token_salt",
+  },
   ExpiresAt: {
     name: "expires_at",
     type: "number",
@@ -22,6 +26,10 @@ const InviteTokenModelField = {
   Status: {
     type: "string",
     name: "status",
+  },
+  ClassroomId: {
+    type: "string",
+    name: "classroom_id",
   },
 } as const satisfies ModelFieldsStartingMap;
 

@@ -16,44 +16,25 @@ import {
   doAuthenticatedRequest,
   insertMockClassroom,
   insertMockTeacher,
+  insertMockTeacherIntoClassroom,
 } from "~/api/test/util";
 import { generateSecureString, securelyHashString } from "~/api/util/secure";
 
 describe("clasrooms routes", () => {
   let fastify: FastifyInstance;
-  let classroomsModel: ModelORM<typeof ClassroomModel>;
-  let usersModel: ModelORM<typeof UserModel>;
+  let classroomModel: ModelORM<typeof ClassroomModel>;
+  let userModel: ModelORM<typeof UserModel>;
   let userClassroomModel: ModelORM<typeof UserClasroomModel>;
   const VALID_PASSWORD = "testtesttest";
 
-  // const addStudentAsTeacher = async (classroomId: string, username: string) => {
-  //   const response = await doAuthenticatedRequest(fastify, {
-  //     method: "POST",
-  //     url: `/classrooms/${classroomId}/students`,
-  //     username,
-  //     password: VALID_PASSWORD,
-  //     body: {
-  //       firstName: "test",
-  //       lastName: "test",
-  //     } satisfies AddStudentBody,
-  //   });
-
-  //   const res: UsersDefaultDTO = response.json();
-
-  //   return {
-  //     data: res,
-  //     response,
-  //   };
-  // };
-
   beforeAll(async () => {
     fastify = await buildTestApp();
-    classroomsModel = new ModelORM(
+    classroomModel = new ModelORM(
       ClassroomModel,
       fastify.dbPool,
       fastify.mappedTable,
     );
-    usersModel = new ModelORM(UserModel, fastify.dbPool, fastify.mappedTable);
+    userModel = new ModelORM(UserModel, fastify.dbPool, fastify.mappedTable);
     userClassroomModel = new ModelORM(
       UserClasroomModel,
       fastify.dbPool,
@@ -67,8 +48,8 @@ describe("clasrooms routes", () => {
 
   afterEach(async () => {
     await userClassroomModel.delete().execute();
-    await usersModel.delete().execute();
-    await classroomsModel.delete().execute();
+    await userModel.delete().execute();
+    await classroomModel.delete().execute();
   });
 
   it("should return 403 if a student tries to access list of classroom students", async () => {
@@ -76,14 +57,19 @@ describe("clasrooms routes", () => {
     const salt = generateSecureString();
     const hashedPassword = securelyHashString(password, salt);
 
-    const student = await usersModel
-      .insert([
-        ["Id", "1"],
-        ["Username", "test"],
-        ["Role", UserRole.Student],
-        ["PasswordHash", hashedPassword],
-        ["PasswordSalt", salt],
-      ])
+    const student = await userModel
+      .insert(
+        [
+          ["Id", "1"],
+          ["Username", "test"],
+          ["Role", UserRole.Student],
+          ["PasswordHash", hashedPassword],
+          ["PasswordSalt", salt],
+        ],
+        {
+          returningFields: "*",
+        },
+      )
       .executeOne<UserModel>();
 
     if (!student) {
@@ -117,20 +103,25 @@ describe("clasrooms routes", () => {
   });
 
   it("should return 200 if a teacher tries to access list of classroom students", async () => {
-    const classroom = await insertMockClassroom(classroomsModel);
-    const teacher = await insertMockTeacher(usersModel, VALID_PASSWORD);
-    const student = await usersModel
-      .insert([
-        ["Id", "2"],
-        ["Username", "student"],
-        ["FirstName", "Student"],
-        ["LastName", "Last"],
-        ["OrdinalNumber", 1],
-        ["Role", UserRole.Student],
-        ["AverageGrade", 0.0],
-        ["PasswordHash", "test"],
-        ["PasswordSalt", "test"],
-      ])
+    const classroom = await insertMockClassroom(classroomModel);
+    const teacher = await insertMockTeacher(userModel, VALID_PASSWORD);
+    const student = await userModel
+      .insert(
+        [
+          ["Id", "2"],
+          ["Username", "student"],
+          ["FirstName", "Student"],
+          ["LastName", "Last"],
+          ["OrdinalNumber", 1],
+          ["Role", UserRole.Student],
+          ["AverageGrade", 0.0],
+          ["PasswordHash", "test"],
+          ["PasswordSalt", "test"],
+        ],
+        {
+          returningFields: "*",
+        },
+      )
       .executeOne<UserModel>();
 
     invariant(student, "Student not created");
@@ -178,75 +169,13 @@ describe("clasrooms routes", () => {
     });
   });
 
-  // it("should return 200 when teacher tries to add student", async () => {
-  //   const classroom = await insertClassroom();
-  //   const teacher = await insertTeacher();
-
-  //   await userClassroomModel
-  //     .insert([
-  //       ["ClassroomId", classroom.id],
-  //       ["UserId", teacher.id],
-  //       ["Id", "1"],
-  //       ["IsTeacher", true],
-  //     ])
-  //     .execute();
-
-  //   const { data, response } = await addStudentAsTeacher(
-  //     classroom.id,
-  //     teacher.username,
-  //   );
-  //   const addedStudent = await usersModel
-  //     .select(usersDefaultSelect)
-  //     .where({
-  //       field: UserModel.fields.Id,
-  //       operator: "=",
-  //       value: data.id,
-  //     })
-  //     .executeOne();
-
-  //   expect(response.statusCode).toBe(200);
-  //   expect(data).toEqual(addedStudent);
-  // });
-
-  // it("should increment ordinal_number when adding student automatically", async () => {
-  //   const classroom = await insertClassroom();
-  //   const teacher = await insertTeacher();
-
-  //   await userClassroomModel
-  //     .insert([
-  //       ["ClassroomId", classroom.id],
-  //       ["UserId", teacher.id],
-  //       ["Id", "1"],
-  //       ["IsTeacher", true],
-  //     ])
-  //     .execute();
-
-  //   const { data: studentFirst } = await addStudentAsTeacher(
-  //     classroom.id,
-  //     teacher.username,
-  //   );
-
-  //   const { data: studentSecond } = await addStudentAsTeacher(
-  //     classroom.id,
-  //     teacher.username,
-  //   );
-
-  //   expect(studentFirst.ordinalNumber).toBe(1);
-  //   expect(studentSecond.ordinalNumber).toBe(2);
-  // });
-
   it("should return all classrooms for a teacher", async () => {
-    const classroom = await insertMockClassroom(classroomsModel);
-    const teacher = await insertMockTeacher(usersModel, VALID_PASSWORD);
-
-    await userClassroomModel
-      .insert([
-        ["ClassroomId", classroom.id],
-        ["UserId", teacher.id],
-        ["Id", "1"],
-        ["IsTeacher", true],
-      ])
-      .execute();
+    const { teacher, classroom } = await insertMockTeacherIntoClassroom({
+      classroomModel,
+      userModel,
+      userClassroomModel,
+      password: VALID_PASSWORD,
+    });
 
     const response = await doAuthenticatedRequest(fastify, {
       method: "GET",

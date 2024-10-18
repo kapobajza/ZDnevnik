@@ -23,6 +23,8 @@ export const HttpErrorCode = {
   Forbidden: "forbidden",
   NotFound: "not_found",
   InternalServerError: "internal_server_error",
+  InviteTokenExpired: "invite_token_expired",
+  InviteTokenAlreadyUsed: "invite_token_already_used",
 } as const;
 
 export type HttpError = {

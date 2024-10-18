@@ -1,4 +1,3 @@
-import { ClassroomModel } from "./classroom";
 import type { InferModelFields, ModelFieldsStartingMap } from "./types";
 import { model } from "./util";
 
@@ -21,13 +20,6 @@ const SubjectModelField = {
 export const SubjectModel = model({
   name: "subjects",
   fields: SubjectModelField,
-  foreignKeys: [
-    {
-      key: SubjectModelField.ClassroomId.name,
-      references: ClassroomModel.name,
-      referenceKey: ClassroomModel.fields.Id.name,
-    },
-  ],
 });
 
 export type SubjectModel = InferModelFields<typeof SubjectModel>;
