@@ -11,6 +11,7 @@ import {
 import * as DateFns from "date-fns";
 import { z } from "zod";
 
+import { InviteErrorCode } from "~/api/features/invite//invite.util";
 import { InviteTokenStatus } from "~/api/features/invite/invite.types";
 import { okResponseSchema } from "~/api/types/validation.types";
 import { createModelORM } from "~/api/db/util";
@@ -24,7 +25,6 @@ import {
   createNotFoundReply,
   createOkReply,
 } from "~/api/error/replies";
-import { HttpErrorCode } from "~/api/error/types";
 
 export default function invite(
   fastify: FastifyInstance,
@@ -130,14 +130,14 @@ export default function invite(
       }
 
       if (inviteToken.status !== InviteTokenStatus.Pending) {
-        return createErrorReply(reply, HttpErrorCode.InviteTokenExpired, 400);
+        return createErrorReply(reply, InviteErrorCode.TokenAlreadyUsed, 400);
       }
 
       if (DateFns.isAfter(inviteToken.expiresAt, new Date())) {
         await inviteTokenModel
           .update([["Status", InviteTokenStatus.Expired]])
           .execute();
-        return createErrorReply(reply, HttpErrorCode.InviteTokenExpired, 400);
+        return createErrorReply(reply, InviteErrorCode.TokenExpired, 400);
       }
 
       const hashedToken = securelyHashString(
