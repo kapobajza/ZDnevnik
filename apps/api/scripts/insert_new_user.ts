@@ -25,6 +25,11 @@ const argv = yargs(args).option({
     alias: "p",
     demandOption: true,
   },
+  role: {
+    type: "string",
+    alias: "r",
+    default: UserRole.Teacher,
+  },
 }).argv;
 
 const pool = new Pool({
@@ -48,7 +53,7 @@ const main = async () => {
       ["PasswordSalt", passwordSalt],
       ["FirstName", "First"],
       ["LastName", "User"],
-      ["Role", UserRole.Teacher],
+      ["Role", argv.role],
     ])
     .execute();
 

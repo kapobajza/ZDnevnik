@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import type { ZodTypeProvider } from "fastify-type-provider-zod";
 import {
-  addStudentBodySchema,
+  inviteStudentBodySchema,
   inviteRespondBodySchema,
   InviteTokenModel,
   UserClasroomModel,
@@ -22,6 +22,7 @@ import { renderInviteStudentTemplate } from "~/api/email/templates/render";
 import { ModelORM } from "~/api/db/orm";
 import {
   createErrorReply,
+  createInternalServerErrorReply,
   createNotFoundReply,
   createOkReply,
 } from "~/api/error/replies";
@@ -35,7 +36,7 @@ export default function invite(
     "/:classroomId/student",
     {
       schema: {
-        body: addStudentBodySchema,
+        body: inviteStudentBodySchema,
         response: {
           200: okResponseSchema,
         },
@@ -68,7 +69,7 @@ export default function invite(
           .execute(client);
 
         const inviteStudentTemplate = await renderInviteStudentTemplate({
-          inviteUrl: `${env.WEB_APP_URL}/invite?token=${inviteToken}`,
+          inviteUrl: `${env.WEB_APP_URL}/invite?token=${encodeURIComponent(inviteToken)}&email=${encodeURIComponent(email)}`,
         });
 
         await fastify.emailClient.send({
@@ -102,7 +103,12 @@ export default function invite(
         fastify.dbPool,
         fastify.mappedTable,
       );
-      const { email, firstName, lastName, password, avatarUrl } = request.body;
+      const userClassroomModel = new ModelORM(
+        UserClasroomModel,
+        fastify.dbPool,
+        fastify.mappedTable,
+      );
+      const { email, firstName, lastName, password } = request.body;
 
       const inviteToken = await inviteTokenModel
         .select({
@@ -133,7 +139,7 @@ export default function invite(
         return createErrorReply(reply, InviteErrorCode.TokenAlreadyUsed, 400);
       }
 
-      if (DateFns.isAfter(inviteToken.expiresAt, new Date())) {
+      if (DateFns.isAfter(new Date(), inviteToken.expiresAt)) {
         await inviteTokenModel
           .update([["Status", InviteTokenStatus.Expired]])
           .execute();
@@ -187,22 +193,43 @@ export default function invite(
 
       const { ordinalNumber = 0 } = latestStudent ?? {};
 
-      await userModel
-        .insert([
-          ["FirstName", firstName],
-          ["LastName", lastName],
-          ["OrdinalNumber", ordinalNumber + 1],
-          ["Role", UserRole.Student],
-          ["AverageGrade", 0.0],
-          ["Avatar", avatarUrl],
-          ["PasswordHash", passwordHash],
-          ["PasswordSalt", passwordSalt],
-          ["Id", generateUdid()],
-          ["Username", email],
-        ])
+      const addedUser = await userModel
+        .insert(
+          [
+            ["FirstName", firstName],
+            ["LastName", lastName],
+            ["OrdinalNumber", ordinalNumber + 1],
+            ["Role", UserRole.Student],
+            ["AverageGrade", 0.0],
+            ["PasswordHash", passwordHash],
+            ["PasswordSalt", passwordSalt],
+            ["Id", generateUdid()],
+            ["Username", email],
+          ],
+          {
+            returningFields: {
+              id: UserModel.fields.Id,
+            },
+          },
+        )
         .executeOne();
+
+      if (!addedUser) {
+        console.log("User not added via invite");
+        return createInternalServerErrorReply(reply);
+      }
+
       await inviteTokenModel
         .update([["Status", InviteTokenStatus.Accepted]])
+        .execute();
+
+      await userClassroomModel
+        .insert([
+          ["Id", generateUdid()],
+          ["ClassroomId", inviteToken.classroomId],
+          ["UserId", addedUser.id],
+          ["IsTeacher", false],
+        ])
         .execute();
 
       return createOkReply(reply);

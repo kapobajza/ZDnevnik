@@ -1,4 +1,4 @@
-import type { BaseTranslation } from "../../i18n-types";
+import type { NamespaceLoginTranslation } from "../../i18n-types";
 
 const enLogin = {
   title:
@@ -7,6 +7,6 @@ const enLogin = {
   submit_button: "Log in",
   username_placeholder: "Username",
   password_placeholder: "Password",
-} satisfies BaseTranslation;
+} satisfies NamespaceLoginTranslation;
 
 export default enLogin;

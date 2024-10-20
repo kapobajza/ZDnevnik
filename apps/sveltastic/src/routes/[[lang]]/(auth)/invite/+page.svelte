@@ -1,6 +1,5 @@
 <script lang="ts">
   import { Container } from "$lib/components/ui/Container";
-  import ZDnevnikLogo from "$lib/assets/login/zdnevnik_logo.png?enhanced";
   import { Typography } from "$lib/components/ui/Typography";
   import { SuperFormInput } from "$lib/components/ui/Input";
   import { Button } from "$lib/components/ui/Button";
@@ -21,34 +20,44 @@
 </script>
 
 <Container
-  class="zd-flex zd-h-screen zd-w-full zd-flex-col zd-items-center zd-justify-center"
+  class="zd-flex zd-h-screen zd-w-full zd-flex-col zd-items-center zd-justify-center max-sm:zd-mt-8 max-sm:zd-h-auto"
 >
-  <enhanced:img
-    src={ZDnevnikLogo}
-    class="zd-mb-16 zd-h-[256px] zd-w-full zd-object-contain"
-    alt="ZDnevnik Logo"
-  />
   <Typography variant="h4" class="zd-mb-8 zd-text-center">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html $LL.login.title()}
+    {@html $LL.invite.title()}
   </Typography>
-  <form method="post" class="zd-w-full zd-max-w-[500px]" use:enhance>
+  <form
+    method="post"
+    class="zd-flex zd-w-full zd-max-w-[500px] zd-flex-col zd-gap-4"
+    enctype="multipart/form-data"
+    use:enhance
+  >
     <AlertFormError {form} />
     <SuperFormInput
       {form}
-      name="username"
-      placeholder={$LL.login.username_placeholder()}
-      containerClass="zd-mb-4"
+      name="firstName"
+      placeholder={$LL.invite.first_name_placeholder()}
+    />
+    <SuperFormInput
+      {form}
+      name="lastName"
+      placeholder={$LL.invite.last_name_placeholder()}
     />
     <SuperFormInput
       {form}
       name="password"
-      placeholder={$LL.login.password_placeholder()}
+      placeholder={$LL.invite.password_placeholder()}
       type="password"
-      containerClass="zd-mb-14"
+    />
+    <SuperFormInput
+      {form}
+      name="confirmPassword"
+      placeholder={$LL.invite.confirm_password_placeholder()}
+      type="password"
+      containerClass="zd-mb-10"
     />
     <Button type="submit" class="zd-w-full" disabled={$submitting}>
-      {$LL.login.submit_button()}
+      {$LL.invite.submit_button()}
     </Button>
   </form>
 </Container>

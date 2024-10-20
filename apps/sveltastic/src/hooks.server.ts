@@ -17,7 +17,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   if (!lang || !isLocale(lang)) {
     const locale = detectLocale();
-    throw redirect(307, `${base}/${locale}${event.url.pathname}`);
+    const redirectTo = new URL(event.url);
+    redirectTo.pathname = `${locale}${event.url.pathname}`;
+    throw redirect(307, redirectTo);
   }
 
   event.locals.locale = lang;

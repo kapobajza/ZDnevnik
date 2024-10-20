@@ -145,5 +145,5 @@
     class="zd-fixed zd-bottom-4 zd-right-2"
     onclick={openModal}
   />
-  <AddStudentModal {form} open={$page.state.showModal} />
 </Container>
+<AddStudentModal {form} open={$page.state.showModal} />

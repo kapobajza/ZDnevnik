@@ -48,10 +48,17 @@ const main = async () => {
   const classroomTable = new ModelORM(ClassroomModel, pool, mappedTables);
 
   const classroom = await classroomTable
-    .insert([
-      ["Id", generateUdid()],
-      ["Name", argv.classroom],
-    ])
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Name", argv.classroom],
+      ],
+      {
+        returningFields: {
+          id: ClassroomModel.fields.Id,
+        },
+      },
+    )
     .executeOne();
 
   invariant(classroom, "Classroom not created");
@@ -88,17 +95,26 @@ const main = async () => {
 
       try {
         const user = await userTable
-          .insert([
-            ["Id", userUdid],
-            ["Username", `student${i + 1}`],
-            ["PasswordHash", passwordHash],
-            ["PasswordSalt", passwordSalt],
-            ["FirstName", "Student"],
-            ["LastName", i + 1],
-            ["Role", UserRole.Student],
-            ["OrdinalNumber", i + 1],
-            ["AverageGrade", randomGrade],
-          ])
+          .insert(
+            [
+              ["Id", userUdid],
+              ["Username", `student${i + 1}`],
+              ["PasswordHash", passwordHash],
+              ["PasswordSalt", passwordSalt],
+              ["FirstName", "Student"],
+              ["LastName", i + 1],
+              ["Role", UserRole.Student],
+              ["OrdinalNumber", i + 1],
+              ["AverageGrade", randomGrade],
+            ],
+            {
+              returningFields: {
+                id: UserModel.fields.Id,
+                first_name: UserModel.fields.FirstName,
+                last_name: UserModel.fields.LastName,
+              },
+            },
+          )
           .executeOne();
 
         invariant(user, "User not created");

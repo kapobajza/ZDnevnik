@@ -1,10 +1,10 @@
-import type { ZodCustomIssue } from "@zdnevnik/toolkit";
 import {
   errorResponseSchema,
   type ErrorResponseLiteral,
   type LoginBody,
-  type AddStudentWithFileBody,
-  MAX_IMAGE_SIZE,
+  type InviteStudentClientBody,
+  type InviteResponseClientBody,
+  type ZodCustomIssue,
 } from "@zdnevnik/toolkit";
 import type { ZodTooBigIssue } from "zod";
 import type { ZodIssueCode } from "zod";
@@ -15,15 +15,16 @@ import LL from "$src/i18n/i18n-svelte";
 
 type RequiredValidationField =
   | keyof Pick<LoginBody, "username" | "password">
-  | keyof Omit<AddStudentWithFileBody, "avatar" | "ordinalNumber">;
+  | keyof InviteStudentClientBody
+  | keyof InviteResponseClientBody;
 
 type IssueMap = Record<
   `${typeof ZodIssueCode.too_small}_string`,
   Record<RequiredValidationField, string>
 > &
   Record<
-    typeof ZodCustomIssue.FileTooBig,
-    Record<keyof Pick<AddStudentWithFileBody, "avatar">, string>
+    `${typeof ZodCustomIssue.PasswordsDoNotMatch}_string`,
+    Record<keyof Pick<InviteResponseClientBody, "confirmPassword">, string>
   >;
 
 export const generateZodErrorMap: z.ZodErrorMap = (issue) => {
@@ -36,10 +37,10 @@ export const generateZodErrorMap: z.ZodErrorMap = (issue) => {
         field: t.login.username_placeholder(),
       }),
       firstName: t.validation_field_required({
-        field: t.home.add_student_first_name_placeholder(),
+        field: t.invite.first_name_placeholder(),
       }),
       lastName: t.validation_field_required({
-        field: t.home.add_student_last_name_placeholder(),
+        field: t.invite.last_name_placeholder(),
       }),
       password: t.validation_field_required({
         field: t.login.password_placeholder(),
@@ -49,11 +50,17 @@ export const generateZodErrorMap: z.ZodErrorMap = (issue) => {
         field: t.home.add_student_classroom_placeholder(),
         gender: "m",
       }),
-    },
-    file_too_big: {
-      avatar: t.validation_file_too_big({
-        max: MAX_IMAGE_SIZE / 1024 / 1024,
+      email: t.validation_field_required({
+        field: t.home.add_student_email_placeholder(),
+        gender: "m",
       }),
+      confirmPassword: t.validation_field_required({
+        field: t.invite.confirm_password_placeholder(),
+        gender: "n",
+      }),
+    },
+    passwords_do_not_match_string: {
+      confirmPassword: t.validation_passwords_dont_match(),
     },
   } as const satisfies IssueMap;
 

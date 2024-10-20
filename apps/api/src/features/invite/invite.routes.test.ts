@@ -1,7 +1,7 @@
 import {
   ClassroomModel,
   UserModel,
-  type AddStudentBody,
+  type InviteStudentBody,
   InviteTokenModel,
   type InviteResponseBody,
   UserClasroomModel,
@@ -107,14 +107,14 @@ describe("invite routes", () => {
       password: VALID_PASSWORD,
       body: {
         email: "test@example.com",
-      } satisfies AddStudentBody,
+      } satisfies InviteStudentBody,
     });
 
     expect(spy).toHaveBeenCalled();
     expect(response.json()).toEqual({ ok: true } satisfies OkResponse);
   });
 
-  it("should return 404 and update status field if token has expired", async () => {
+  it("should return 400 and update status field if token has expired", async () => {
     const userEmail = "test@user.com";
     const token = "random_token_string";
     const tokenSalt = "some_random_salt";
@@ -127,7 +127,7 @@ describe("invite routes", () => {
         ["Email", userEmail],
         ["Status", InviteTokenStatus.Pending],
         ["Token", token],
-        ["ExpiresAt", timestampGeneralFormat(DateFns.addDays(new Date(), 5))],
+        ["ExpiresAt", timestampGeneralFormat(DateFns.addDays(new Date(), -5))],
         ["TokenSalt", tokenSalt],
         ["ClassroomId", classroom.id],
       ])
@@ -172,7 +172,7 @@ describe("invite routes", () => {
         ["Email", userEmail],
         ["Status", InviteTokenStatus.Pending],
         ["Token", securelyHashString(token, tokenSalt)],
-        ["ExpiresAt", timestampGeneralFormat(new Date())],
+        ["ExpiresAt", timestampGeneralFormat(DateFns.addDays(new Date(), 5))],
         ["TokenSalt", tokenSalt],
         ["ClassroomId", classroom.id],
       ])

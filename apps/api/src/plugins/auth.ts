@@ -6,8 +6,7 @@ import type {
 } from "fastify";
 import { UserClasroomModel, UserModel, UserRole } from "@zdnevnik/toolkit";
 
-import { createModelORM } from "../db/util";
-
+import { createModelORM } from "~/api/db/util";
 import { FastifyCustomProp } from "~/api/types";
 import {
   createForbiddenReply,
