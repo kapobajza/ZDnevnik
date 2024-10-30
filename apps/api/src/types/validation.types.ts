@@ -5,3 +5,7 @@ export const idParamSchema = z.object({
 });
 
 export type IdParam = z.infer<typeof idParamSchema>;
+
+export const okResponseSchema = z.object({ ok: z.boolean() });
+
+export type OkResponse = z.infer<typeof okResponseSchema>;

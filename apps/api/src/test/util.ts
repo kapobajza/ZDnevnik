@@ -10,13 +10,19 @@ import fp from "fastify-plugin";
 import { Pool } from "pg";
 import { runner as migrate } from "node-pg-migrate";
 import { getRelativeMonoRepoPath } from "@zdnevnik/scripting";
-import type { UserModel } from "@zdnevnik/toolkit";
+import type {
+  UserModel,
+  ClassroomModel,
+  UserClasroomModel,
+} from "@zdnevnik/toolkit";
+import { type InferModelFields, UserRole } from "@zdnevnik/toolkit";
 import invariant from "tiny-invariant";
 
 import { buildApp } from "~/api/app";
 import { registerEnvPlugin, type EnvRecord } from "~/api/env/util";
 import type { ModelORM } from "~/api/db/orm";
-import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateSecureString, securelyHashString } from "~/api/util/secure";
+import { generateUdid } from "~/api/util/udid";
 
 export async function buildTestApp() {
   const app = Fastify();
@@ -34,6 +40,9 @@ export async function buildTestApp() {
     AWS_REGION: "test",
     AWS_S3_IMAGES_BUCKET: "test",
     DEFAULT_USER_PASSWORD: "testtesttest",
+    MAILGUN_API_KEY: "test",
+    MAILGUN_API_URL: "https://example.com",
+    WEB_APP_URL: "http://zdnevnik.local",
   };
 
   await registerEnvPlugin(app, {
@@ -45,6 +54,9 @@ export async function buildTestApp() {
     pgPool: postgresClient,
     env,
     appEnv: "local",
+    emailClient: {
+      async send() {},
+    },
   });
 
   app.addHook("onClose", async () => {
@@ -86,17 +98,22 @@ export async function createMockUser(
     role = "test",
     username = "test",
   } = data || {};
-  const salt = generatePasswordSalt();
-  const hashedPassword = hashPassword(password, salt);
+  const salt = generateSecureString();
+  const hashedPassword = securelyHashString(password, salt);
 
   const user = await usersModel
-    .insert([
-      ["Id", "1"],
-      ["Username", username],
-      ["PasswordHash", hashedPassword],
-      ["PasswordSalt", salt],
-      ["Role", role],
-    ])
+    .insert(
+      [
+        ["Id", "1"],
+        ["Username", username],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+        ["Role", role],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
     .executeOne();
 
   invariant(user, "User not created");
@@ -132,4 +149,77 @@ export const doAuthenticatedRequest = async (
       cookie: authResponse.headers["set-cookie"],
     },
   });
+};
+
+export const insertMockTeacher = async (
+  usersModel: ModelORM<typeof UserModel>,
+  password: string,
+) => {
+  const salt = generateSecureString();
+  const hashedPassword = securelyHashString(password, salt);
+
+  const teacher = await usersModel
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Username", "test"],
+        ["PasswordHash", hashedPassword],
+        ["PasswordSalt", salt],
+        ["Role", UserRole.Teacher],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
+    .executeOne<InferModelFields<typeof UserModel>>();
+
+  invariant(teacher, "Teacher not created");
+
+  return teacher;
+};
+
+export const insertMockClassroom = async (
+  classroomsModel: ModelORM<typeof ClassroomModel>,
+) => {
+  const classroom = await classroomsModel
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Name", "classroom"],
+      ],
+      {
+        returningFields: "*",
+      },
+    )
+    .executeOne<ClassroomModel>();
+
+  invariant(classroom, "Classroom not created");
+
+  return classroom;
+};
+
+export const insertMockTeacherIntoClassroom = async ({
+  classroomModel,
+  userModel,
+  userClassroomModel,
+  password,
+}: {
+  classroomModel: ModelORM<typeof ClassroomModel>;
+  userModel: ModelORM<typeof UserModel>;
+  userClassroomModel: ModelORM<typeof UserClasroomModel>;
+  password: string;
+}) => {
+  const classroom = await insertMockClassroom(classroomModel);
+  const teacher = await insertMockTeacher(userModel, password);
+
+  await userClassroomModel
+    .insert([
+      ["ClassroomId", classroom.id],
+      ["UserId", teacher.id],
+      ["Id", "1"],
+      ["IsTeacher", true],
+    ])
+    .execute();
+
+  return { classroom, teacher };
 };

@@ -1,7 +1,4 @@
-import { ClassroomModel } from "./classroom";
-import { SubjectModel } from "./subject";
 import type { InferModelFields, ModelFieldsStartingMap } from "./types";
-import { UserModel } from "./user";
 import { model } from "./util";
 
 const UserClasroomModelField = {
@@ -26,18 +23,6 @@ const UserClasroomModelField = {
 export const UserClasroomModel = model({
   name: "users_classrooms",
   fields: UserClasroomModelField,
-  foreignKeys: [
-    {
-      key: UserClasroomModelField.UserId.name,
-      referenceKey: UserModel.fields.Id.name,
-      references: UserModel.name,
-    },
-    {
-      key: UserClasroomModelField.ClassroomId.name,
-      referenceKey: ClassroomModel.fields.Id.name,
-      references: ClassroomModel.name,
-    },
-  ],
 });
 
 export type UserClasroomModel = InferModelFields<typeof UserClasroomModel>;
@@ -65,16 +50,4 @@ export const UserGradeModelField = {
 export const UserGradeModel = model({
   name: "users_grades",
   fields: UserGradeModelField,
-  foreignKeys: [
-    {
-      key: UserGradeModelField.UserId.name,
-      referenceKey: UserModel.fields.Id.name,
-      references: UserModel.name,
-    },
-    {
-      key: UserGradeModelField.SubjectId.name,
-      referenceKey: SubjectModel.fields.Id.name,
-      references: SubjectModel.name,
-    },
-  ],
 });

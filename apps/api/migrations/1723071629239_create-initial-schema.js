@@ -1,3 +1,5 @@
+const { createTable } = require("./util");
+
 /**
  * @type {import('node-pg-migrate').ColumnDefinitions | undefined}
  */
@@ -9,18 +11,7 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-  const timestampFields = {
-    created_at: {
-      type: "timestamp",
-      notNull: true,
-    },
-    updated_at: {
-      type: "timestamp",
-      notNull: true,
-    },
-  };
-
-  pgm.createTable("users", {
+  createTable(pgm, "users", {
     id: {
       type: "varchar",
       primaryKey: true,
@@ -58,10 +49,9 @@ exports.up = (pgm) => {
       type: "decimal",
       default: 0,
     },
-    ...timestampFields,
   });
 
-  pgm.createTable("classrooms", {
+  createTable(pgm, "classrooms", {
     id: {
       type: "varchar",
       primaryKey: true,
@@ -70,10 +60,9 @@ exports.up = (pgm) => {
       type: "varchar(255)",
       notNull: true,
     },
-    ...timestampFields,
   });
 
-  pgm.createTable("subjects", {
+  createTable(pgm, "subjects", {
     id: {
       type: "varchar",
       primaryKey: true,
@@ -86,10 +75,9 @@ exports.up = (pgm) => {
       type: "varchar",
       notNull: true,
     },
-    ...timestampFields,
   });
 
-  pgm.createTable("users_grades", {
+  createTable(pgm, "users_grades", {
     id: {
       type: "varchar",
       primaryKey: true,
@@ -106,10 +94,9 @@ exports.up = (pgm) => {
       type: "smallint",
       notNull: true,
     },
-    ...timestampFields,
   });
 
-  pgm.createTable("users_classrooms", {
+  createTable(pgm, "users_classrooms", {
     id: {
       type: "varchar",
       primaryKey: true,
@@ -122,7 +109,6 @@ exports.up = (pgm) => {
       type: "varchar",
       notNull: true,
     },
-    ...timestampFields,
   });
 
   pgm.addConstraint("users_classrooms", "fk_users_classrooms_user_id", {

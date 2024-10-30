@@ -10,8 +10,7 @@ const ba = {
   validation_field_number_too_big:
     "{field:string} mora biti {gender?|{m: manji, f: manja, *: manje}} ili jednak {max:number}",
   validation_field_invalid_type: "{field:string} mora biti validnog tipa",
-  validation_file_too_big:
-    "Molimo odaberite file koji ima manje od {max:number} MB",
+  validation_passwords_dont_match: "Lozinke moraju biti iste",
   error_title: "Greška",
   error_unknown: "Dogodila se nepoznata greška",
   no_results: "Nema rezultata",

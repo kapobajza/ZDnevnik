@@ -1,6 +1,8 @@
 import type { FastifyReply } from "fastify";
 import type { ZodIssue } from "zod";
 
+import type { OkResponse } from "../types/validation.types";
+
 import {
   HttpErrorCode,
   HttpErrorStatus,
@@ -34,6 +36,10 @@ export const createInternalServerErrorReply = (reply: FastifyReply) => {
 
 export const createNotFoundReply = (reply: FastifyReply) => {
   return createErrorReply(reply, HttpErrorCode.NotFound, 404);
+};
+
+export const createOkReply = (reply: FastifyReply) => {
+  return reply.send({ ok: true } satisfies OkResponse);
 };
 
 export const createValidationErrorReply = (

@@ -4,6 +4,7 @@ import {
   type Pool as PgPool,
   type QueryArrayResult,
   type QueryResultRow,
+  type PoolClient,
 } from "pg";
 import {
   modelFieldOptionsSchema,
@@ -16,7 +17,7 @@ import {
 import {
   type ConditionalClause,
   type IQueryBuilder,
-  type InsertOptions,
+  type MutationOptions,
   type JoinOptions,
   type ModelSchema,
   type QueryBuilderState,
@@ -98,9 +99,26 @@ export class ModelORM<
 
   insert<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
     def: [keyof TModel["fields"], unknown][],
-    options?: Partial<InsertOptions<TColumnOptions>> | undefined,
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
   ) {
     this.queryBuilder = this.queryBuilder.insert(def as never, options);
+    return this as unknown as ModelORM<
+      TModel,
+      TColumnOptions extends undefined
+        ? {
+            [Key in keyof PascalToSnakeCaseRecord<
+              TModel["fields"]
+            >]: TModel["fields"][SnakeToPascalCase<Key>];
+          }
+        : TColumnOptions
+    >;
+  }
+
+  update<TColumnOptions extends ColumnOptionsMap | undefined = undefined>(
+    def: [keyof TModel["fields"], unknown][],
+    options?: Partial<MutationOptions<TColumnOptions>> | undefined,
+  ) {
+    this.queryBuilder = this.queryBuilder.update(def as never, options);
     return this as unknown as ModelORM<
       TModel,
       TColumnOptions extends undefined
@@ -143,6 +161,10 @@ export class ModelORM<
 
     if (state.insertValues) {
       return state.insertValues;
+    }
+
+    if (state.updateValues) {
+      return state.updateValues;
     }
 
     if (state.whereClause?.value) {
@@ -320,8 +342,13 @@ export class ModelORM<
 
   async execute<
     TResult extends QueryResultRow = InferColumnOptionsResult<TColumnOptions>,
-  >(): Promise<TResult[]> {
-    const client = await this.pool.connect();
+  >(poolClient?: PoolClient): Promise<TResult[]> {
+    let client = poolClient;
+
+    if (!client) {
+      client = await this.pool.connect();
+    }
+
     const { joinOptions } = this.queryBuilder.state;
 
     try {
@@ -333,7 +360,7 @@ export class ModelORM<
         console.log("queryValues", queryValues);
       }
 
-      const res = (await this.pool.query<TResult>(
+      const res = (await client.query<TResult>(
         {
           text: query,
           // @ts-expect-error - Incorrect types provided by pg
@@ -347,9 +374,14 @@ export class ModelORM<
       }
 
       return this.buildSelectColumns(res);
+    } catch (e) {
+      throw e;
     } finally {
       this.reset();
-      client?.release();
+
+      if (!poolClient) {
+        client?.release();
+      }
     }
   }
 
@@ -361,12 +393,14 @@ export class ModelORM<
     return results?.[0];
   }
 
-  async transaction(callback: (cb: this) => Promise<void>) {
+  async transaction(
+    callback: (model: this, client: PoolClient) => Promise<void>,
+  ) {
     const client = await this.pool.connect();
 
     try {
       await client.query("BEGIN");
-      await callback(this);
+      await callback(this, client);
       await client.query("COMMIT");
     } catch (e) {
       await client.query("ROLLBACK");

@@ -6,10 +6,8 @@ import type {
 } from "fastify";
 import { UserClasroomModel, UserModel, UserRole } from "@zdnevnik/toolkit";
 
-import { createModelORM } from "../db/util";
-
+import { createModelORM } from "~/api/db/util";
 import { FastifyCustomProp } from "~/api/types";
-import type { IdParam } from "~/api/types/validation.types";
 import {
   createForbiddenReply,
   createNotFoundReply,
@@ -82,63 +80,67 @@ export default fp((fastify, _opts, done) => {
     return createForbiddenReply(reply);
   };
 
-  const verifyTeacherHasAccessToClass = async (
-    request: FastifyRequest,
-    reply: FastifyReply,
-  ) => {
-    if (!isUserAuthenticated(request)) {
-      return createUnauthorizedReply(reply);
-    }
-
-    if (!isUserTeacher(request)) {
-      return createForbiddenReply(reply);
-    }
-
-    const { user } = request.session;
-    const userClasroomTable = createModelORM(UserClasroomModel, fastify);
-
-    if (!user) {
-      return createUnauthorizedReply(reply);
-    }
-
-    const params = request.params as IdParam;
-
-    try {
-      const result = await userClasroomTable
-        .select({
-          teacherId: UserClasroomModel.fields.UserId,
-        })
-        .join({
-          table: UserModel,
-          on: {
-            field: UserModel.fields.Id,
-            other: UserClasroomModel.fields.UserId,
-          },
-        })
-        .where({
-          field: UserClasroomModel.fields.ClassroomId,
-          operator: "=",
-          value: params.id,
-        })
-        .and({
-          field: UserModel.fields.Role,
-          operator: "=",
-          value: UserRole.Teacher,
-        })
-        .and({
-          field: UserModel.fields.Id,
-          operator: "=",
-          value: user.id,
-        })
-        .executeOne();
-
-      if (!result) {
-        return createNotFoundReply(reply);
+  const verifyTeacherHasAccessToClass =
+    (idField = "id") =>
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      if (!isUserAuthenticated(request)) {
+        return createUnauthorizedReply(reply);
       }
-    } catch {
-      return createForbiddenReply(reply);
-    }
-  };
+
+      if (!isUserTeacher(request)) {
+        return createForbiddenReply(reply);
+      }
+
+      const { user } = request.session;
+      const userClasroomTable = createModelORM(UserClasroomModel, fastify);
+
+      if (!user) {
+        return createUnauthorizedReply(reply);
+      }
+
+      const params = request.params as Record<string, string>;
+      const idParamValue = params?.[idField];
+
+      if (!idParamValue) {
+        return createUnauthorizedReply(reply);
+      }
+
+      try {
+        const result = await userClasroomTable
+          .select({
+            teacherId: UserClasroomModel.fields.UserId,
+          })
+          .join({
+            table: UserModel,
+            on: {
+              field: UserModel.fields.Id,
+              other: UserClasroomModel.fields.UserId,
+            },
+          })
+          .where({
+            field: UserClasroomModel.fields.ClassroomId,
+            operator: "=",
+            value: idParamValue,
+          })
+          .and({
+            field: UserModel.fields.Role,
+            operator: "=",
+            value: UserRole.Teacher,
+          })
+          .and({
+            field: UserModel.fields.Id,
+            operator: "=",
+            value: user.id,
+          })
+          .executeOne();
+
+        if (!result) {
+          return createNotFoundReply(reply);
+        }
+      } catch {
+        return createForbiddenReply(reply);
+      }
+    };
 
   fastify.decorate(
     FastifyCustomProp.VerifyUserFromSession,
@@ -168,14 +170,19 @@ export default fp((fastify, _opts, done) => {
 
   fastify.decorate(
     FastifyCustomProp.VerifyTeacherHasAccessToClass,
-    (
-      request: FastifyRequest,
-      reply: FastifyReply,
-      done: HookHandlerDoneFunction,
-    ) => {
-      const auth = fastifyAuth();
-      return auth([verifyTeacherHasAccessToClass])(request, reply, done);
-    },
+    (idField?: string) =>
+      (
+        request: FastifyRequest,
+        reply: FastifyReply,
+        done: HookHandlerDoneFunction,
+      ) => {
+        const auth = fastifyAuth();
+        return auth([verifyTeacherHasAccessToClass(idField)])(
+          request,
+          reply,
+          done,
+        );
+      },
   );
 
   done();

@@ -11,6 +11,12 @@ COPY . .
 RUN --mount=type=cache,id=pnpm-store,target=${PNPM_HOME}/store CI=true pnpm install --filter=!api --frozen-lockfile
 
 FROM base AS local
+COPY ./apps/sveltastic/scripts/update_local_hosts.sh /usr/local/bin/update_local_hosts.sh
+RUN chmod +x /usr/local/bin/update_local_hosts.sh
+
+# Set the entrypoint to run the script
+ENTRYPOINT ["/usr/local/bin/update_local_hosts.sh"]
+
 CMD ["pnpm", "run", "sv:dev"]
 
 FROM base AS prod

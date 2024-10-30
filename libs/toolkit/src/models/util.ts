@@ -1,19 +1,11 @@
 import type {
-  ForeignKey,
   ModelFieldStartingOptions,
   ModelFieldsStartingMap,
 } from "./types";
 
 export function model<
   TFields extends ModelFieldsStartingMap = ModelFieldsStartingMap,
->({
-  fields,
-  ...otherSchemaOptions
-}: {
-  fields: TFields;
-  name: string;
-  foreignKeys?: ForeignKey[];
-}) {
+>({ fields, ...otherSchemaOptions }: { fields: TFields; name: string }) {
   const extendedFields = {
     ...fields,
     CreatedAt: {

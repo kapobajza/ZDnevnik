@@ -15,10 +15,10 @@ export type ModelSchema = {
   }[];
 };
 
-export type InsertOptions<
+export type MutationOptions<
   TColumnOptions extends ColumnOptionsMap | undefined = ColumnOptionsMap,
 > = {
-  returningFields?: TColumnOptions;
+  returningFields?: TColumnOptions | "*";
 };
 
 export type SortingOptions = {
@@ -53,7 +53,10 @@ export type QueryBuilderState<
   additionalClauses: AdditionalClause[] | undefined;
   insertColumns: string[] | undefined;
   insertValues: (string | number)[] | undefined;
-  insertOptions: Partial<InsertOptions<TColumnOptions>> | undefined;
+  insertOptions: Partial<MutationOptions<TColumnOptions>> | undefined;
+  updateColumns: string[] | undefined;
+  updateValues: (string | number)[] | undefined;
+  updateOptions: Partial<MutationOptions<TColumnOptions>> | undefined;
   sortOptions: SortingOptions | undefined;
   limit: number | undefined;
   offset: number | undefined;

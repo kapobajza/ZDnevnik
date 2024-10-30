@@ -6,8 +6,7 @@
   import { Button } from "$lib/components/ui/Button";
   import { superForm } from "sveltekit-superforms";
   import type { PageData } from "./$types";
-  import { Alert } from "$lib/components/ui/Alert";
-  import { slide } from "svelte/transition";
+  import { AlertFormError } from "$lib/components/ui/Alert";
   import { useContext } from "$lib/util";
 
   const {
@@ -17,7 +16,7 @@
   } = $props();
 
   const form = superForm(data.form);
-  const { errors, enhance, submitting } = form;
+  const { enhance, submitting } = form;
   const LL = useContext("LL");
 </script>
 
@@ -34,16 +33,7 @@
     {@html $LL.login.title()}
   </Typography>
   <form method="post" class="zd-w-full zd-max-w-[500px]" use:enhance>
-    {#if $errors._errors?.[0]}
-      <div in:slide out:slide>
-        <Alert
-          variant="destructive"
-          class="zd-mb-8"
-          title={$LL.error_title()}
-          description={$errors._errors?.[0]}
-        />
-      </div>
-    {/if}
+    <AlertFormError {form} />
     <SuperFormInput
       {form}
       name="username"

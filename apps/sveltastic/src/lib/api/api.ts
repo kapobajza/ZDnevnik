@@ -62,7 +62,9 @@ export const createApi = ({
       headers["Cookie"] = sessionCookie;
     }
 
-    const res = await fetchFn(constructRoute(route, options?.queryParams), {
+    const requestUrl = constructRoute(route, options?.queryParams);
+
+    const res = await fetchFn(requestUrl, {
       credentials: "include",
       ...options,
       body,

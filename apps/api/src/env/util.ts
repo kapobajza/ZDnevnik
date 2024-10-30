@@ -16,6 +16,9 @@ export const envSchema = {
     "AWS_REGION",
     "AWS_S3_IMAGES_BUCKET",
     "DEFAULT_USER_PASSWORD",
+    "MAILGUN_API_KEY",
+    "MAILGUN_API_URL",
+    "WEB_APP_URL",
   ],
   properties: {
     DATABASE_URL: {
@@ -49,6 +52,15 @@ export const envSchema = {
       type: "string",
     },
     DEFAULT_USER_PASSWORD: {
+      type: "string",
+    },
+    MAILGUN_API_KEY: {
+      type: "string",
+    },
+    MAILGUN_API_URL: {
+      type: "string",
+    },
+    WEB_APP_URL: {
       type: "string",
     },
   },

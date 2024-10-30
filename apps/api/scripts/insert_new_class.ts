@@ -10,12 +10,17 @@ import invariant from "tiny-invariant";
 
 import { mapTables } from "~/api/db/util";
 import { ModelORM } from "~/api/db/orm";
-import { generatePasswordSalt, hashPassword } from "~/api/features/auth/util";
+import { generateSecureString, securelyHashString } from "~/api/util/secure";
 import { generateUdid } from "~/api/util/udid";
 
 const args = process.argv.slice(2);
 
 const argv = yargs(args).option({
+  databaseUrl: {
+    type: "string",
+    alias: "du",
+    demandOption: true,
+  },
   teacher: {
     type: "string",
     alias: "t",
@@ -34,7 +39,7 @@ const argv = yargs(args).option({
 
 const main = async () => {
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    connectionString: argv.databaseUrl,
   });
 
   const mappedTables = await mapTables(pool);
@@ -43,10 +48,17 @@ const main = async () => {
   const classroomTable = new ModelORM(ClassroomModel, pool, mappedTables);
 
   const classroom = await classroomTable
-    .insert([
-      ["Id", generateUdid()],
-      ["Name", argv.classroom],
-    ])
+    .insert(
+      [
+        ["Id", generateUdid()],
+        ["Name", argv.classroom],
+      ],
+      {
+        returningFields: {
+          id: ClassroomModel.fields.Id,
+        },
+      },
+    )
     .executeOne();
 
   invariant(classroom, "Classroom not created");
@@ -77,23 +89,32 @@ const main = async () => {
     for (let i = 0; i < 50; i++) {
       const userUdid = generateUdid();
 
-      const passwordSalt = generatePasswordSalt();
-      const passwordHash = hashPassword("Test1234", passwordSalt);
+      const passwordSalt = generateSecureString();
+      const passwordHash = securelyHashString("Test1234", passwordSalt);
       const randomGrade = Math.random() * 5;
 
       try {
         const user = await userTable
-          .insert([
-            ["Id", userUdid],
-            ["Username", `student${i + 1}`],
-            ["PasswordHash", passwordHash],
-            ["PasswordSalt", passwordSalt],
-            ["FirstName", "Student"],
-            ["LastName", i + 1],
-            ["Role", UserRole.Student],
-            ["OrdinalNumber", i + 1],
-            ["AverageGrade", randomGrade],
-          ])
+          .insert(
+            [
+              ["Id", userUdid],
+              ["Username", `student${i + 1}`],
+              ["PasswordHash", passwordHash],
+              ["PasswordSalt", passwordSalt],
+              ["FirstName", "Student"],
+              ["LastName", i + 1],
+              ["Role", UserRole.Student],
+              ["OrdinalNumber", i + 1],
+              ["AverageGrade", randomGrade],
+            ],
+            {
+              returningFields: {
+                id: UserModel.fields.Id,
+                first_name: UserModel.fields.FirstName,
+                last_name: UserModel.fields.LastName,
+              },
+            },
+          )
           .executeOne();
 
         invariant(user, "User not created");
